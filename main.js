@@ -55,6 +55,10 @@ class Sqlstatistics extends utils.Adapter {
 
 			//TODO: interval einfügen
 
+			let objList = await this.getForeignObjectsAsync(`${this.name}.${this.instance}.total.*|${this.name}.${this.instance}.databases.*`);
+
+			this.log.info(JSON.stringify(objList));
+
 			this.updateStatistic();
 		}
 	}
@@ -86,8 +90,7 @@ class Sqlstatistics extends utils.Adapter {
 
 									// store database statistics
 									totalSize = totalSize + database.size;
-									await this.createStatisticObjectNumber(`${idDatabasePrefix}.size`, "size of database", 'MB');
-									this.setMyState(`${idDatabasePrefix}.size`, database.size, true);
+									this.setMyState(`${idDatabasePrefix}.size`, database.size, true, { dbname: database.name, name: "size of database", unit: 'MB' });
 
 									// table statistics
 									let databaseTableList = await this.getQueryResult(SQLFuncs.getTablesOfDatabases(database.name));
@@ -95,24 +98,20 @@ class Sqlstatistics extends utils.Adapter {
 										for (const table of databaseTableList) {
 											let idTablePrefix = `${idDatabasePrefix}.${table.name}`;
 
-											await this.createStatisticObjectNumber(`${idTablePrefix}.size`, 'size of table', 'MB');
-											this.setMyState(`${idTablePrefix}.size`, table.size, true);
+											this.setMyState(`${idTablePrefix}.size`, table.size, true, { dbname: database.name, name: "size of table", unit: 'MB' });
 
 											let rowsCount = await this.getQueryResult(SQLFuncs.getRowsCountOfTable(database.name, table.name));
 											databaseRows = databaseRows + rowsCount[0].rows;
 
-											await this.createStatisticObjectNumber(`${idTablePrefix}.rows`, "rows in table", '');
-											this.setMyState(`${idTablePrefix}.rows`, rowsCount[0].rows, true);
+											this.setMyState(`${idTablePrefix}.rows`, rowsCount[0].rows, true, { dbname: database.name, name: "rows in table", unit: '' });
 
 											if (database.name === instanceObj.native.dbname) {
 												await this.createIobSpecialTableStatistic(table, idTablePrefix, instanceObj);
 											}
 										}
 									}
-
-									await this.createStatisticObjectNumber(`${idDatabasePrefix}.rows`, "rows in database", '');
-									this.setMyState(`${idDatabasePrefix}.rows`, databaseRows, true);
-
+									
+									this.setMyState(`${idDatabasePrefix}.rows`, databaseRows, true, { dbname: database.name, name: "rows in database", unit: '' });
 									totalRows = totalRows + databaseRows;
 								}
 							}
@@ -132,6 +131,8 @@ class Sqlstatistics extends utils.Adapter {
 
 							this.setState(`lastUpdate`, updateEnd, true);
 							this.setState(`lastUpdateDuration`, duration, true);
+
+							await this.deleteUnsedObjects();
 
 							this.log.info(`Successful updating statistics in ${duration}s! `);
 						}
@@ -209,14 +210,31 @@ class Sqlstatistics extends utils.Adapter {
 		}
 	}
 
+	async deleteUnsedObjects() {
+		if (this.config.deleteObjects) {
+			let objList = await this.getObjectListAsync({ startkey: 'databases' });
+
+
+		}
+	}
+
 	/**
 	 * @param {string} id
 	 * @param {any} value
 	 * @param {boolean} ack
+	 * @param {object} options
 	 */
-	setMyState(id, value, ack) {
-		this.setState(id, value, ack);
-		usedDatapoints.push(id);
+	setMyState(id, value, ack, options = undefined) {
+		if (options) {
+			if (!this.config.blackListDatabases.includes(options.dbname)) {
+				this.createStatisticObjectNumber(id, options.name, options.unit);
+				this.setState(id, value, ack);
+				usedDatapoints.push(id);
+			}
+		} else {
+			this.setState(id, value, ack);
+			usedDatapoints.push(id);
+		}
 	}
 
 	async checkConnection() {
