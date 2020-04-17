@@ -70,7 +70,8 @@
 		]
 	},
 	"native": {
-		"sqlInstance": ""
+		"sqlInstance": "",
+		"updateInterval": 6
 	},
 	"objects": [],
 	"instanceObjects": []

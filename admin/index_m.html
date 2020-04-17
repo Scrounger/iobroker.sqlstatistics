@@ -52,7 +52,11 @@
 		}
 
 		function showHideSettings(id) {
-
+			if ($('#sqlInstance').val()) {
+				$('.mySettings').show();
+			} else {
+				$('.mySettings').hide();
+			}
 		}
 
 		function getSqlInstances(settings) {
@@ -118,6 +122,12 @@
 					<option value="" class="translate">none</option>
 				</select>
 				<label class="translate" for="sqlInstance">Select sql history instance:</label>
+			</div>
+		</div>
+		<div class="row">
+			<div class="input-field real-sql col s12 m3 l4 mySettings">
+				<input id="updateInterval" type="number" min="1" max="23" class="value" />
+				<label class="translate" for="updateInterval">Update interval</label>
 			</div>
 		</div>
 	</div>

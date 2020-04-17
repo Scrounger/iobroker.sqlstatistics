@@ -49,5 +49,17 @@ systemDictionary = {
 		"es": "Seleccione la instancia del historial de SQL:",
 		"pl": "Wybierz wystąpienie historii sql:",
 		"zh-cn": "选择SQL历史记录实例："
-	}
+	},
+	"Update interval": {
+        "en": "Update interval",
+        "de": "Aktualisierungsinterval",
+        "ru": "Интервал обновления",
+        "pt": "Intervalo de atualização",
+        "nl": "Bijwerkingsonderbreking",
+        "fr": "Intervalle de mise à jour",
+        "it": "Intervallo di aggiornamento",
+        "es": "Intervalo de actualización",
+        "pl": "Interwał aktualizacji",
+        "zh-cn": "更新间隔"
+    }
 };
