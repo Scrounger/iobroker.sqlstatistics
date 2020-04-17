@@ -1,0 +1,77 @@
+{
+	"common": {
+		"name": "sqlstatistics",
+		"version": "0.0.1",
+		"news": {
+			"0.0.1": {
+				"en": "initial release",
+				"de": "Erstveröffentlichung",
+				"ru": "Начальная версия",
+				"pt": "lançamento inicial",
+				"nl": "Eerste uitgave",
+				"fr": "Première version",
+				"it": "Versione iniziale",
+				"es": "Versión inicial",
+				"pl": "Pierwsze wydanie",
+				"zh-cn": "首次出版"
+			}
+		},
+		"title": "SQL History Statistics",
+		"titleLang": {
+			"en": "SQL History Statistics",
+			"de": "SQL-Verlaufsstatistik",
+			"ru": "Статистика по истории SQL",
+			"pt": "Estatísticas do histórico do SQL",
+			"nl": "SQL-geschiedenisstatistieken",
+			"fr": "Statistiques d'historique SQL",
+			"it": "Statistiche cronologiche SQL",
+			"es": "Estadísticas del historial de SQL",
+			"pl": "Statystyka historii SQL",
+			"zh-cn": "SQL历史统计"
+		},
+		"desc": {
+			"en": "Statistics for the SQL History Adapter databases",
+			"de": "Statistiken für die SQL History Adapter-Datenbanken",
+			"ru": "Статистика для баз данных адаптера истории SQL",
+			"pt": "Estatísticas para os bancos de dados do SQL History Adapter",
+			"nl": "Statistieken voor de SQL History Adapter-databases",
+			"fr": "Statistiques pour les bases de données de l'adaptateur d'historique SQL",
+			"it": "Statistiche per i database dell'adattatore della cronologia SQL",
+			"es": "Estadísticas para las bases de datos del Adaptador de historial SQL",
+			"pl": "Statystyki dla baz danych SQL History Adapter",
+			"zh-cn": "SQL历史记录适配器数据库的统计信息"
+		},
+		"authors": [
+			"Scrounger <scrounger@gmx.net>"
+		],
+		"keywords": [
+			"sql",
+			"statistic"
+		],
+		"license": "MIT",
+		"platform": "Javascript/Node.js",
+		"main": "main.js",
+		"icon": "sqlstatistics.png",
+		"enabled": true,
+		"extIcon": "https://raw.githubusercontent.com/Scrounger/ioBroker.sqlstatistics/master/admin/sqlstatistics.png",
+		"readme": "https://github.com/Scrounger/ioBroker.sqlstatistics/blob/master/README.md",
+		"loglevel": "info",
+		"mode": "daemon",
+		"type": "storage",
+		"compact": true,
+		"connectionType": "local",
+		"dataSource": "poll",
+		"materialize": true,
+		"dependencies": [
+			{
+				"js-controller": ">=1.4.2",
+				"sql": ">=1.9.5"
+			}
+		]
+	},
+	"native": {
+		"sqlInstance": ""
+	},
+	"objects": [],
+	"instanceObjects": []
+}
