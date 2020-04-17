@@ -84,36 +84,34 @@ class Sqlstatistics extends utils.Adapter {
 							let totalRows = 0;
 
 							for (const database of databaseList) {
-								if (!database.name.includes("_schema")) {
-									let idDatabasePrefix = `databases.${database.name}`;
-									let databaseRows = 0;
+								let idDatabasePrefix = `databases.${database.name}`;
+								let databaseRows = 0;
 
-									// store database statistics
-									totalSize = totalSize + database.size;
-									this.setMyState(`${idDatabasePrefix}.size`, database.size, true, { dbname: database.name, name: "size of database", unit: 'MB' });
+								// store database statistics
+								totalSize = totalSize + database.size;
+								this.setMyState(`${idDatabasePrefix}.size`, database.size, true, { dbname: database.name, name: "size of database", unit: 'MB' });
 
-									// table statistics
-									let databaseTableList = await this.getQueryResult(SQLFuncs.getTablesOfDatabases(database.name));
-									if (databaseTableList && Object.keys(databaseTableList).length > 0) {
-										for (const table of databaseTableList) {
-											let idTablePrefix = `${idDatabasePrefix}.${table.name}`;
+								// table statistics
+								let databaseTableList = await this.getQueryResult(SQLFuncs.getTablesOfDatabases(database.name));
+								if (databaseTableList && Object.keys(databaseTableList).length > 0) {
+									for (const table of databaseTableList) {
+										let idTablePrefix = `${idDatabasePrefix}.${table.name}`;
 
-											this.setMyState(`${idTablePrefix}.size`, table.size, true, { dbname: database.name, name: "size of table", unit: 'MB' });
+										this.setMyState(`${idTablePrefix}.size`, table.size, true, { dbname: database.name, name: "size of table", unit: 'MB' });
 
-											let rowsCount = await this.getQueryResult(SQLFuncs.getRowsCountOfTable(database.name, table.name));
-											databaseRows = databaseRows + rowsCount[0].rows;
+										let rowsCount = await this.getQueryResult(SQLFuncs.getRowsCountOfTable(database.name, table.name));
+										databaseRows = databaseRows + rowsCount[0].rows;
 
-											this.setMyState(`${idTablePrefix}.rows`, rowsCount[0].rows, true, { dbname: database.name, name: "rows in table", unit: '' });
+										this.setMyState(`${idTablePrefix}.rows`, rowsCount[0].rows, true, { dbname: database.name, name: "rows in table", unit: '' });
 
-											if (database.name === instanceObj.native.dbname) {
-												await this.createIobSpecialTableStatistic(table, idTablePrefix, instanceObj);
-											}
+										if (database.name === instanceObj.native.dbname) {
+											await this.createIobSpecialTableStatistic(table, idTablePrefix, instanceObj);
 										}
 									}
-									
-									this.setMyState(`${idDatabasePrefix}.rows`, databaseRows, true, { dbname: database.name, name: "rows in database", unit: '' });
-									totalRows = totalRows + databaseRows;
 								}
+
+								this.setMyState(`${idDatabasePrefix}.rows`, databaseRows, true, { dbname: database.name, name: "rows in database", unit: '' });
+								totalRows = totalRows + databaseRows;
 							}
 
 							// store total sql statistics
