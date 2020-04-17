@@ -71,7 +71,9 @@
 	},
 	"native": {
 		"sqlInstance": "",
-		"updateInterval": 6
+		"updateInterval": 6,
+		"deleteObjects": true,
+		"blackListDatabases": ""
 	},
 	"objects": [],
 	"instanceObjects": [

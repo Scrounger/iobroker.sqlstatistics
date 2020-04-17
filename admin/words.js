@@ -51,15 +51,63 @@ systemDictionary = {
 		"zh-cn": "选择SQL历史记录实例："
 	},
 	"Update interval": {
-        "en": "Update interval",
-        "de": "Aktualisierungsinterval",
-        "ru": "Интервал обновления",
-        "pt": "Intervalo de atualização",
-        "nl": "Bijwerkingsonderbreking",
-        "fr": "Intervalle de mise à jour",
-        "it": "Intervallo di aggiornamento",
-        "es": "Intervalo de actualización",
-        "pl": "Interwał aktualizacji",
-        "zh-cn": "更新间隔"
-    }
+		"en": "Update interval",
+		"de": "Aktualisierungsinterval",
+		"ru": "Интервал обновления",
+		"pt": "Intervalo de atualização",
+		"nl": "Bijwerkingsonderbreking",
+		"fr": "Intervalle de mise à jour",
+		"it": "Intervallo di aggiornamento",
+		"es": "Intervalo de actualización",
+		"pl": "Interwał aktualizacji",
+		"zh-cn": "更新间隔"
+	},
+	"Delete unused objects": {
+		"en": "Delete unused objects",
+		"de": "Nicht verwendete Objekte löschen",
+		"ru": "Удалить неиспользуемые объекты",
+		"pt": "Excluir objetos não utilizados",
+		"nl": "Verwijder ongebruikte objecten",
+		"fr": "Supprimer les objets inutilisés",
+		"it": "Elimina oggetti inutilizzati",
+		"es": "Eliminar objetos no utilizados",
+		"pl": "Usuń nieużywane obiekty",
+		"zh-cn": "删除未使用的对象"
+	},
+	"Database name": {
+		"en": "Database name",
+		"de": "Name der Datenbank",
+		"ru": "Имя базы данных",
+		"pt": "Nome do banco de dados",
+		"nl": "Database naam",
+		"fr": "Nom de la base de données",
+		"it": "Nome del database",
+		"es": "Nombre de la base de datos",
+		"pl": "Nazwa bazy danych",
+		"zh-cn": "数据库名称"
+	},
+	"Add database": {
+		"en": "Add database",
+		"de": "Datenbank hinzufügen",
+		"ru": "Добавить базу данных",
+		"pt": "Adicionar banco de dados",
+		"nl": "Database toevoegen",
+		"fr": "Ajouter une base de données",
+		"it": "Aggiungi database",
+		"es": "Agregar base de datos",
+		"pl": "Dodaj bazę danych",
+		"zh-cn": "添加数据库"
+	},
+	"Blacklist databases: database that should not be in the statistic": {
+		"en": "Blacklist databases: database that should not be in the statistic",
+		"de": "Blacklist Datenbanken: Datenbank, die nicht in der Statistik enthalten sein sollte",
+		"ru": "Базы данных черного списка: база данных, которая не должна быть в статистике",
+		"pt": "Bancos de dados da lista negra: banco de dados que não deve estar na estatística",
+		"nl": "Blacklist databases: database die niet in de statistiek mag staan",
+		"fr": "Bases de données de liste noire: base de données qui ne devrait pas figurer dans la statistique",
+		"it": "Database blacklist: database che non dovrebbe essere nella statistica",
+		"es": "Bases de datos de la lista negra: base de datos que no debería estar en la estadística",
+		"pl": "Bazy danych z czarnej listy: baza danych, która nie powinna znajdować się w statystykach",
+		"zh-cn": "黑名单数据库：不应包含在统计信息中的数据库"
+	}
 };

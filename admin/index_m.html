@@ -43,6 +43,7 @@
 			});
 
 			showHideSettings();
+			list2chips('.blackListDatabases', settings.blackListDatabases || '', onChange);
 
 			getSqlInstances(settings);
 
@@ -85,6 +86,32 @@
 			});
 		}
 
+		function list2chips(selector, list, onChange) {
+			var chips = list.split(/[,;\s]+/);
+			var data = [];
+			for (var c = 0; c < chips.length; c++) {
+				if (chips[c] && chips[c].trim()) {
+					data.push({ tag: chips[c].trim() });
+				}
+			}
+			$(selector).chips({
+				data: data,
+				placeholder: _('Database name'),
+				secondaryPlaceholder: _('Add database'),
+				onChipAdd: onChange,
+				onChipDelete: onChange
+			});
+		}
+
+		function chips2list(selector) {
+			var data = $(selector).chips('getData');
+			var text = [];
+			for (var lib = 0; lib < data.length; lib++) {
+				text.push(data[lib].tag);
+			}
+			return text.join(' ');
+		}
+
 		// This will be called by the admin adapter when the user presses the save button
 		function save(callback) {
 			// example: select elements with class=value and build settings object
@@ -97,6 +124,9 @@
 					obj[$this.attr('id')] = $this.val();
 				}
 			});
+
+			obj.blackListDatabases = chips2list('.blackListDatabases');
+
 			callback(obj);
 		}
 	</script>
@@ -128,6 +158,18 @@
 			<div class="input-field real-sql col s12 m3 l4 mySettings">
 				<input id="updateInterval" type="number" min="1" max="23" class="value" />
 				<label class="translate" for="updateInterval">Update interval</label>
+			</div>
+		</div>
+		<div class="row">
+			<div class="input-field col s12 m4 mySettings">
+				<input id="deleteObjects" type="checkbox" class="value" />
+				<label class="translate" for="deleteObjects">Delete unused objects</label>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col s12">
+				<label class="translate">Blacklist databases: database that should not be in the statistic</label>
+				<div class="chips blackListDatabases"></div>
 			</div>
 		</div>
 	</div>
