@@ -82,6 +82,7 @@ class Sqlstatistics extends utils.Adapter {
 						if (databaseList && Object.keys(databaseList).length > 0) {
 							let totalSize = 0;
 							let totalRows = 0;
+							let totalTables = 0;
 
 							for (const database of databaseList) {
 								let idDatabasePrefix = `databases.${database.name}`;
@@ -90,6 +91,9 @@ class Sqlstatistics extends utils.Adapter {
 								// store database statistics
 								totalSize = totalSize + database.size;
 								this.setMyState(`${idDatabasePrefix}.size`, database.size, true, { dbname: database.name, name: "size of database", unit: 'MB' });
+
+								totalTables= totalTables + database.tables;
+								this.setMyState(`${idDatabasePrefix}.tables`, database.tables, true, { dbname: database.name, name: "tables of database", unit: '' });
 
 								// table statistics
 								let databaseTableList = await this.getQueryResult(SQLFuncs.getTablesOfDatabases(database.name));
@@ -120,6 +124,9 @@ class Sqlstatistics extends utils.Adapter {
 
 							await this.createStatisticObjectNumber(`total.rows`, "total rows of all databases", '');
 							this.setMyState(`total.rows`, totalRows, true);
+
+							await this.createStatisticObjectNumber(`total.tables`, "total tables of all databases", '');
+							this.setMyState(`total.tables`, totalTables, true);
 
 							// TODO alte DPs löschen
 							this.log.info(usedDatapoints.join(","));
