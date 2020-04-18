@@ -60,8 +60,11 @@ class Sqlstatistics extends utils.Adapter {
 				adapter.updateStatistic();
 			}, this.config.updateInterval * 3600000);
 
-			// await this.updateStatistic();
+			setInterval(function () {
+				adapter.updateSystemOrClientStatistic();
+			}, this.config.updateSystemClientInterval * 60000);
 
+			await this.updateStatistic();
 			await this.updateSystemOrClientStatistic();
 		}
 	}

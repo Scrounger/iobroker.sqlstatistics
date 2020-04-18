@@ -62,6 +62,18 @@ systemDictionary = {
 		"pl": "Aktualizacja interwału dla statystyk baz danych w godzinach",
 		"zh-cn": "数据库统计信息的更新间隔（以小时为单位）"
 	},
+	"Update interval for system and client statistics in minutes": {
+		"en": "Update interval for system and client statistics in minutes",
+		"de": "Aktualisierungsintervall für System- und Clientstatistiken in Minuten",
+		"ru": "Интервал обновления системной и клиентской статистики в минутах",
+		"pt": "Intervalo de atualização para estatísticas do sistema e do cliente em minutos",
+		"nl": "Update-interval voor systeem- en clientstatistieken in minuten",
+		"fr": "Intervalle de mise à jour des statistiques système et client en minutes",
+		"it": "Intervallo di aggiornamento per statistiche di sistema e client in minuti",
+		"es": "Intervalo de actualización para estadísticas del sistema y del cliente en minutos",
+		"pl": "Aktualizuj interwał dla statystyk systemu i klienta w kilka minut",
+		"zh-cn": "系统和客户端统计信息的更新间隔（以分钟为单位）"
+	},
 	"Delete unused objects": {
 		"en": "Delete unused objects",
 		"de": "Nicht verwendete Objekte löschen",
