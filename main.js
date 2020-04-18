@@ -77,11 +77,14 @@ class Sqlstatistics extends utils.Adapter {
 						let databaseList = await this.getQueryResult(SQLFuncs.getDatabases());
 
 						if (databaseList && Object.keys(databaseList).length > 0) {
+							this.log.debug(`[${instanceObj.native.dbtype}] list of databases received, ${Object.keys(databaseList).length} databases exists`);
 							let totalSize = 0;
 							let totalRows = 0;
 							let totalTables = 0;
 
 							for (const database of databaseList) {
+								this.log.debug(`[${instanceObj.native.dbtype}] creating statistics for database '${database.name}'`);
+
 								let idDatabasePrefix = `databases.${database.name}`;
 								let databaseRows = 0;
 
@@ -95,7 +98,11 @@ class Sqlstatistics extends utils.Adapter {
 								// table statistics
 								let databaseTableList = await this.getQueryResult(SQLFuncs.getTablesOfDatabases(database.name));
 								if (databaseTableList && Object.keys(databaseTableList).length > 0) {
+									this.log.debug(`[${instanceObj.native.dbtype}] tables list of database '${database.name}' received, ${Object.keys(databaseTableList).length} tables exists`);
+
 									for (const table of databaseTableList) {
+										this.log.debug(`[${instanceObj.native.dbtype}] creating statistics for table '${table.name}' of database '${database.name}'`);
+
 										let idTablePrefix = `${idDatabasePrefix}.${table.name}`;
 
 										this.setMyState(`${idTablePrefix}.size`, table.size, true, { dbname: database.name, name: "size of table", unit: 'MB' });
@@ -106,9 +113,11 @@ class Sqlstatistics extends utils.Adapter {
 										this.setMyState(`${idTablePrefix}.rows`, rowsCount[0].rows, true, { dbname: database.name, name: "rows in table", unit: '' });
 
 										if (database.name === instanceObj.native.dbname) {
-											await this.createIobSpecialTableStatistic(table, idTablePrefix, instanceObj);
+											await this.createIobSpecialTableStatistic(database, table, idTablePrefix, instanceObj);
 										}
 									}
+								} else {
+									this.log.error(`[${instanceObj.native.dbtype}] tables list of database '${database.name}' is ${JSON.stringify(databaseTableList)}. Please report this issue to the developer!`);
 								}
 
 								this.setMyState(`${idDatabasePrefix}.rows`, databaseRows, true, { dbname: database.name, name: "rows in database", unit: '' });
@@ -125,9 +134,6 @@ class Sqlstatistics extends utils.Adapter {
 							await this.createStatisticObjectNumber(`total.tables`, "total tables of all databases", '');
 							this.setState(`total.tables`, totalTables, true);
 
-							// TODO alte DPs löschen
-							this.log.info(usedDatapoints.join(","));
-
 							let updateEnd = new Date().getTime();
 							let duration = Math.round(((updateEnd - updateStart) / 1000) * 100) / 100;
 
@@ -137,6 +143,8 @@ class Sqlstatistics extends utils.Adapter {
 							await this.deleteUnsedObjects();
 
 							this.log.info(`Successful updating statistics in ${duration}s! `);
+						} else {
+							this.log.error(`[${instanceObj.native.dbtype}] list of databases is ${JSON.stringify(databaseList)}. Please report this issue to the developer!`);
 						}
 					} else {
 						this.log.warn(`Database type 'SQLite3' is not supported!`);
@@ -154,12 +162,15 @@ class Sqlstatistics extends utils.Adapter {
 
 
 	/**
+	 * @param {{ name: string; size: number, tables: number}} database
 	 * @param {{ name: string; size: number}} table
 	 * @param {string} idTablePrefix
 	 * @param {ioBroker.Object} instanceObj
 	 */
-	async createIobSpecialTableStatistic(table, idTablePrefix, instanceObj) {
+	async createIobSpecialTableStatistic(database, table, idTablePrefix, instanceObj) {
 		try {
+			this.log.debug(`[${instanceObj.native.dbtype}] creating special statistics for ioBroker table '${table.name}' of database '${database.name}'`);
+
 			let brokenRows = 0;
 			let brokenRowsList = [];
 
@@ -168,6 +179,8 @@ class Sqlstatistics extends utils.Adapter {
 				let tableDatapoints = await this.getQueryResult(SQLFuncs.getRowsFromIobTableDatapoints(instanceObj.native.dbname));
 
 				if (tableDatapoints && Object.keys(tableDatapoints).length > 0) {
+					this.log.debug(`[${instanceObj.native.dbtype}] special ioBroker row list for table '${table.name}' of database '${database.name}' received, ${Object.keys(tableDatapoints).length} tables exists`);
+
 					for (const row of tableDatapoints) {
 
 						let iobObj = await this.getForeignObjectAsync(row.name);
@@ -175,27 +188,42 @@ class Sqlstatistics extends utils.Adapter {
 							// Object not exist in IoB -> row is broken
 							brokenRows++;
 							brokenRowsList.push({ id: row.id, name: row.name, existInIoBroker: false });
+
+							this.log.debug(`[${instanceObj.native.dbtype}] object '${row.name}' not exist in ioBroker, added to broken list`);
+
 						} else if (iobObj && iobObj.common) {
 							if (!iobObj.common.custom || (iobObj.common.custom && !iobObj.common.custom[this.config.sqlInstance])) {
 								// Object exist in IoB but have no custom property for the current instance -> row is broken
 								brokenRows++;
 								brokenRowsList.push({ id: row.id, name: row.name, existInIoBroker: true });
+
+								this.log.silly(`[${instanceObj.native.dbtype}] object '${row.name}' exist in ioBroker but has no custom property for '${this.name}.${this.instance}' instance, added to broken list`);
 							}
 						}
 					}
+				} else {
+					this.log.error(`[${instanceObj.native.dbtype}] special ioBroker tables list of database '${database.name}' is ${JSON.stringify(tableDatapoints)}. Please report this issue to the developer!`);
 				}
 			} else {
 				// ohter iob tables
 				let tableDatapoints = await this.getQueryResult(SQLFuncs.getRowsFromIobTables(instanceObj.native.dbname, table.name));
 
 				if (tableDatapoints && Object.keys(tableDatapoints).length > 0) {
+					this.log.debug(`[${instanceObj.native.dbtype}] special ioBroker row list for table '${table.name}' of database '${database.name}' received, ${Object.keys(tableDatapoints).length} tables exists`);
+
 					for (const row of tableDatapoints) {
 						if (dbNames.includes(table.name)) {
 							if (row.dead === 1) {
 								brokenRows = brokenRows + row.count;
 								brokenRowsList.push({ id: row.id });
+
+								this.log.silly(`[${instanceObj.native.dbtype}] row with id '${row.id}' exist in table '${table.name}' but not exist in table 'datapoints', added to broken list`);
 							}
 						}
+					}
+				} else {
+					if (!tableDatapoints) {
+						this.log.error(`[${instanceObj.native.dbtype}] special ioBroker row list for table '${table.name}' of database '${database.name}' is ${JSON.stringify(tableDatapoints)}. Please report this issue to the developer!`);
 					}
 				}
 			}
@@ -219,13 +247,21 @@ class Sqlstatistics extends utils.Adapter {
 	async deleteUnsedObjects() {
 		try {
 			if (this.config.deleteObjects) {
+				this.log.debug(`deleting unused objects...`);
+
 				let stateList = await this.getStatesAsync(`${this.name}.${this.instance}.databases.*`);
 
+				let counter = 0;
 				for (const id in stateList) {
 					if (usedDatapoints.length > 0 && !usedDatapoints.includes(id.replace(`${this.name}.${this.instance}.`, ''))) {
 						await this.delObjectAsync(id);
+						this.log.silly(`object '${id}' deleted`);
+
+						counter++;
 					}
 				}
+
+				this.log.debug(`${counter} unused objects deleted`);
 			}
 		} catch (err) {
 			this.log.error(`[deleteUnsedObjects] error: ${err.message}, stack: ${err.stack}`);
@@ -242,10 +278,13 @@ class Sqlstatistics extends utils.Adapter {
 		if (options) {
 			if (!this.config.blackListDatabases.includes(options.dbname)) {
 				this.createStatisticObjectNumber(id, options.name, options.unit);
+
+				this.log.silly(`store state '${id}', value: ${value}`);
 				this.setState(id, value, ack);
 				usedDatapoints.push(id);
 			}
 		} else {
+			this.log.silly(`store state '${id}', value: ${value}`);
 			this.setState(id, value, ack);
 			usedDatapoints.push(id);
 		}
