@@ -124,7 +124,7 @@ class Sqlstatistics extends utils.Adapter {
 													this.log.warn(`[updateStatistic] database: '${database.name}', table: '${table.name}' rowsCount is '${JSON.stringify(rowsCount)}'`);
 													this.setMyState(`${idTablePrefix}.rows`, 0, true, instanceObj, { dbname: database.name, name: "rows in table", unit: '', isTable: true });
 												}
-												
+
 												if (database.name === instanceObj.native.dbname) {
 													await this.createIobSpecialTableStatistic(database, table, idTablePrefix, instanceObj);
 												}
@@ -162,6 +162,8 @@ class Sqlstatistics extends utils.Adapter {
 
 							await this.deleteUnsedObjects();
 
+							await this.updateSystemStatistic();
+
 							this.log.info(`Successful updating statistics in ${duration}s! `);
 						} else {
 							this.log.error(`[${instanceObj.native.dbtype}] list of databases is ${JSON.stringify(databaseList)}. Please report this issue to the developer!`);
@@ -179,6 +181,56 @@ class Sqlstatistics extends utils.Adapter {
 			updateIsRunning = false;
 		} catch (err) {
 			this.log.error(`[updateStatistic] error: ${err.message}, stack: ${err.stack}`);
+		}
+	}
+
+	async updateSystemStatistic() {
+		try {
+			updateIsRunning = true;
+
+			if (connected) {
+				this.log.info(`connected with '${this.config.sqlInstance}' instance.`);
+				let instanceObj = await this.getForeignObjectAsync(`system.adapter.${this.config.sqlInstance}`)
+
+				if (instanceObj && instanceObj.native) {
+					if (instanceObj.native.dbtype !== 'sqlite') {
+						this.log.info(`updating system statistics for database provider '${instanceObj.native.dbtype}'...`);
+
+						SQLFuncs = await require(__dirname + '/lib/' + instanceObj.native.dbtype);
+
+						let systemStatistics = await this.getQueryResult(SQLFuncs.getSystemStatistics());
+						if (systemStatistics && Object.keys(systemStatistics).length > 0) {
+							this.log.debug(`[${instanceObj.native.dbtype}] system statistics received, ${Object.keys(systemStatistics).length} values exists`);
+
+							for (const val of systemStatistics) {
+								let info = JSON.parse(JSON.stringify(val));			//convert to correct object
+
+								if (info.Variable_name === 'Bytes_received' || info.Variable_name === 'Bytes_sent') {
+									await this.createStatisticObjectNumber(`system.${info.Variable_name.toLowerCase()}`, `${info.Variable_name.replace(/_/g, " ")}`, 'MB');
+									await this.setStateAsync(`system.${info.Variable_name.toLowerCase()}`, Math.round((info.Value / 1024 / 1024) * 100) / 100, true);
+								} else {
+									await this.createStatisticObjectNumber(`system.${info.Variable_name.toLowerCase()}`, `${info.Variable_name.replace(/_/g, " ")}`, '');
+									await this.setStateAsync(`system.${info.Variable_name.toLowerCase()}`, parseInt(info.Value), true);
+								}
+							}
+
+							this.log.info(`Successful updating system statistics! `);
+						} else {
+							this.log.error(`[${instanceObj.native.dbtype}] system statistics is ${JSON.stringify(systemStatistics)}. Please report this issue to the developer!`);
+						}
+					} else {
+						this.log.warn(`Database type 'SQLite3' is not supported!`);
+					}
+				} else {
+					this.log.error(`Instance object 'system.adapter.${this.config.sqlInstance}' not exist!`);
+				}
+			} else {
+				this.log.warn(`Instance '${this.config.sqlInstance}' has no connection to database!`);
+			}
+
+			updateIsRunning = false;
+		} catch (err) {
+			this.log.error(`[updateSystemStatistic] error: ${err.message}, stack: ${err.stack}`);
 		}
 	}
 
