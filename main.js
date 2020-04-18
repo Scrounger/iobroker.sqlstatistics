@@ -159,56 +159,60 @@ class Sqlstatistics extends utils.Adapter {
 	 * @param {ioBroker.Object} instanceObj
 	 */
 	async createIobSpecialTableStatistic(table, idTablePrefix, instanceObj) {
-		let brokenRows = 0;
-		let brokenRowsList = [];
+		try {
+			let brokenRows = 0;
+			let brokenRowsList = [];
 
-		if (table.name === 'datapoints') {
-			// table datapoints -> check if Ids exist in Iob
-			let tableDatapoints = await this.getQueryResult(SQLFuncs.getRowsFromIobTableDatapoints(instanceObj.native.dbname));
+			if (table.name === 'datapoints') {
+				// table datapoints -> check if Ids exist in Iob
+				let tableDatapoints = await this.getQueryResult(SQLFuncs.getRowsFromIobTableDatapoints(instanceObj.native.dbname));
 
-			if (tableDatapoints && Object.keys(tableDatapoints).length > 0) {
-				for (const row of tableDatapoints) {
+				if (tableDatapoints && Object.keys(tableDatapoints).length > 0) {
+					for (const row of tableDatapoints) {
 
-					let iobObj = await this.getForeignObjectAsync(row.name);
-					if (!iobObj) {
-						// Object not exist in IoB -> row is broken
-						brokenRows++;
-						brokenRowsList.push({ id: row.id, name: row.name, existInIoBroker: false });
-					} else if (iobObj && iobObj.common) {
-						if (!iobObj.common.custom || (iobObj.common.custom && !iobObj.common.custom[this.config.sqlInstance])) {
-							// Object exist in IoB but have no custom property for the current instance -> row is broken
+						let iobObj = await this.getForeignObjectAsync(row.name);
+						if (!iobObj) {
+							// Object not exist in IoB -> row is broken
 							brokenRows++;
-							brokenRowsList.push({ id: row.id, name: row.name, existInIoBroker: true });
+							brokenRowsList.push({ id: row.id, name: row.name, existInIoBroker: false });
+						} else if (iobObj && iobObj.common) {
+							if (!iobObj.common.custom || (iobObj.common.custom && !iobObj.common.custom[this.config.sqlInstance])) {
+								// Object exist in IoB but have no custom property for the current instance -> row is broken
+								brokenRows++;
+								brokenRowsList.push({ id: row.id, name: row.name, existInIoBroker: true });
+							}
 						}
 					}
 				}
-			}
-		} else {
-			// ohter iob tables
-			let tableDatapoints = await this.getQueryResult(SQLFuncs.getRowsFromIobTables(instanceObj.native.dbname, table.name));
-
-			if (tableDatapoints && Object.keys(tableDatapoints).length > 0) {
-				for (const row of tableDatapoints) {
-					if (dbNames.includes(table.name)) {
-						if (row.dead === 1) {
-							brokenRows = brokenRows + row.count;
-							brokenRowsList.push({ id: row.id });
-						}
-					}
-				}
-			}
-		}
-
-		if (dbNames.includes(table.name) || table.name === 'datapoints') {
-			await this.createStatisticObjectNumber(`${idTablePrefix}.brokenRows`, 'broken rows in table', '');
-			this.setMyState(`${idTablePrefix}.brokenRows`, brokenRows, true);
-
-			await this.createStatisticObjectString(`${idTablePrefix}.brokenRowsIds`, "ids of broken rows in table");
-			if (brokenRowsList.length > 0) {
-				this.setMyState(`${idTablePrefix}.brokenRowsIds`, JSON.stringify(brokenRowsList), true);
 			} else {
-				this.setMyState(`${idTablePrefix}.brokenRowsIds`, 'none', true);
+				// ohter iob tables
+				let tableDatapoints = await this.getQueryResult(SQLFuncs.getRowsFromIobTables(instanceObj.native.dbname, table.name));
+
+				if (tableDatapoints && Object.keys(tableDatapoints).length > 0) {
+					for (const row of tableDatapoints) {
+						if (dbNames.includes(table.name)) {
+							if (row.dead === 1) {
+								brokenRows = brokenRows + row.count;
+								brokenRowsList.push({ id: row.id });
+							}
+						}
+					}
+				}
 			}
+
+			if (dbNames.includes(table.name) || table.name === 'datapoints') {
+				await this.createStatisticObjectNumber(`${idTablePrefix}.brokenRows`, 'broken rows in table', '');
+				this.setMyState(`${idTablePrefix}.brokenRows`, brokenRows, true);
+
+				await this.createStatisticObjectString(`${idTablePrefix}.brokenRowsIds`, "ids of broken rows in table");
+				if (brokenRowsList.length > 0) {
+					this.setMyState(`${idTablePrefix}.brokenRowsIds`, JSON.stringify(brokenRowsList), true);
+				} else {
+					this.setMyState(`${idTablePrefix}.brokenRowsIds`, 'none', true);
+				}
+			}
+		} catch (err) {
+			this.log.error(`[createIobSpecialTableStatistic] error: ${err.message}, stack: ${err.stack}`);
 		}
 	}
 
@@ -248,13 +252,18 @@ class Sqlstatistics extends utils.Adapter {
 	}
 
 	async checkConnection() {
-		// check connection to sql instance on load
-		let instanceIsConnected = await this.getForeignStateAsync(`${this.config.sqlInstance}.info.connection`);
-		if (instanceIsConnected && instanceIsConnected.val) {
-			this.setState('info.connection', Boolean(instanceIsConnected.val), instanceIsConnected.ack);
-			return Boolean(instanceIsConnected.val);
-		} else {
-			this.setState('info.connection', false, true);
+		try {
+			// check connection to sql instance on load
+			let instanceIsConnected = await this.getForeignStateAsync(`${this.config.sqlInstance}.info.connection`);
+			if (instanceIsConnected && instanceIsConnected.val) {
+				this.setState('info.connection', Boolean(instanceIsConnected.val), instanceIsConnected.ack);
+				return Boolean(instanceIsConnected.val);
+			} else {
+				this.setState('info.connection', false, true);
+				return false;
+			}
+		} catch (err) {
+			this.log.error(`[deleteUnsedObjects] error: ${err.message}, stack: ${err.stack}`);
 			return false;
 		}
 	}
@@ -263,15 +272,16 @@ class Sqlstatistics extends utils.Adapter {
 	 * @param {string} query
 	 */
 	async getQueryResult(query) {
-		return new Promise((resolve, reject) => {
-			this.sendTo(this.config.sqlInstance, 'query', query, function (result) {
-				if (result && !result.error) {
-					resolve(result.result);
-				} else {
-					resolve(null);
-				}
-			});
-		});
+		try {
+			let result = await this.sendToAsync(this.config.sqlInstance, 'query', query);
+
+			if (result && result['result']) {
+				return result['result'];
+			}
+			return null;
+		} catch (err) {
+			this.log.error(`[getQueryResult] error: ${err.message}, query: ${query}, stack: ${err.stack}`);
+		}
 	}
 
 	/**
