@@ -26,7 +26,10 @@ SQLite3 database is not supported!
 
 ## Changelog
 
-### 0.0.1
+### 0.1.0 (2020-04-18)
+* (Scrounger) alpha release
+
+### 0.0.1 (2020-04-17)
 * (Scrounger) initial release
 
 ## License

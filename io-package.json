@@ -1,8 +1,20 @@
 {
 	"common": {
 		"name": "sqlstatistics",
-		"version": "0.0.1",
+		"version": "0.1.0",
 		"news": {
+			"0.1.0": {
+				"en": "alpha release",
+				"de": "Alpha-Release",
+				"ru": "альфа-релиз",
+				"pt": "liberação alfa",
+				"nl": "alpha release",
+				"fr": "version alpha",
+				"it": "rilascio alfa",
+				"es": "lanzamiento alfa",
+				"pl": "wersja alfa",
+				"zh-cn": "阿尔法释放"
+			},
 			"0.0.1": {
 				"en": "initial release",
 				"de": "Erstveröffentlichung",
