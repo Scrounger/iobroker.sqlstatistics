@@ -73,7 +73,8 @@
 		"sqlInstance": "",
 		"updateInterval": 6,
 		"deleteObjects": true,
-		"blackListDatabases": "sys information_schema performance_schema mysql"
+		"blackListDatabases": "sys information_schema performance_schema mysql",
+		"foreignTableStatistics": false
 	},
 	"objects": [],
 	"instanceObjects": [

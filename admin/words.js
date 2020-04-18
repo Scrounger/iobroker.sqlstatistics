@@ -40,7 +40,7 @@ systemDictionary = {
 	},
 	"Select sql history instance:": {
 		"en": "Select sql history instance:",
-		"de": "Wählen Sie die SQL History Instanz aus:",
+		"de": "Wählen die SQL History Instanz aus:",
 		"ru": "Выберите экземпляр истории sql:",
 		"pt": "Selecione a instância do histórico sql:",
 		"nl": "Selecteer sql history instance:",
@@ -98,16 +98,28 @@ systemDictionary = {
 		"pl": "Dodaj bazę danych",
 		"zh-cn": "添加数据库"
 	},
-	"Blacklist databases: database that should not be in the statistic": {
-		"en": "Blacklist databases: database that should not be in the statistic",
-		"de": "Blacklist Datenbanken: Datenbank, die nicht in der Statistik enthalten sein sollte",
-		"ru": "Базы данных черного списка: база данных, которая не должна быть в статистике",
-		"pt": "Bancos de dados da lista negra: banco de dados que não deve estar na estatística",
-		"nl": "Blacklist databases: database die niet in de statistiek mag staan",
-		"fr": "Bases de données de liste noire: base de données qui ne devrait pas figurer dans la statistique",
-		"it": "Database blacklist: database che non dovrebbe essere nella statistica",
-		"es": "Bases de datos de la lista negra: base de datos que no debería estar en la estadística",
-		"pl": "Bazy danych z czarnej listy: baza danych, która nie powinna znajdować się w statystykach",
+	"Blacklist databases: databases that should not be in the statistic": {
+		"en": "Blacklist databases: databases that should not be in the statistic",
+		"de": "Blacklist-Datenbanken: Datenbanken, die nicht in der Statistik enthalten sein sollten",
+		"ru": "Базы данных черного списка: базы данных, которых не должно быть в статистике",
+		"pt": "Bancos de dados da lista negra: bancos de dados que não devem estar na estatística",
+		"nl": "Blacklist databases: databases die niet in de statistiek mogen staan",
+		"fr": "Bases de données de liste noire: bases de données qui ne devraient pas figurer dans la statistique",
+		"it": "Database blacklist: database che non dovrebbero essere nella statistica",
+		"es": "Bases de datos de listas negras: bases de datos que no deberían estar en la estadística",
+		"pl": "Bazy danych z czarnej listy: bazy danych, które nie powinny znajdować się w statystykach",
 		"zh-cn": "黑名单数据库：不应包含在统计信息中的数据库"
+	  },
+	"create statistics for non ioBroker tables": {
+		"en": "create statistics for non ioBroker tables",
+		"de": "Statistiken für nicht ioBroker Tabellen erzeugen",
+		"ru": "создать статистику для таблиц не ioBroker",
+		"pt": "criar estatísticas para tabelas não ioBroker",
+		"nl": "maak statistieken voor niet ioBroker-tabellen",
+		"fr": "créer des statistiques pour les tables non ioBroker",
+		"it": "creare statistiche per tabelle non ioBroker",
+		"es": "crear estadísticas para tablas que no sean ioBroker",
+		"pl": "tworzyć statystyki dla tabel innych niż ioBroker",
+		"zh-cn": "为非ioBroker表创建统计信息"
 	}
 };

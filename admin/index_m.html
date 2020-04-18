@@ -162,16 +162,20 @@
 		</div>
 		<div class="row">
 			<div class="col s12 mySettings">
-				<label class="translate">Blacklist databases: database that should not be in the statistic</label>
+				<label class="translate">Blacklist databases: databases that should not be in the statistic</label>
 				<div class="chips blackListDatabases"></div>
 			</div>
 		</div>
 		<div class="row">
-			<div class="input-field col s12 m4 mySettings">
+			<div class="input-field col s6 m4 mySettings">
+				<input id="foreignTableStatistics" type="checkbox" class="value" />
+				<label class="translate" for="foreignTableStatistics">create statistics for non ioBroker tables</label>
+			</div>
+			<div class="input-field col s6 m4 mySettings">
 				<input id="deleteObjects" type="checkbox" class="value" />
 				<label class="translate" for="deleteObjects">Delete unused objects</label>
 			</div>
-		</div>		
+		</div>
 	</div>
 
 </body>
