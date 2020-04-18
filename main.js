@@ -76,7 +76,7 @@ class Sqlstatistics extends utils.Adapter {
 					if (instanceObj.native.dbtype !== 'sqlite') {
 						this.log.info(`updating statistics for database provider '${instanceObj.native.dbtype}'...`);
 
-						usedDatapoints = [];
+						usedDatapoints = [`databases.rows`, `databases.size`, `databases.tables`];
 						let updateStart = new Date().getTime();
 
 						SQLFuncs = await require(__dirname + '/lib/' + instanceObj.native.dbtype);
@@ -145,14 +145,14 @@ class Sqlstatistics extends utils.Adapter {
 							}
 
 							// store total sql statistics
-							await this.createStatisticObjectNumber(`total.size`, "total size of all databases", 'MB');
-							this.setState(`total.size`, totalSize, true);
+							await this.createStatisticObjectNumber(`databases.size`, "total size of all databases", 'MB');
+							this.setState(`databases.size`, totalSize, true);
 
-							await this.createStatisticObjectNumber(`total.rows`, "total rows of all databases", '');
-							this.setState(`total.rows`, totalRows, true);
+							await this.createStatisticObjectNumber(`databases.rows`, "total rows of all databases", '');
+							this.setState(`databases.rows`, totalRows, true);
 
-							await this.createStatisticObjectNumber(`total.tables`, "total tables of all databases", '');
-							this.setState(`total.tables`, totalTables, true);
+							await this.createStatisticObjectNumber(`databases.tables`, "total tables of all databases", '');
+							this.setState(`databases.tables`, totalTables, true);
 
 							let updateEnd = new Date().getTime();
 							let duration = Math.round(((updateEnd - updateStart) / 1000) * 100) / 100;
