@@ -50,17 +50,17 @@ systemDictionary = {
 		"pl": "Wybierz wystąpienie historii sql:",
 		"zh-cn": "选择SQL历史记录实例："
 	},
-	"Update interval in hours": {
-		"en": "Update interval in hours",
-		"de": "Aktualisierungsintervall in Stunden",
-		"ru": "Интервал обновления в часах",
-		"pt": "Intervalo de atualização em horas",
-		"nl": "Update-interval in uren",
-		"fr": "Intervalle de mise à jour en heures",
-		"it": "Intervallo di aggiornamento in ore",
-		"es": "Intervalo de actualización en horas",
-		"pl": "Interwał aktualizacji w godzinach",
-		"zh-cn": "更新间隔（以小时为单位）"
+	"Update interval for databases statistics in hours": {
+		"en": "Update interval for databases statistics in hours",
+		"de": "Aktualisierungsintervall für Datenbankstatistiken in Stunden",
+		"ru": "Интервал обновления статистики баз данных в часах",
+		"pt": "Intervalo de atualização para estatísticas de bancos de dados em horas",
+		"nl": "Update-interval voor databasestatistieken in uren",
+		"fr": "Intervalle de mise à jour des statistiques des bases de données en heures",
+		"it": "Intervallo di aggiornamento per le statistiche dei database in ore",
+		"es": "Intervalo de actualización para estadísticas de bases de datos en horas",
+		"pl": "Aktualizacja interwału dla statystyk baz danych w godzinach",
+		"zh-cn": "数据库统计信息的更新间隔（以小时为单位）"
 	},
 	"Delete unused objects": {
 		"en": "Delete unused objects",
@@ -109,7 +109,7 @@ systemDictionary = {
 		"es": "Bases de datos de listas negras: bases de datos que no deberían estar en la estadística",
 		"pl": "Bazy danych z czarnej listy: bazy danych, które nie powinny znajdować się w statystykach",
 		"zh-cn": "黑名单数据库：不应包含在统计信息中的数据库"
-	  },
+	},
 	"create statistics for non ioBroker tables": {
 		"en": "create statistics for non ioBroker tables",
 		"de": "Statistiken für nicht ioBroker Tabellen erzeugen",
