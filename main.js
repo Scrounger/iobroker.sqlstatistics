@@ -61,11 +61,11 @@ class Sqlstatistics extends utils.Adapter {
 			}, this.config.updateInterval * 3600000);
 
 			setInterval(function () {
-				adapter.updateSystemOrClientStatistic();
-			}, this.config.updateSystemClientInterval * 60000);
+				adapter.updateSystemOrSessionStatistic();
+			}, this.config.updateSystemSessionInterval * 60000);
 
 			await this.updateStatistic();
-			await this.updateSystemOrClientStatistic();
+			await this.updateSystemOrSessionStatistic();
 		}
 	}
 
@@ -191,7 +191,7 @@ class Sqlstatistics extends utils.Adapter {
 		}
 	}
 
-	async updateSystemOrClientStatistic() {
+	async updateSystemOrSessionStatistic() {
 		try {
 			updateIsRunning = true;
 
@@ -203,7 +203,7 @@ class Sqlstatistics extends utils.Adapter {
 					if (instanceObj.native.dbtype !== 'sqlite') {
 
 						if (this.config.systemStatistics) {
-							await this.createSystemClientStatistic(instanceObj);
+							await this.createSystemSessionStatistic(instanceObj);
 						} else {
 							if(this.config.deleteObjects){
 								let stateList = await this.getStatesAsync(`${this.name}.${this.instance}.system.*`);
@@ -213,11 +213,11 @@ class Sqlstatistics extends utils.Adapter {
 							}
 						}
 
-						if (this.config.clientStatistics) {
-							await this.createSystemClientStatistic(instanceObj, true);
+						if (this.config.sessionStatistics) {
+							await this.createSystemSessionStatistic(instanceObj, true);
 						} else {
 							if(this.config.deleteObjects){
-								let stateList = await this.getStatesAsync(`${this.name}.${this.instance}.client.*`);
+								let stateList = await this.getStatesAsync(`${this.name}.${this.instance}.session.*`);
 								for (const id in stateList) {
 									await this.delObjectAsync(id);
 								}
@@ -242,32 +242,32 @@ class Sqlstatistics extends utils.Adapter {
 
 	/**
 	 * @param {ioBroker.Object} instanceObj
-	 * @param {Boolean} isClient
+	 * @param {Boolean} isSession
 	 */
-	async createSystemClientStatistic(instanceObj, isClient = false) {
-		this.log.info(`updating ${isClient ? 'client' : 'system'} statistics for database provider '${instanceObj.native.dbtype}'...`);
+	async createSystemSessionStatistic(instanceObj, isSession = false) {
+		this.log.info(`updating ${isSession ? 'session' : 'system'} statistics for database provider '${instanceObj.native.dbtype}'...`);
 
 		SQLFuncs = await require(__dirname + '/lib/' + instanceObj.native.dbtype);
 
-		let systemStatistics = await this.getQueryResult(SQLFuncs.getSystemStatistics(isClient));
+		let systemStatistics = await this.getQueryResult(SQLFuncs.getSystemStatistics(isSession));
 		if (systemStatistics && Object.keys(systemStatistics).length > 0) {
-			this.log.debug(`[${instanceObj.native.dbtype}] ${isClient ? 'client' : 'system'} statistics received, ${Object.keys(systemStatistics).length} values exists`);
+			this.log.debug(`[${instanceObj.native.dbtype}] ${isSession ? 'session' : 'system'} statistics received, ${Object.keys(systemStatistics).length} values exists`);
 
 			for (const val of systemStatistics) {
 				let info = JSON.parse(JSON.stringify(val));			//convert to correct object
 
 				if (info.Variable_name === 'Bytes_received' || info.Variable_name === 'Bytes_sent') {
-					await this.createStatisticObjectNumber(`${isClient ? 'client' : 'system'}.${info.Variable_name.toLowerCase()}`, `${info.Variable_name.replace(/_/g, " ")}`, 'MB');
-					await this.setStateAsync(`${isClient ? 'client' : 'system'}.${info.Variable_name.toLowerCase()}`, Math.round((info.Value / 1024 / 1024) * 100) / 100, true);
+					await this.createStatisticObjectNumber(`${isSession ? 'session' : 'system'}.${info.Variable_name.toLowerCase()}`, `${info.Variable_name.replace(/_/g, " ")}`, 'MB');
+					await this.setStateAsync(`${isSession ? 'session' : 'system'}.${info.Variable_name.toLowerCase()}`, Math.round((info.Value / 1024 / 1024) * 100) / 100, true);
 				} else {
-					await this.createStatisticObjectNumber(`${isClient ? 'client' : 'system'}.${info.Variable_name.toLowerCase()}`, `${info.Variable_name.replace(/_/g, " ")}`, '');
-					await this.setStateAsync(`${isClient ? 'client' : 'system'}.${info.Variable_name.toLowerCase()}`, parseInt(info.Value), true);
+					await this.createStatisticObjectNumber(`${isSession ? 'session' : 'system'}.${info.Variable_name.toLowerCase()}`, `${info.Variable_name.replace(/_/g, " ")}`, '');
+					await this.setStateAsync(`${isSession ? 'session' : 'system'}.${info.Variable_name.toLowerCase()}`, parseInt(info.Value), true);
 				}
 			}
 
-			this.log.info(`Successful updating ${isClient ? 'client' : 'system'} statistics!`);
+			this.log.info(`Successful updating ${isSession ? 'session' : 'system'} statistics!`);
 		} else {
-			this.log.error(`[${instanceObj.native.dbtype}] ${isClient ? 'client' : 'system'} statistics is ${JSON.stringify(systemStatistics)}. Please report this issue to the developer!`);
+			this.log.error(`[${instanceObj.native.dbtype}] ${isSession ? 'session' : 'system'} statistics is ${JSON.stringify(systemStatistics)}. Please report this issue to the developer!`);
 		}
 	}
 
@@ -539,7 +539,7 @@ class Sqlstatistics extends utils.Adapter {
 		if (id === `${this.name}.${this.instance}.update`) {
 			if (!updateIsRunning) {
 				await this.updateStatistic();
-				await this.updateSystemOrClientStatistic();
+				await this.updateSystemOrSessionStatistic();
 			} else {
 				this.log.warn(`update is currently running, please wait until its finished!`);
 			}

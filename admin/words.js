@@ -62,17 +62,17 @@ systemDictionary = {
 		"pl": "Aktualizacja interwału dla statystyk baz danych w godzinach",
 		"zh-cn": "数据库统计信息的更新间隔（以小时为单位）"
 	},
-	"Update interval for system and client statistics in minutes": {
-		"en": "Update interval for system and client statistics in minutes",
-		"de": "Aktualisierungsintervall für System- und Clientstatistiken in Minuten",
-		"ru": "Интервал обновления системной и клиентской статистики в минутах",
-		"pt": "Intervalo de atualização para estatísticas do sistema e do cliente em minutos",
-		"nl": "Update-interval voor systeem- en clientstatistieken in minuten",
-		"fr": "Intervalle de mise à jour des statistiques système et client en minutes",
-		"it": "Intervallo di aggiornamento per statistiche di sistema e client in minuti",
-		"es": "Intervalo de actualización para estadísticas del sistema y del cliente en minutos",
-		"pl": "Aktualizuj interwał dla statystyk systemu i klienta w kilka minut",
-		"zh-cn": "系统和客户端统计信息的更新间隔（以分钟为单位）"
+	"Update interval for system and session statistics in minutes": {
+		"en": "Update interval for system and session statistics in minutes",
+		"de": "Aktualisierungsintervall für System- und Sitzungsstatistiken in Minuten",
+		"ru": "Интервал обновления системной и сессионной статистики в минутах",
+		"pt": "Intervalo de atualização para estatísticas do sistema e da sessão em minutos",
+		"nl": "Update-interval voor systeem- en sessiestatistieken in minuten",
+		"fr": "Intervalle de mise à jour des statistiques système et de session en minutes",
+		"it": "Intervallo di aggiornamento per le statistiche di sistema e di sessione in minuti",
+		"es": "Intervalo de actualización para estadísticas del sistema y sesión en minutos",
+		"pl": "Aktualizacja interwału dla statystyki systemu i sesji w minutach",
+		"zh-cn": "系统和会话统计信息的更新间隔（以分钟为单位）"
 	},
 	"Delete unused objects": {
 		"en": "Delete unused objects",
@@ -158,17 +158,17 @@ systemDictionary = {
 		"pl": "ustawienie dla statystyk baz danych",
 		"zh-cn": "设置数据库统计信息"
 	},
-	"setting for system and client statistics": {
-		"en": "setting for system and client statistics",
-		"de": "Einstellung für System- und Client-Statistiken",
-		"ru": "настройка для системной и клиентской статистики",
-		"pt": "configuração para estatísticas do sistema e do cliente",
-		"nl": "instelling voor systeem- en klantstatistieken",
-		"fr": "réglage des statistiques système et client",
-		"it": "impostazione per statistiche di sistema e client",
-		"es": "configuración de estadísticas del sistema y del cliente",
-		"pl": "ustawienie dla statystyk systemu i klienta",
-		"zh-cn": "设置系统和客户端统计信息"
+	"setting for system and session statistics": {
+		"en": "setting for system and session statistics",
+		"de": "Einstellung für System- und Sitzungsstatistik",
+		"ru": "настройка для системной и сеансовой статистики",
+		"pt": "configuração para estatísticas do sistema e da sessão",
+		"nl": "instelling voor systeem- en sessiestatistieken",
+		"fr": "réglage des statistiques système et de session",
+		"it": "impostazione per statistiche di sistema e di sessione",
+		"es": "Configuración de estadísticas de sistema y sesión",
+		"pl": "ustawienie statystyk systemu i sesji",
+		"zh-cn": "设置系统和会话统计信息"
 	},
 	"enable system statistics": {
 		"en": "enable system statistics",
@@ -182,16 +182,16 @@ systemDictionary = {
 		"pl": "włącz statystyki systemowe",
 		"zh-cn": "启用系统统计信息"
 	},
-	"enable client statistics": {
-		"en": "enable client statistics",
-		"de": "Client-Statistiken aktivieren",
-		"ru": "включить статистику клиента",
-		"pt": "ativar estatísticas do cliente",
-		"nl": "klantstatistieken inschakelen",
-		"fr": "activer les statistiques client",
-		"it": "abilitare le statistiche del cliente",
-		"es": "habilitar estadísticas del cliente",
-		"pl": "włącz statystyki klienta",
-		"zh-cn": "启用客户统计信息"
+	"enable session statistics": {
+		"en": "enable session statistics",
+		"de": "Sitzungsstatistik aktivieren",
+		"ru": "включить статистику сеанса",
+		"pt": "ativar estatísticas da sessão",
+		"nl": "sessiestatistieken inschakelen",
+		"fr": "activer les statistiques de session",
+		"it": "abilita le statistiche di sessione",
+		"es": "habilitar estadísticas de sesión",
+		"pl": "włącz statystyki sesji",
+		"zh-cn": "启用会话统计"
 	}
 };

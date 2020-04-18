@@ -84,12 +84,12 @@
 	"native": {
 		"sqlInstance": "",
 		"updateInterval": 6,
-		"updateSystemClientInterval": 5,
+		"updateSystemSessionInterval": 5,
 		"deleteObjects": true,
 		"blackListDatabases": "sys information_schema performance_schema mysql",
 		"foreignTableStatistics": false,
 		"systemStatistics": true,
-		"clientStatistics": true
+		"sessionStatistics": true
 	},
 	"objects": [],
 	"instanceObjects": [
