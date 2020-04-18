@@ -55,10 +55,6 @@ class Sqlstatistics extends utils.Adapter {
 
 			//TODO: interval einfügen
 
-			let objList = await this.getForeignObjectsAsync(`${this.name}.${this.instance}.total.*|${this.name}.${this.instance}.databases.*`);
-
-			this.log.info(JSON.stringify(objList));
-
 			this.updateStatistic();
 		}
 	}
@@ -70,7 +66,7 @@ class Sqlstatistics extends utils.Adapter {
 
 				if (instanceObj && instanceObj.native) {
 					if (instanceObj.native.dbtype !== 'sqlite') {
-						this.log.info(`SQL History Statistic connected with '${this.config.sqlInstance}'. Updating statistics...`);
+						this.log.info(`SQL History Statistic connected with '${this.config.sqlInstance}' instance. Updating statistics...`);
 
 						usedDatapoints = [];
 						let updateStart = new Date().getTime();
@@ -92,7 +88,7 @@ class Sqlstatistics extends utils.Adapter {
 								totalSize = totalSize + database.size;
 								this.setMyState(`${idDatabasePrefix}.size`, database.size, true, { dbname: database.name, name: "size of database", unit: 'MB' });
 
-								totalTables= totalTables + database.tables;
+								totalTables = totalTables + database.tables;
 								this.setMyState(`${idDatabasePrefix}.tables`, database.tables, true, { dbname: database.name, name: "tables of database", unit: '' });
 
 								// table statistics
@@ -120,13 +116,13 @@ class Sqlstatistics extends utils.Adapter {
 
 							// store total sql statistics
 							await this.createStatisticObjectNumber(`total.size`, "total size of all databases", 'MB');
-							this.setMyState(`total.size`, totalSize, true);
+							this.setState(`total.size`, totalSize, true);
 
 							await this.createStatisticObjectNumber(`total.rows`, "total rows of all databases", '');
-							this.setMyState(`total.rows`, totalRows, true);
+							this.setState(`total.rows`, totalRows, true);
 
 							await this.createStatisticObjectNumber(`total.tables`, "total tables of all databases", '');
-							this.setMyState(`total.tables`, totalTables, true);
+							this.setState(`total.tables`, totalTables, true);
 
 							// TODO alte DPs löschen
 							this.log.info(usedDatapoints.join(","));
@@ -216,10 +212,18 @@ class Sqlstatistics extends utils.Adapter {
 	}
 
 	async deleteUnsedObjects() {
-		if (this.config.deleteObjects) {
-			let objList = await this.getObjectListAsync({ startkey: 'databases' });
+		try {
+			if (this.config.deleteObjects) {
+				let stateList = await this.getStatesAsync(`${this.name}.${this.instance}.databases.*`);
 
-
+				for (const id in stateList) {
+					if (usedDatapoints.length > 0 && !usedDatapoints.includes(id.replace(`${this.name}.${this.instance}.`, ''))) {
+						await this.delObjectAsync(id);
+					}
+				}
+			}
+		} catch (err) {
+			this.log.error(`[deleteUnsedObjects] error: ${err.message}, stack: ${err.stack}`);
 		}
 	}
 
