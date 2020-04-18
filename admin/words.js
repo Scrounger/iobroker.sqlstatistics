@@ -146,4 +146,52 @@ systemDictionary = {
 		"pl": "Podoba ci się adapter? Następnie wesprzyj programistę adaptera (Scrounger) niewielką darowizną.",
 		"zh-cn": "您喜欢适配器吗？然后以少量捐款支持适配器开发人员（Scrounger）。"
 	},
+	"setting for databases statistics": {
+		"en": "setting for databases statistics",
+		"de": "Einstellung für Datenbankstatistiken",
+		"ru": "настройка для статистики баз данных",
+		"pt": "configuração para estatísticas de bancos de dados",
+		"nl": "instelling voor databasestatistieken",
+		"fr": "paramétrage des statistiques des bases de données",
+		"it": "impostazione per le statistiche dei database",
+		"es": "configuración de estadísticas de bases de datos",
+		"pl": "ustawienie dla statystyk baz danych",
+		"zh-cn": "设置数据库统计信息"
+	},
+	"setting for system and client statistics": {
+		"en": "setting for system and client statistics",
+		"de": "Einstellung für System- und Client-Statistiken",
+		"ru": "настройка для системной и клиентской статистики",
+		"pt": "configuração para estatísticas do sistema e do cliente",
+		"nl": "instelling voor systeem- en klantstatistieken",
+		"fr": "réglage des statistiques système et client",
+		"it": "impostazione per statistiche di sistema e client",
+		"es": "configuración de estadísticas del sistema y del cliente",
+		"pl": "ustawienie dla statystyk systemu i klienta",
+		"zh-cn": "设置系统和客户端统计信息"
+	},
+	"enable system statistics": {
+		"en": "enable system statistics",
+		"de": "Systemstatistik aktivieren",
+		"ru": "включить системную статистику",
+		"pt": "ativar estatísticas do sistema",
+		"nl": "systeemstatistieken inschakelen",
+		"fr": "activer les statistiques du système",
+		"it": "abilita le statistiche di sistema",
+		"es": "habilitar estadísticas del sistema",
+		"pl": "włącz statystyki systemowe",
+		"zh-cn": "启用系统统计信息"
+	},
+	"enable client statistics": {
+		"en": "enable client statistics",
+		"de": "Client-Statistiken aktivieren",
+		"ru": "включить статистику клиента",
+		"pt": "ativar estatísticas do cliente",
+		"nl": "klantstatistieken inschakelen",
+		"fr": "activer les statistiques client",
+		"it": "abilitare le statistiche del cliente",
+		"es": "habilitar estadísticas del cliente",
+		"pl": "włącz statystyki klienta",
+		"zh-cn": "启用客户统计信息"
+	}
 };

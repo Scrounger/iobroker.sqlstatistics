@@ -87,7 +87,9 @@
 		"updateSystemClientInterval": 5,
 		"deleteObjects": true,
 		"blackListDatabases": "sys information_schema performance_schema mysql",
-		"foreignTableStatistics": false
+		"foreignTableStatistics": false,
+		"systemStatistics": true,
+		"clientStatistics": true
 	},
 	"objects": [],
 	"instanceObjects": [

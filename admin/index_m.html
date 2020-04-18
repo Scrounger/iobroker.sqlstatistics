@@ -17,6 +17,15 @@
 	<link rel="stylesheet" type="text/css" href="style.css" />
 	<script type="text/javascript" src="words.js"></script>
 
+	<style>
+		.sub-title {
+			margin-top: 2rem !important;
+			padding: 0.5rem;
+			background: #64b5f6;
+			color: white;
+		}
+	</style>
+
 	<script type="text/javascript">
 		// This will be called by the admin adapter when the settings page loads
 		function load(settings, onChange) {
@@ -153,42 +162,58 @@
 				</select>
 				<label class="translate" for="sqlInstance">Select sql history instance:</label>
 			</div>
+			<div class="col s12 m4 mySettings">
+				<div class="input-field">
+					<input id="deleteObjects" type="checkbox" class="value" />
+					<label class="translate" for="deleteObjects">Delete unused objects</label>
+				</div>
+			</div>
 		</div>
-		<div class="row">
-			<div class="input-field real-sql col s12 m4 mySettings">
+		<div class="row mySettings">
+			<h6 class="translate sub-title">setting for databases statistics</h6>
+		</div>
+		<div class="row mySettings">
+			<div class="input-field real-sql col s12 m4">
 				<input id="updateInterval" type="number" min="1" max="23" class="value" />
 				<label class="translate" for="updateInterval">Update interval for databases statistics in hours</label>
 			</div>
+			<div class="input-field col s12 m4">
+				<input id="foreignTableStatistics" type="checkbox" class="value" />
+				<label class="translate" for="foreignTableStatistics">create statistics for non ioBroker tables</label>
+			</div>
 		</div>
-		<div class="row">
-			<div class="col s12 mySettings">
+		<div class="row mySettings">
+			<div class="col s12">
 				<label class="translate">Blacklist databases: databases that should not be in the statistic</label>
 				<div class="chips blackListDatabases"></div>
 			</div>
 		</div>
-		<div class="row">
-			<div class="input-field col s6 m4 mySettings">
-				<input id="foreignTableStatistics" type="checkbox" class="value" />
-				<label class="translate" for="foreignTableStatistics">create statistics for non ioBroker tables</label>
+		<div class="row mySettings">
+			<h6 class="translate sub-title">setting for system and client statistics</h6>
+		</div>
+		<div class="row mySettings">
+			<div class="input-field col s12 m4">
+				<input id="systemStatistics" type="checkbox" class="value" />
+				<label class="translate" for="systemStatistics">enable system statistics</label>
 			</div>
-			<div class="input-field col s6 m4 mySettings">
-				<input id="deleteObjects" type="checkbox" class="value" />
-				<label class="translate" for="deleteObjects">Delete unused objects</label>
+			<div class="input-field col s12 m4">
+				<input id="clientStatistics" type="checkbox" class="value" />
+				<label class="translate" for="clientStatistics">enable client statistics</label>
 			</div>
 		</div>
-		<div class="row">
-			<div class="input-field real-sql col s12 m4 mySettings">
+		<div class="row mySettings">
+			<div class="input-field real-sql col s12 m4">
 				<input id="updateSystemClientInterval" type="number" min="1" max="23" class="value" />
-				<label class="translate" for="updateSystemClientInterval">Update interval for system and client statistics in minutes</label>
+				<label class="translate" for="updateSystemClientInterval">Update interval for system and client
+					statistics in minutes</label>
 			</div>
-		</div>			
+		</div>
 		<div class="row">
 			<div><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=VWAXSTS634G88&source=url"
 					target="_blank" class="translate">You like the adapter? Then support us with a small donation.</a>
 			</div>
 		</div>
 	</div>
-
 </body>
 
 </html>
