@@ -62,11 +62,12 @@ class Sqlstatistics extends utils.Adapter {
 	async updateStatistic() {
 		try {
 			if (connected) {
+				this.log.info(`connected with '${this.config.sqlInstance}' instance.`);
 				let instanceObj = await this.getForeignObjectAsync(`system.adapter.${this.config.sqlInstance}`)
 
 				if (instanceObj && instanceObj.native) {
 					if (instanceObj.native.dbtype !== 'sqlite') {
-						this.log.info(`SQL History Statistic connected with '${this.config.sqlInstance}' instance. Updating statistics...`);
+						this.log.info(`updating statistics for database provider '${instanceObj.native.dbtype}'...`);
 
 						usedDatapoints = [];
 						let updateStart = new Date().getTime();
