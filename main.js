@@ -60,7 +60,9 @@ class Sqlstatistics extends utils.Adapter {
 				adapter.updateStatistic();
 			}, this.config.updateInterval * 3600000);
 
-			this.updateStatistic();
+			// await this.updateStatistic();
+
+			await this.updateSystemOrClientStatistic();
 		}
 	}
 
@@ -121,7 +123,12 @@ class Sqlstatistics extends utils.Adapter {
 													databaseRows = databaseRows + rowsCount[0].rows;
 													this.setMyState(`${idTablePrefix}.rows`, rowsCount[0].rows, true, instanceObj, { dbname: database.name, name: "rows in table", unit: '', isTable: true });
 												} else {
-													this.log.warn(`[updateStatistic] database: '${database.name}', table: '${table.name}' rowsCount is '${JSON.stringify(rowsCount)}'`);
+													if (!table.name.toLowerCase().includes('innodb_')) {
+														this.log.warn(`[updateStatistic] database: '${database.name}', table: '${table.name}' rowsCount is '${JSON.stringify(rowsCount)}'`);
+													} else {
+														this.log.debug(`[updateStatistic] database: '${database.name}', table: '${table.name}' rowsCount is '${JSON.stringify(rowsCount)}'`);
+													}
+
 													this.setMyState(`${idTablePrefix}.rows`, 0, true, instanceObj, { dbname: database.name, name: "rows in table", unit: '', isTable: true });
 												}
 
@@ -162,8 +169,6 @@ class Sqlstatistics extends utils.Adapter {
 
 							await this.deleteUnsedObjects();
 
-							await this.updateSystemStatistic();
-
 							this.log.info(`Successful updating statistics in ${duration}s! `);
 						} else {
 							this.log.error(`[${instanceObj.native.dbtype}] list of databases is ${JSON.stringify(databaseList)}. Please report this issue to the developer!`);
@@ -184,7 +189,7 @@ class Sqlstatistics extends utils.Adapter {
 		}
 	}
 
-	async updateSystemStatistic() {
+	async updateSystemOrClientStatistic() {
 		try {
 			updateIsRunning = true;
 
@@ -194,30 +199,10 @@ class Sqlstatistics extends utils.Adapter {
 
 				if (instanceObj && instanceObj.native) {
 					if (instanceObj.native.dbtype !== 'sqlite') {
-						this.log.info(`updating system statistics for database provider '${instanceObj.native.dbtype}'...`);
 
-						SQLFuncs = await require(__dirname + '/lib/' + instanceObj.native.dbtype);
+						await this.createSystemStatistic(instanceObj);
+						await this.createSystemStatistic(instanceObj, true);
 
-						let systemStatistics = await this.getQueryResult(SQLFuncs.getSystemStatistics());
-						if (systemStatistics && Object.keys(systemStatistics).length > 0) {
-							this.log.debug(`[${instanceObj.native.dbtype}] system statistics received, ${Object.keys(systemStatistics).length} values exists`);
-
-							for (const val of systemStatistics) {
-								let info = JSON.parse(JSON.stringify(val));			//convert to correct object
-
-								if (info.Variable_name === 'Bytes_received' || info.Variable_name === 'Bytes_sent') {
-									await this.createStatisticObjectNumber(`system.${info.Variable_name.toLowerCase()}`, `${info.Variable_name.replace(/_/g, " ")}`, 'MB');
-									await this.setStateAsync(`system.${info.Variable_name.toLowerCase()}`, Math.round((info.Value / 1024 / 1024) * 100) / 100, true);
-								} else {
-									await this.createStatisticObjectNumber(`system.${info.Variable_name.toLowerCase()}`, `${info.Variable_name.replace(/_/g, " ")}`, '');
-									await this.setStateAsync(`system.${info.Variable_name.toLowerCase()}`, parseInt(info.Value), true);
-								}
-							}
-
-							this.log.info(`Successful updating system statistics! `);
-						} else {
-							this.log.error(`[${instanceObj.native.dbtype}] system statistics is ${JSON.stringify(systemStatistics)}. Please report this issue to the developer!`);
-						}
 					} else {
 						this.log.warn(`Database type 'SQLite3' is not supported!`);
 					}
@@ -231,6 +216,37 @@ class Sqlstatistics extends utils.Adapter {
 			updateIsRunning = false;
 		} catch (err) {
 			this.log.error(`[updateSystemStatistic] error: ${err.message}, stack: ${err.stack}`);
+		}
+	}
+
+	/**
+	 * @param {ioBroker.Object} instanceObj
+	 * @param {Boolean} isClient
+	 */
+	async createSystemStatistic(instanceObj, isClient = false) {
+		this.log.info(`updating ${isClient ? 'client' : 'system'} statistics for database provider '${instanceObj.native.dbtype}'...`);
+
+		SQLFuncs = await require(__dirname + '/lib/' + instanceObj.native.dbtype);
+
+		let systemStatistics = await this.getQueryResult(SQLFuncs.getSystemStatistics(isClient));
+		if (systemStatistics && Object.keys(systemStatistics).length > 0) {
+			this.log.debug(`[${instanceObj.native.dbtype}] ${isClient ? 'client' : 'system'} statistics received, ${Object.keys(systemStatistics).length} values exists`);
+
+			for (const val of systemStatistics) {
+				let info = JSON.parse(JSON.stringify(val));			//convert to correct object
+
+				if (info.Variable_name === 'Bytes_received' || info.Variable_name === 'Bytes_sent') {
+					await this.createStatisticObjectNumber(`${isClient ? 'client' : 'system'}.${info.Variable_name.toLowerCase()}`, `${info.Variable_name.replace(/_/g, " ")}`, 'MB');
+					await this.setStateAsync(`${isClient ? 'client' : 'system'}.${info.Variable_name.toLowerCase()}`, Math.round((info.Value / 1024 / 1024) * 100) / 100, true);
+				} else {
+					await this.createStatisticObjectNumber(`${isClient ? 'client' : 'system'}.${info.Variable_name.toLowerCase()}`, `${info.Variable_name.replace(/_/g, " ")}`, '');
+					await this.setStateAsync(`${isClient ? 'client' : 'system'}.${info.Variable_name.toLowerCase()}`, parseInt(info.Value), true);
+				}
+			}
+
+			this.log.info(`Successful updating ${isClient ? 'client' : 'system'} statistics!`);
+		} else {
+			this.log.error(`[${instanceObj.native.dbtype}] ${isClient ? 'client' : 'system'} statistics is ${JSON.stringify(systemStatistics)}. Please report this issue to the developer!`);
 		}
 	}
 
@@ -486,7 +502,7 @@ class Sqlstatistics extends utils.Adapter {
 	 * @param {string} id
 	 * @param {ioBroker.State | null | undefined} state
 	 */
-	onStateChange(id, state) {
+	async onStateChange(id, state) {
 		if (id === `${this.config.sqlInstance}.info.connection`) {
 			if (state) {
 				// The state was changed
@@ -501,7 +517,8 @@ class Sqlstatistics extends utils.Adapter {
 
 		if (id === `${this.name}.${this.instance}.update`) {
 			if (!updateIsRunning) {
-				this.updateStatistic();
+				await this.updateStatistic();
+				await this.updateSystemOrClientStatistic();
 			} else {
 				this.log.warn(`update is currently running, please wait until its finished!`);
 			}
