@@ -14,6 +14,7 @@ const utils = require('@iobroker/adapter-core');
 let connected = null;
 let SQLFuncs = null;
 let usedDatapoints = null;
+let updateIsRunning = false;
 
 const dbNames = [
 	'ts_number',
@@ -49,6 +50,7 @@ class Sqlstatistics extends utils.Adapter {
 
 			// subscribe on sql instance connection to show connection state to instance
 			this.subscribeForeignStates(`${this.config.sqlInstance}.info.connection`);
+			this.subscribeStates(`update`);
 
 			// Check connection to instance
 			connected = await this.checkConnection();
@@ -61,6 +63,8 @@ class Sqlstatistics extends utils.Adapter {
 
 	async updateStatistic() {
 		try {
+			updateIsRunning = true;
+
 			if (connected) {
 				this.log.info(`connected with '${this.config.sqlInstance}' instance.`);
 				let instanceObj = await this.getForeignObjectAsync(`system.adapter.${this.config.sqlInstance}`)
@@ -155,6 +159,8 @@ class Sqlstatistics extends utils.Adapter {
 			} else {
 				this.log.warn(`Instance '${this.config.sqlInstance}' has no connection to database!`);
 			}
+
+			updateIsRunning = false;
 		} catch (err) {
 			this.log.error(`[updateStatistic] error: ${err.message}, stack: ${err.stack}`);
 		}
@@ -401,14 +407,24 @@ class Sqlstatistics extends utils.Adapter {
 	 * @param {ioBroker.State | null | undefined} state
 	 */
 	onStateChange(id, state) {
-		if (state) {
-			// The state was changed
-			this.setState('info.connection', Boolean(state.val), state.ack);
-			connected === Boolean(state.val);
-		} else {
-			// The state was deleted
-			this.setState('info.connection', false, true);
-			connected === false;
+		if (id === `${this.config.sqlInstance}.info.connection`) {
+			if (state) {
+				// The state was changed
+				this.setState('info.connection', Boolean(state.val), state.ack);
+				connected === Boolean(state.val);
+			} else {
+				// The state was deleted
+				this.setState('info.connection', false, true);
+				connected === false;
+			}
+		}
+
+		if (id === `${this.name}.${this.instance}.update`) {
+			if (!updateIsRunning) {
+				this.updateStatistic();
+			} else {
+				this.log.warn(`update is currently running, please wait until its finished!`);
+			}
 		}
 	}
 
