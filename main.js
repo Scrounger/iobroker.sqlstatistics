@@ -55,7 +55,10 @@ class Sqlstatistics extends utils.Adapter {
 			// Check connection to instance
 			connected = await this.checkConnection();
 
-			//TODO: interval einfügen
+			let adapter = this;
+			setInterval(function(){
+				adapter.updateStatistic();
+			}, this.config.updateInterval * 3600000);
 
 			this.updateStatistic();
 		}
