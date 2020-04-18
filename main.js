@@ -166,7 +166,6 @@ class Sqlstatistics extends utils.Adapter {
 		}
 	}
 
-
 	/**
 	 * @param {{ name: string; size: number, tables: number}} database
 	 * @param {{ name: string; size: number}} table
@@ -444,7 +443,6 @@ class Sqlstatistics extends utils.Adapter {
 	// 		}
 	// 	}
 	// }
-
 }
 
 // @ts-ignore parent is a valid property on module

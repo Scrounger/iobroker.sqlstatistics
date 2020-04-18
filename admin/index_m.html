@@ -147,7 +147,7 @@
 
 		<!-- For example columns with settings: -->
 		<div class="row">
-			<div class="col s12 m8 l5">
+			<div class="col s12 m4">
 				<select class="value" id="sqlInstance">
 					<option value="" class="translate">none</option>
 				</select>
@@ -155,15 +155,9 @@
 			</div>
 		</div>
 		<div class="row">
-			<div class="input-field real-sql col s12 m3 l4 mySettings">
+			<div class="input-field real-sql col s12 m4 mySettings">
 				<input id="updateInterval" type="number" min="1" max="23" class="value" />
-				<label class="translate" for="updateInterval">Update interval</label>
-			</div>
-		</div>
-		<div class="row">
-			<div class="input-field col s12 m4 mySettings">
-				<input id="deleteObjects" type="checkbox" class="value" />
-				<label class="translate" for="deleteObjects">Delete unused objects</label>
+				<label class="translate" for="updateInterval">Update interval in hours</label>
 			</div>
 		</div>
 		<div class="row">
@@ -172,6 +166,12 @@
 				<div class="chips blackListDatabases"></div>
 			</div>
 		</div>
+		<div class="row">
+			<div class="input-field col s12 m4 mySettings">
+				<input id="deleteObjects" type="checkbox" class="value" />
+				<label class="translate" for="deleteObjects">Delete unused objects</label>
+			</div>
+		</div>		
 	</div>
 
 </body>

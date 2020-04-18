@@ -50,17 +50,17 @@ systemDictionary = {
 		"pl": "Wybierz wystąpienie historii sql:",
 		"zh-cn": "选择SQL历史记录实例："
 	},
-	"Update interval": {
-		"en": "Update interval",
-		"de": "Aktualisierungsinterval",
-		"ru": "Интервал обновления",
-		"pt": "Intervalo de atualização",
-		"nl": "Bijwerkingsonderbreking",
-		"fr": "Intervalle de mise à jour",
-		"it": "Intervallo di aggiornamento",
-		"es": "Intervalo de actualización",
-		"pl": "Interwał aktualizacji",
-		"zh-cn": "更新间隔"
+	"Update interval in hours": {
+		"en": "Update interval in hours",
+		"de": "Aktualisierungsintervall in Stunden",
+		"ru": "Интервал обновления в часах",
+		"pt": "Intervalo de atualização em horas",
+		"nl": "Update-interval in uren",
+		"fr": "Intervalle de mise à jour en heures",
+		"it": "Intervallo di aggiornamento in ore",
+		"es": "Intervalo de actualización en horas",
+		"pl": "Interwał aktualizacji w godzinach",
+		"zh-cn": "更新间隔（以小时为单位）"
 	},
 	"Delete unused objects": {
 		"en": "Delete unused objects",
