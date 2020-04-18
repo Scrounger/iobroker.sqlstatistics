@@ -202,8 +202,27 @@ class Sqlstatistics extends utils.Adapter {
 				if (instanceObj && instanceObj.native) {
 					if (instanceObj.native.dbtype !== 'sqlite') {
 
-						await this.createSystemStatistic(instanceObj);
-						await this.createSystemStatistic(instanceObj, true);
+						if (this.config.systemStatistics) {
+							await this.createSystemClientStatistic(instanceObj);
+						} else {
+							if(this.config.deleteObjects){
+								let stateList = await this.getStatesAsync(`${this.name}.${this.instance}.system.*`);
+								for (const id in stateList) {
+									await this.delObjectAsync(id);
+								}
+							}
+						}
+
+						if (this.config.clientStatistics) {
+							await this.createSystemClientStatistic(instanceObj, true);
+						} else {
+							if(this.config.deleteObjects){
+								let stateList = await this.getStatesAsync(`${this.name}.${this.instance}.client.*`);
+								for (const id in stateList) {
+									await this.delObjectAsync(id);
+								}
+							}
+						}
 
 					} else {
 						this.log.warn(`Database type 'SQLite3' is not supported!`);
@@ -225,7 +244,7 @@ class Sqlstatistics extends utils.Adapter {
 	 * @param {ioBroker.Object} instanceObj
 	 * @param {Boolean} isClient
 	 */
-	async createSystemStatistic(instanceObj, isClient = false) {
+	async createSystemClientStatistic(instanceObj, isClient = false) {
 		this.log.info(`updating ${isClient ? 'client' : 'system'} statistics for database provider '${instanceObj.native.dbtype}'...`);
 
 		SQLFuncs = await require(__dirname + '/lib/' + instanceObj.native.dbtype);
