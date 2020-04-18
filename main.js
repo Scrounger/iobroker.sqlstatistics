@@ -128,7 +128,6 @@ class Sqlstatistics extends utils.Adapter {
 													} else {
 														this.log.debug(`[updateStatistic] database: '${database.name}', table: '${table.name}' rowsCount is '${JSON.stringify(rowsCount)}'`);
 													}
-
 													this.setMyState(`${idTablePrefix}.rows`, 0, true, instanceObj, { dbname: database.name, name: "rows in table", unit: '', isTable: true });
 												}
 
