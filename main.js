@@ -94,10 +94,10 @@ class Sqlstatistics extends utils.Adapter {
 
 								// store database statistics
 								totalSize = totalSize + database.size;
-								this.setMyState(`${idDatabasePrefix}.size`, database.size, true, { dbname: database.name, name: "size of database", unit: 'MB' });
+								this.setMyState(`${idDatabasePrefix}.size`, database.size, true, instanceObj, { dbname: database.name, name: "size of database", unit: 'MB' });
 
 								totalTables = totalTables + database.tables;
-								this.setMyState(`${idDatabasePrefix}.tables`, database.tables, true, { dbname: database.name, name: "tables of database", unit: '' });
+								this.setMyState(`${idDatabasePrefix}.tables`, database.tables, true, instanceObj, { dbname: database.name, name: "tables of database", unit: '' });
 
 								// table statistics
 								let databaseTableList = await this.getQueryResult(SQLFuncs.getTablesOfDatabases(database.name));
@@ -109,12 +109,12 @@ class Sqlstatistics extends utils.Adapter {
 
 										let idTablePrefix = `${idDatabasePrefix}.${table.name}`;
 
-										this.setMyState(`${idTablePrefix}.size`, table.size, true, { dbname: database.name, name: "size of table", unit: 'MB' });
+										this.setMyState(`${idTablePrefix}.size`, table.size, true, instanceObj, { dbname: database.name, name: "size of table", unit: 'MB', isTable: true });
 
 										let rowsCount = await this.getQueryResult(SQLFuncs.getRowsCountOfTable(database.name, table.name));
 										databaseRows = databaseRows + rowsCount[0].rows;
 
-										this.setMyState(`${idTablePrefix}.rows`, rowsCount[0].rows, true, { dbname: database.name, name: "rows in table", unit: '' });
+										this.setMyState(`${idTablePrefix}.rows`, rowsCount[0].rows, true, instanceObj, { dbname: database.name, name: "rows in table", unit: '', isTable: true });
 
 										if (database.name === instanceObj.native.dbname) {
 											await this.createIobSpecialTableStatistic(database, table, idTablePrefix, instanceObj);
@@ -124,7 +124,7 @@ class Sqlstatistics extends utils.Adapter {
 									this.log.error(`[${instanceObj.native.dbtype}] tables list of database '${database.name}' is ${JSON.stringify(databaseTableList)}. Please report this issue to the developer!`);
 								}
 
-								this.setMyState(`${idDatabasePrefix}.rows`, databaseRows, true, { dbname: database.name, name: "rows in database", unit: '' });
+								this.setMyState(`${idDatabasePrefix}.rows`, databaseRows, true, instanceObj, { dbname: database.name, name: "rows in database", unit: '' });
 								totalRows = totalRows + databaseRows;
 							}
 
@@ -235,13 +235,13 @@ class Sqlstatistics extends utils.Adapter {
 
 			if (dbNames.includes(table.name) || table.name === 'datapoints') {
 				await this.createStatisticObjectNumber(`${idTablePrefix}.brokenRows`, 'broken rows in table', '');
-				this.setMyState(`${idTablePrefix}.brokenRows`, brokenRows, true);
+				this.setMyState(`${idTablePrefix}.brokenRows`, brokenRows, true, instanceObj);
 
 				await this.createStatisticObjectString(`${idTablePrefix}.brokenRowsIds`, "ids of broken rows in table");
 				if (brokenRowsList.length > 0) {
-					this.setMyState(`${idTablePrefix}.brokenRowsIds`, JSON.stringify(brokenRowsList), true);
+					this.setMyState(`${idTablePrefix}.brokenRowsIds`, JSON.stringify(brokenRowsList), true, instanceObj);
 				} else {
-					this.setMyState(`${idTablePrefix}.brokenRowsIds`, 'none', true);
+					this.setMyState(`${idTablePrefix}.brokenRowsIds`, 'none', true, instanceObj);
 				}
 			}
 		} catch (err) {
@@ -278,15 +278,28 @@ class Sqlstatistics extends utils.Adapter {
 	 * @param {any} value
 	 * @param {boolean} ack
 	 * @param {object} options
+	 * @param {ioBroker.Object} instanceObj
 	 */
-	setMyState(id, value, ack, options = undefined) {
+	setMyState(id, value, ack, instanceObj, options = undefined) {
 		if (options) {
 			if (!this.config.blackListDatabases.includes(options.dbname)) {
-				this.createStatisticObjectNumber(id, options.name, options.unit);
 
-				this.log.silly(`store state '${id}', value: ${value}`);
-				this.setState(id, value, ack);
-				usedDatapoints.push(id);
+				if (!options.isTable || options.dbname === instanceObj.native.dbname) {
+					this.createStatisticObjectNumber(id, options.name, options.unit);
+
+					this.log.silly(`store state '${id}', value: ${value}`);
+					this.setState(id, value, ack);
+					usedDatapoints.push(id);
+				} else {
+					// table
+					if (this.config.foreignTableStatistics) {
+						this.createStatisticObjectNumber(id, options.name, options.unit);
+
+						this.log.silly(`store state '${id}', value: ${value}`);
+						this.setState(id, value, ack);
+						usedDatapoints.push(id);
+					}
+				}
 			}
 		} else {
 			this.log.silly(`store state '${id}', value: ${value}`);
