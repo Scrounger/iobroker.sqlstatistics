@@ -253,15 +253,14 @@ class Sqlstatistics extends utils.Adapter {
 		if (systemStatistics && Object.keys(systemStatistics).length > 0) {
 			this.log.debug(`[${instanceObj.native.dbtype}] ${isSession ? 'session' : 'system'} statistics received, ${Object.keys(systemStatistics).length} values exists`);
 
-			for (const val of systemStatistics) {
-				let info = JSON.parse(JSON.stringify(val));			//convert to correct object
-
-				if (info.Variable_name === 'Bytes_received' || info.Variable_name === 'Bytes_sent') {
-					await this.createStatisticObjectNumber(`${isSession ? 'session' : 'system'}.${info.Variable_name.toLowerCase()}`, `${info.Variable_name.replace(/_/g, " ")}`, 'MB');
-					await this.setStateAsync(`${isSession ? 'session' : 'system'}.${info.Variable_name.toLowerCase()}`, Math.round((info.Value / 1024 / 1024) * 100) / 100, true);
+			for (const info of systemStatistics) {
+				
+				if (info.name === 'Bytes_received' || info.name === 'Bytes_sent') {
+					await this.createStatisticObjectNumber(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, `${info.name.replace(/_/g, " ")}`, 'MB');
+					await this.setStateAsync(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, Math.round((info.value / 1024 / 1024) * 100) / 100, true);
 				} else {
-					await this.createStatisticObjectNumber(`${isSession ? 'session' : 'system'}.${info.Variable_name.toLowerCase()}`, `${info.Variable_name.replace(/_/g, " ")}`, '');
-					await this.setStateAsync(`${isSession ? 'session' : 'system'}.${info.Variable_name.toLowerCase()}`, parseInt(info.Value), true);
+					await this.createStatisticObjectNumber(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, `${info.name.replace(/_/g, " ")}`, '');
+					await this.setStateAsync(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, parseInt(info.value), true);
 				}
 			}
 
