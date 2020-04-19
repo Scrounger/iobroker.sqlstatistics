@@ -35,6 +35,11 @@
 			overflow: auto;
 		}
 
+		#databasesBlacklist {
+			height: calc(100% - 70px);
+			overflow: auto;
+		}
+
 		.myCheckBoxListItem {
 			margin-top: 2px !important;
 			margin-bottom: 2px !important;
@@ -50,9 +55,11 @@
 		var myNamespace;
 		var retryTimer = [];
 		var availableInfos = null;
+		var availableDatabases = null;
 
 		let defaultSystemInfos = ["Bytes_received", "Bytes_sent", "Max_used_connections", "Connections"];
 		let defaultSessionInfos = ["Bytes_received", "Bytes_sent"];
+		let defaultDatabasesBlacklist = ["sys", "information_schema", "performance_schema", "mysql"];
 
 		// This will be called by the admin adapter when the settings page loads
 		function load(settings, onChange) {
@@ -81,13 +88,15 @@
 				}
 			});
 
-			loadAvailableInfos(settings);
-
-			showHideSettings();
-
 			getSqlInstances(settings);
 
+			loadAvailableInfos(settings);
+
+			loadDatabaseBlacklist(settings);
+
 			buttonEvents();
+
+			showHideSettings();
 
 			onChange(false);
 			// reinitialize all the Materialize labels on the page if you are dynamically adding inputs:
@@ -154,6 +163,34 @@
 
 			$('#noneSessionDatapoints').on('click', function () {
 				$('.selectedSessionDatapoints').each(function () {
+					let $this = $(this).prop('checked', false);
+					_onChange();
+				});
+			})
+
+			$('#defaultDatabasesBlacklist').on('click', function () {
+				$('.selectedDatabasesBlacklist').each(function () {
+					let $this = $(this);
+
+					if (defaultDatabasesBlacklist.includes($this.data('info'))) {
+						$this.prop('checked', true);
+					} else {
+						$this.prop('checked', false);
+					}
+
+					_onChange();
+				});
+			})
+
+			$('#allDatabasesBlacklist').on('click', function () {
+				$('.selectedDatabasesBlacklist').each(function () {
+					let $this = $(this).prop('checked', true);
+					_onChange();
+				});
+			})
+
+			$('#noneDatabasesBlacklist').on('click', function () {
+				$('.selectedDatabasesBlacklist').each(function () {
 					let $this = $(this).prop('checked', false);
 					_onChange();
 				});
@@ -255,6 +292,70 @@
 			});
 		}
 
+		function loadDatabaseBlacklist(settings) {
+			// Read all available databases from update object
+			const result = getObject(`${myNamespace}.update`, (err, state) => {
+
+				// Error handling if available infos are not known
+				if (!state.native.availableInfos) {
+
+					// console.log('AvailableInfos not yet present, did the adapter successfully run for the first time ?')
+
+					// Reset timer (if running) and start new one for next polling interval
+					if (retryTimer['loadDatabaseBlacklist']) {
+						clearTimeout(retryTimer['loadDatabaseBlacklist']);
+						retryTimer['loadDatabaseBlacklist'] = null;
+					}
+
+					retryTimer['loadDatabaseBlacklist'] = setTimeout(() => {
+						loadDatabaseBlacklist(settings);
+					}, 1000);
+
+					$('.databasesBlacklistButtons').hide();
+				} else {
+					// Clear retry timer when running
+
+					if (retryTimer['loadDatabaseBlacklist']) {
+						clearTimeout(retryTimer['loadDatabaseBlacklist']);
+						retryTimer['loadDatabaseBlacklist'] = null;
+					}
+
+					availableDatabases = state.native.availableDatabases;
+					availableDatabases = availableDatabases.sort();
+					// console.log('All available infos sorted object : ' + JSON.stringify(availableInfos));
+
+					var $databasesBlacklist = $('#databasesBlacklist');
+					var text = '';
+
+					if ($('#sqlInstance').val()) {
+						getObject(`system.adapter.${$('#sqlInstance').val()}`, (err, state) => {
+							
+							if (state.native.dbname) {
+								for (var i = 0; i < availableDatabases.length; i++) {
+									if (availableDatabases[i] !== state.native.dbname) {
+										text += '<label class="col s4 input-field myCheckBoxListItem">' +
+											'<input type="checkbox" class="selectedDatabasesBlacklist" ' + (settings.blackListDatabases.indexOf(availableDatabases[i]) !== -1 ? 'checked ' : '') + ' data-info="' + availableDatabases[i] + '" />' +
+											'<span class="black-text">' + _(availableDatabases[i]) + '</span>' +
+											'</label>';
+									}
+								}
+								$databasesBlacklist.html(text);
+
+								$('.databasesBlacklistButtons').show();
+							}
+						});
+					}
+				}
+
+				$('.selectedDatabasesBlacklist').on('change', function () {
+					_onChange()
+				});
+
+				// reinitialize all the Materialize labels on the page if you are dynamically adding inputs:
+				M && M.updateTextFields();
+			});
+		}
+
 		// This will be called by the admin adapter when the user presses the save button
 		function save(callback) {
 			// example: select elements with class=value and build settings object
@@ -282,6 +383,13 @@
 				}
 			});
 
+			obj.blackListDatabases = []
+			$('.selectedDatabasesBlacklist').each(function () {
+				if ($(this).prop('checked')) {
+					obj.blackListDatabases.push($(this).data('info'));
+				}
+			});
+
 			callback(obj);
 		}
 	</script>
@@ -295,8 +403,10 @@
 			<div class="col s12">
 				<ul class="tabs">
 					<li class="tab col s3"><a href="#tab-general" class="translate active">general</a></li>
-					<li class="tab col s3"><a href="#tab-system" class="translate">systemDatapoints</a></li>
-					<li class="tab col s3"><a href="#tab-session" class="translate">sessionDatapoints</a></li>
+					<li class="tab col s3"><a href="#tab-databasesBlackList" class="translate">databasesBlacklist</a>
+					</li>
+					<li class="tab col s3"><a href="#tab-systemDatapoints" class="translate">systemDatapoints</a></li>
+					<li class="tab col s3"><a href="#tab-sessionDatapoints" class="translate">sessionDatapoints</a></li>
 				</ul>
 			</div>
 			<div id="tab-general" class="col s12 page">
@@ -355,10 +465,35 @@
 					</div>
 				</div>
 			</div>
-			<div id="tab-system" class="col s12 page">
+			<div id="tab-databasesBlackList" class="col s12 page">
+				<div class="row myVisibleHandler" style="margin-right: 0px">
+					<div class="row">
+						<div class="col s12 m4 l2">
+							<img src="sqlstatistics.png" class="logo">
+						</div>
+					</div>
+					<div class="row databasesBlacklistButtons" style="padding: 0 12px;">
+						<a id="defaultDatabasesBlacklist" class="waves-effect waves-light btn-small myButton"><i
+								class="material-icons left">settings_backup_restore</i><span
+								class="translate">default</span></a>
+						<a id="allDatabasesBlacklist" class="waves-effect waves-light btn-small myButton"><i
+								class="material-icons left">check_box</i><span class="translate">selectAll</span></a>
+						<a id="noneDatabasesBlacklist" class="waves-effect waves-light btn-small myButton"><i
+								class="material-icons left">check_box_outline_blank</i><span
+								class="translate">selectNone</span></a>
+					</div>
+					<div class="row" id="databasesBlacklist">
+						<div class="progress">
+							<div class="indeterminate"></div>
+						</div>
+						<h6 class="center translate">DatabasesBlacklistNotYetAvailable</h6>
+					</div>
+				</div>
+			</div>
+			<div id="tab-systemDatapoints" class="col s12 page">
 				<div class="row myVisibleHandler">
 					<div class="row">
-						<div class="col s2 m2">
+						<div class="col s12 m4 l2">
 							<img src="sqlstatistics.png" class="logo">
 						</div>
 					</div>
@@ -380,7 +515,7 @@
 					</div>
 				</div>
 			</div>
-			<div id="tab-session" class="col s12 page">
+			<div id="tab-sessionDatapoints" class="col s12 page">
 				<div class="row myVisibleHandler">
 					<div class="row">
 						<div class="col s12 m4 l2">
