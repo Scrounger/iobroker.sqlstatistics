@@ -99,9 +99,9 @@
 
 		function showHideSettings(id) {
 			if ($('#sqlInstance').val()) {
-				$('.mySettings').show();
+				$('.myVisibleHandler').show();
 			} else {
-				$('.mySettings').hide();
+				$('.myVisibleHandler').hide();
 			}
 		}
 
@@ -348,10 +348,10 @@
 						<label class="translate" for="sqlInstance">SelectSqlHistoryInstance</label>
 					</div>
 				</div>
-				<div class="row mySettings">
+				<div class="row myVisibleHandler">
 					<h6 class="translate sub-title">settingDatabasesStatistics</h6>
 				</div>
-				<div class="row mySettings">
+				<div class="row myVisibleHandler">
 					<div class="input-field real-sql col s12 m4">
 						<input id="updateInterval" type="number" min="1" max="23" class="value" />
 						<label class="translate" for="updateInterval">UpdateIntervalDatabases</label>
@@ -361,16 +361,16 @@
 						<label class="translate" for="foreignTableStatistics">createTableStatistics</label>
 					</div>
 				</div>
-				<div class="row mySettings">
+				<div class="row myVisibleHandler">
 					<div class="col s12">
 						<label class="translate">BlacklistDatabases</label>
 						<div class="chips blackListDatabases"></div>
 					</div>
 				</div>
-				<div class="row mySettings">
+				<div class="row myVisibleHandler">
 					<h6 class="translate sub-title">settingSystemOrSessionStatistics</h6>
 				</div>
-				<div class="row mySettings">
+				<div class="row myVisibleHandler">
 					<div class="input-field col s12 m4">
 						<input id="systemStatistics" type="checkbox" class="value" />
 						<label class="translate" for="systemStatistics">enableSystemStatistics</label>
@@ -380,7 +380,7 @@
 						<label class="translate" for="sessionStatistics">enableSessionStatistics</label>
 					</div>
 				</div>
-				<div class="row mySettings">
+				<div class="row myVisibleHandler">
 					<div class="input-field real-sql col s12 m4">
 						<input id="updateSystemSessionInterval" type="number" min="1" max="23" class="value" />
 						<label class="translate" for="updateSystemSessionInterval">UpdateIntervalSystemOrSession</label>
@@ -393,49 +393,53 @@
 				</div>
 			</div>
 			<div id="tab-system" class="col s12 page">
-				<div class="row">
-					<div class="col s2 m2">
-						<img src="sqlstatistics.png" class="logo">
+				<div class="row myVisibleHandler">
+					<div class="row">
+						<div class="col s2 m2">
+							<img src="sqlstatistics.png" class="logo">
+						</div>
 					</div>
-				</div>
-				<div class="row systemButtons" style="padding: 0 12px">
-					<a id="defaultSystemDatapoints" class="waves-effect waves-light btn-small myButton"><i
-							class="material-icons left">settings_backup_restore</i><span
-							class="translate">default</span></a>
-					<a id="allSystemDatapoints" class="waves-effect waves-light btn-small myButton"><i
-							class="material-icons left">check_box</i><span class="translate">selectAll</span></a>
-					<a id="noneSystemDatapoints" class="waves-effect waves-light btn-small myButton"><i
-							class="material-icons left">check_box_outline_blank</i><span
-							class="translate">selectNone</span></a>
-				</div>
-				<div class="row" id="systemDatapoints">
-					<div class="progress">
-						<div class="indeterminate"></div>
+					<div class="row systemButtons" style="padding: 0 12px">
+						<a id="defaultSystemDatapoints" class="waves-effect waves-light btn-small myButton"><i
+								class="material-icons left">settings_backup_restore</i><span
+								class="translate">default</span></a>
+						<a id="allSystemDatapoints" class="waves-effect waves-light btn-small myButton"><i
+								class="material-icons left">check_box</i><span class="translate">selectAll</span></a>
+						<a id="noneSystemDatapoints" class="waves-effect waves-light btn-small myButton"><i
+								class="material-icons left">check_box_outline_blank</i><span
+								class="translate">selectNone</span></a>
 					</div>
-					<h6 class="center translate">DatapointsSelectionNotYetAvailable</h6>
+					<div class="row" id="systemDatapoints">
+						<div class="progress">
+							<div class="indeterminate"></div>
+						</div>
+						<h6 class="center translate">DatapointsSelectionNotYetAvailable</h6>
+					</div>
 				</div>
 			</div>
 			<div id="tab-session" class="col s12 page">
-				<div class="row">
-					<div class="col s12 m4 l2">
-						<img src="sqlstatistics.png" class="logo">
+				<div class="row myVisibleHandler">
+					<div class="row">
+						<div class="col s12 m4 l2">
+							<img src="sqlstatistics.png" class="logo">
+						</div>
 					</div>
-				</div>
-				<div class="row sessionButtons" style="padding: 0 12px">
-					<a id="defaultSessionDatapoints" class="waves-effect waves-light btn-small myButton"><i
-							class="material-icons left">settings_backup_restore</i><span
-							class="translate">default</span></a>
-					<a id="allSessionDatapoints" class="waves-effect waves-light btn-small myButton"><i
-							class="material-icons left">check_box</i><span class="translate">selectAll</span></a>
-					<a id="noneSessionDatapoints" class="waves-effect waves-light btn-small myButton"><i
-							class="material-icons left">check_box_outline_blank</i><span
-							class="translate">selectNone</span></a>
-				</div>
-				<div class="row" id="sessionDatapoints">
-					<div class="progress">
-						<div class="indeterminate"></div>
+					<div class="row sessionButtons" style="padding: 0 12px">
+						<a id="defaultSessionDatapoints" class="waves-effect waves-light btn-small myButton"><i
+								class="material-icons left">settings_backup_restore</i><span
+								class="translate">default</span></a>
+						<a id="allSessionDatapoints" class="waves-effect waves-light btn-small myButton"><i
+								class="material-icons left">check_box</i><span class="translate">selectAll</span></a>
+						<a id="noneSessionDatapoints" class="waves-effect waves-light btn-small myButton"><i
+								class="material-icons left">check_box_outline_blank</i><span
+								class="translate">selectNone</span></a>
 					</div>
-					<h6 class="center translate">DatapointsSelectionNotYetAvailable</h6>
+					<div class="row" id="sessionDatapoints">
+						<div class="progress">
+							<div class="indeterminate"></div>
+						</div>
+						<h6 class="center translate">DatapointsSelectionNotYetAvailable</h6>
+					</div>
 				</div>
 			</div>
 		</div>
