@@ -145,72 +145,102 @@
 <body>
 
 	<div class="m adapter-container">
-
 		<div class="row">
-			<div class="col s12 m4 l2">
-				<img src="sqlstatistics.png" class="logo">
+			<div class="col s12">
+				<ul class="tabs">
+					<li class="tab col s3"><a href="#tab-general" class="translate active">general</a></li>
+					<li class="tab col s3"><a href="#tab-system" class="translate">system datapoints</a></li>
+					<li class="tab col s3"><a href="#tab-session" class="translate">session datapoints</a></li>
+				</ul>
 			</div>
-		</div>
+			<div id="tab-general" class="col s12 page">
+				<div class="row">
+					<div class="col s12 m4 l2">
+						<img src="sqlstatistics.png" class="logo">
+					</div>
+				</div>
 
-		<!-- Put your content here -->
+				<!-- Put your content here -->
 
-		<!-- For example columns with settings: -->
-		<div class="row">
-			<div class="col s12 m4">
-				<select class="value" id="sqlInstance">
-					<option value="" class="translate">none</option>
-				</select>
-				<label class="translate" for="sqlInstance">Select sql history instance:</label>
-			</div>
-			<div class="col s12 m4 mySettings">
-				<div class="input-field">
-					<input id="deleteObjects" type="checkbox" class="value" />
-					<label class="translate" for="deleteObjects">Delete unused objects</label>
+				<!-- For example columns with settings: -->
+				<div class="row">
+					<div class="col s12 m4">
+						<select class="value" id="sqlInstance">
+							<option value="" class="translate">none</option>
+						</select>
+						<label class="translate" for="sqlInstance">Select sql history instance:</label>
+					</div>
+					<div class="col s12 m4 mySettings">
+						<div class="input-field">
+							<input id="deleteObjects" type="checkbox" class="value" />
+							<label class="translate" for="deleteObjects">Delete unused datapoints</label>
+						</div>
+					</div>
+				</div>
+				<div class="row mySettings">
+					<h6 class="translate sub-title">setting for databases statistics</h6>
+				</div>
+				<div class="row mySettings">
+					<div class="input-field real-sql col s12 m4">
+						<input id="updateInterval" type="number" min="1" max="23" class="value" />
+						<label class="translate" for="updateInterval">Update interval for databases statistics in
+							hours</label>
+					</div>
+					<div class="input-field col s12 m4">
+						<input id="foreignTableStatistics" type="checkbox" class="value" />
+						<label class="translate" for="foreignTableStatistics">create statistics for non ioBroker
+							tables</label>
+					</div>
+				</div>
+				<div class="row mySettings">
+					<div class="col s12">
+						<label class="translate">Blacklist databases: databases that should not be in the
+							statistic</label>
+						<div class="chips blackListDatabases"></div>
+					</div>
+				</div>
+				<div class="row mySettings">
+					<h6 class="translate sub-title">setting for system and session statistics</h6>
+				</div>
+				<div class="row mySettings">
+					<div class="input-field col s12 m4">
+						<input id="systemStatistics" type="checkbox" class="value" />
+						<label class="translate" for="systemStatistics">enable system statistics</label>
+					</div>
+					<div class="input-field col s12 m4">
+						<input id="sessionStatistics" type="checkbox" class="value" />
+						<label class="translate" for="sessionStatistics">enable session statistics</label>
+					</div>
+				</div>
+				<div class="row mySettings">
+					<div class="input-field real-sql col s12 m4">
+						<input id="updateSystemSessionInterval" type="number" min="1" max="23" class="value" />
+						<label class="translate" for="updateSystemSessionInterval">Update interval for system and
+							session
+							statistics in minutes</label>
+					</div>
+				</div>
+				<div class="row">
+					<div><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=VWAXSTS634G88&source=url"
+							target="_blank" class="translate">You like the adapter? Then support us with a small
+							donation.</a>
+					</div>
 				</div>
 			</div>
-		</div>
-		<div class="row mySettings">
-			<h6 class="translate sub-title">setting for databases statistics</h6>
-		</div>
-		<div class="row mySettings">
-			<div class="input-field real-sql col s12 m4">
-				<input id="updateInterval" type="number" min="1" max="23" class="value" />
-				<label class="translate" for="updateInterval">Update interval for databases statistics in hours</label>
+			<div id="tab-system" class="col s12 page">
+				<div class="row">
+					<div class="col s12 m4 l2">
+						<img src="sqlstatistics.png" class="logo">
+					</div>
+				</div>
 			</div>
-			<div class="input-field col s12 m4">
-				<input id="foreignTableStatistics" type="checkbox" class="value" />
-				<label class="translate" for="foreignTableStatistics">create statistics for non ioBroker tables</label>
-			</div>
-		</div>
-		<div class="row mySettings">
-			<div class="col s12">
-				<label class="translate">Blacklist databases: databases that should not be in the statistic</label>
-				<div class="chips blackListDatabases"></div>
-			</div>
-		</div>
-		<div class="row mySettings">
-			<h6 class="translate sub-title">setting for system and session statistics</h6>
-		</div>
-		<div class="row mySettings">
-			<div class="input-field col s12 m4">
-				<input id="systemStatistics" type="checkbox" class="value" />
-				<label class="translate" for="systemStatistics">enable system statistics</label>
-			</div>
-			<div class="input-field col s12 m4">
-				<input id="sessionStatistics" type="checkbox" class="value" />
-				<label class="translate" for="sessionStatistics">enable session statistics</label>
-			</div>
-		</div>
-		<div class="row mySettings">
-			<div class="input-field real-sql col s12 m4">
-				<input id="updateSystemSessionInterval" type="number" min="1" max="23" class="value" />
-				<label class="translate" for="updateSystemSessionInterval">Update interval for system and session statistics in minutes</label>
-			</div>
-		</div>
-		<div class="row">
-			<div><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=VWAXSTS634G88&source=url"
-					target="_blank" class="translate">You like the adapter? Then support us with a small donation.</a>
-			</div>
+			<div id="tab-session" class="col s12 page">
+				<div class="row">
+					<div class="col s12 m4 l2">
+						<img src="sqlstatistics.png" class="logo">
+					</div>
+				</div>
+			</div>			
 		</div>
 	</div>
 </body>

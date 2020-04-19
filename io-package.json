@@ -89,7 +89,9 @@
 		"blackListDatabases": "sys information_schema performance_schema mysql",
 		"foreignTableStatistics": false,
 		"systemStatistics": true,
-		"sessionStatistics": true
+		"sessionStatistics": true,
+		"selectedSystemInfos": [],
+		"selectedSessionInfos": []
 	},
 	"objects": [],
 	"instanceObjects": [

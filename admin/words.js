@@ -74,17 +74,17 @@ systemDictionary = {
 		"pl": "Aktualizacja interwału dla statystyki systemu i sesji w minutach",
 		"zh-cn": "系统和会话统计信息的更新间隔（以分钟为单位）"
 	},
-	"Delete unused objects": {
-		"en": "Delete unused objects",
-		"de": "Nicht verwendete Objekte löschen",
-		"ru": "Удалить неиспользуемые объекты",
-		"pt": "Excluir objetos não utilizados",
-		"nl": "Verwijder ongebruikte objecten",
-		"fr": "Supprimer les objets inutilisés",
-		"it": "Elimina oggetti inutilizzati",
-		"es": "Eliminar objetos no utilizados",
-		"pl": "Usuń nieużywane obiekty",
-		"zh-cn": "删除未使用的对象"
+	"Delete unused datapoints": {
+		"en": "Delete unused datapoints",
+		"de": "Nicht verwendete Datenpunkte löschen",
+		"ru": "Удалить неиспользуемые точки данных",
+		"pt": "Excluir pontos de dados não utilizados",
+		"nl": "Verwijder ongebruikte datapunten",
+		"fr": "Supprimer les points de données inutilisés",
+		"it": "Elimina i punti dati non utilizzati",
+		"es": "Eliminar puntos de datos no utilizados",
+		"pl": "Usuń nieużywane punkty danych",
+		"zh-cn": "删除未使用的数据点"
 	},
 	"Database name": {
 		"en": "Database name",
@@ -193,5 +193,41 @@ systemDictionary = {
 		"es": "habilitar estadísticas de sesión",
 		"pl": "włącz statystyki sesji",
 		"zh-cn": "启用会话统计"
+	},
+	"general": {
+		"en": "general",
+		"de": "Allgemein",
+		"ru": "Общее",
+		"pt": "geral",
+		"nl": "algemeen",
+		"fr": "général",
+		"it": "generale",
+		"es": "general",
+		"pl": "generał",
+		"zh-cn": "一般"
+	},
+	"system datapoints": {
+		"en": "system datapoints",
+		"de": "System Datenpunkte",
+		"ru": "системные данные",
+		"pt": "pontos de dados do sistema",
+		"nl": "systeemgegevenspunten",
+		"fr": "points de données système",
+		"it": "punti dati di sistema",
+		"es": "puntos de datos del sistema",
+		"pl": "systemowe punkty danych",
+		"zh-cn": "系统数据点"
+	},
+	"session datapoints": {
+		"en": "session datapoints",
+		"de": "Sitzungs Datenpunkte",
+		"ru": "точки данных сеанса",
+		"pt": "pontos de dados da sessão",
+		"nl": "sessie datapunten",
+		"fr": "points de données de session",
+		"it": "punti dati della sessione",
+		"es": "puntos de datos de sesión",
+		"pl": "punkty danych sesji",
+		"zh-cn": "会话数据点"
 	}
 };
