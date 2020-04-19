@@ -61,13 +61,13 @@ class Sqlstatistics extends utils.Adapter {
 			}, this.config.updateIntervalDatabases * 3600000);
 
 			setInterval(function () {
-				adapter.updateSystemOrSessionStatistic();
+				adapter.updateStatistic();
 			}, this.config.updateIntervalStatistics * 60000);
 
 			await this.updateAvailableInfos();
 
-			await this.updateSystemOrSessionStatistic();
-			// await this.updateDatabaseStatistic();
+			await this.updateStatistic();
+			await this.updateDatabaseStatistic();
 		}
 	}
 
@@ -268,7 +268,7 @@ class Sqlstatistics extends utils.Adapter {
 		}
 	}
 
-	async updateSystemOrSessionStatistic() {
+	async updateStatistic() {
 		try {
 			updateIsRunning = true;
 
@@ -301,40 +301,42 @@ class Sqlstatistics extends utils.Adapter {
 	 * @param {ioBroker.Object} instanceObj
 	 */
 	async createClientStatistic(instanceObj) {
-		this.log.info(`updating client statistics for database provider '${instanceObj.native.dbtype}'...`);
+		try {
+			this.log.info(`updating client statistics for database provider '${instanceObj.native.dbtype}'...`);
 
-		SQLFuncs = await require(__dirname + '/lib/' + instanceObj.native.dbtype);
+			SQLFuncs = await require(__dirname + '/lib/' + instanceObj.native.dbtype);
 
-		let clientInfos = await this.getQueryResult(SQLFuncs.getClientStatistics());
-		if (clientInfos && Object.keys(clientInfos).length > 0) {
-			this.log.debug(`[${instanceObj.native.dbtype}] client statistics received, ${Object.keys(clientInfos).length} values exists`);
+			let clientInfos = await this.getQueryResult(SQLFuncs.getClientStatistics());
+			if (clientInfos && Object.keys(clientInfos).length > 0) {
+				this.log.debug(`[${instanceObj.native.dbtype}] client statistics received, ${Object.keys(clientInfos).length} values exists`);
 
-			for (var i = 0; i <= clientInfos.length - 1; i++) {
-				if (clientInfos[i]) {
-					let idPrefix = `clients.${i}`
+				for (var i = 0; i <= clientInfos.length - 1; i++) {
+					if (clientInfos[i]) {
+						let idPrefix = `clients.${i}`
 
-					for (const [key, value] of Object.entries(clientInfos[i])) {
-						if (key.includes('memory')) {
-							await this.createStatisticObjectNumber(`${idPrefix}.${key.toLowerCase()}`, `${key.replace(/_/g, " ")}`, 'MB');
-							await this.setStateAsync(`${idPrefix}.${key.toLowerCase()}`, Math.round(parseFloat(value) / 1024 / 1024 * 100) / 100, true);
-						} else if (key.includes('latency')) {
-							await this.createStatisticObjectNumber(`${idPrefix}.${key.toLowerCase()}`, `${key.replace(/_/g, " ")}`, 'ms');
-							await this.setStateAsync(`${idPrefix}.${key.toLowerCase()}`, Math.round(parseFloat(value) / 1000 / 1000 / 1000 * 100) / 100, true);
-						} else if (isNaN(parseFloat(value)) || key === 'host') {
-							await this.createStatisticObjectString(`${idPrefix}.${key.toLowerCase()}`, `${key.replace(/_/g, " ")}`);
-							await this.setStateAsync(`${idPrefix}.${key.toLowerCase()}`, value, true);
-						} else {
-							await this.createStatisticObjectNumber(`${idPrefix}.${key.toLowerCase()}`, `${key.replace(/_/g, " ")}`, '');
-							await this.setStateAsync(`${idPrefix}.${key.toLowerCase()}`, parseFloat(value), true);
+						for (const [key, value] of Object.entries(clientInfos[i])) {
+							if (key.includes('memory')) {
+								await this.createStatisticObjectNumber(`${idPrefix}.${key.toLowerCase()}`, `${key.replace(/_/g, " ")}`, 'MB');
+								await this.setStateAsync(`${idPrefix}.${key.toLowerCase()}`, Math.round(parseFloat(value) / 1024 / 1024 * 100) / 100, true);
+							} else if (key.includes('latency')) {
+								await this.createStatisticObjectNumber(`${idPrefix}.${key.toLowerCase()}`, `${key.replace(/_/g, " ")}`, 'ms');
+								await this.setStateAsync(`${idPrefix}.${key.toLowerCase()}`, Math.round(parseFloat(value) / 1000 / 1000 / 1000 * 100) / 100, true);
+							} else if (isNaN(parseFloat(value)) || key === 'host') {
+								await this.createStatisticObjectString(`${idPrefix}.${key.toLowerCase()}`, `${key.replace(/_/g, " ")}`);
+								await this.setStateAsync(`${idPrefix}.${key.toLowerCase()}`, value, true);
+							} else {
+								await this.createStatisticObjectNumber(`${idPrefix}.${key.toLowerCase()}`, `${key.replace(/_/g, " ")}`, '');
+								await this.setStateAsync(`${idPrefix}.${key.toLowerCase()}`, parseFloat(value), true);
+							}
 						}
-
-						this.log.info(key + ': ' + value);
 					}
 				}
+				this.log.info(`Successful updating clientstatistics!`);
+			} else {
+				this.log.error(`[${instanceObj.native.dbtype}] client statistics is ${JSON.stringify(clientInfos)}. Please report this issue to the developer!`);
 			}
-			this.log.info(`Successful updating clientstatistics!`);
-		} else {
-			this.log.error(`[${instanceObj.native.dbtype}] client statistics is ${JSON.stringify(clientInfos)}. Please report this issue to the developer!`);
+		} catch (err) {
+			this.log.error(`[createClientStatistic] error: ${err.message}, stack: ${err.stack}`);
 		}
 	}
 
@@ -343,59 +345,63 @@ class Sqlstatistics extends utils.Adapter {
 	 * @param {Boolean} isSession
 	 */
 	async createSystemOrSessionStatistic(instanceObj, isSession = false) {
-		this.log.info(`updating ${isSession ? 'session' : 'system'} statistics for database provider '${instanceObj.native.dbtype}'...`);
+		try {
+			this.log.info(`updating ${isSession ? 'session' : 'system'} statistics for database provider '${instanceObj.native.dbtype}'...`);
 
-		SQLFuncs = await require(__dirname + '/lib/' + instanceObj.native.dbtype);
+			SQLFuncs = await require(__dirname + '/lib/' + instanceObj.native.dbtype);
 
-		let avaiableInfos = await this.getQueryResult(SQLFuncs.getSystemOrSessionInfos(isSession));
-		if (avaiableInfos && Object.keys(avaiableInfos).length > 0) {
-			this.log.debug(`[${instanceObj.native.dbtype}] ${isSession ? 'session' : 'system'} statistics received, ${Object.keys(avaiableInfos).length} values exists`);
+			let avaiableInfos = await this.getQueryResult(SQLFuncs.getSystemOrSessionInfos(isSession));
+			if (avaiableInfos && Object.keys(avaiableInfos).length > 0) {
+				this.log.debug(`[${instanceObj.native.dbtype}] ${isSession ? 'session' : 'system'} statistics received, ${Object.keys(avaiableInfos).length} values exists`);
 
-			for (const info of avaiableInfos) {
+				for (const info of avaiableInfos) {
 
-				if (info && info.name && info.value) {
-					if (isSession) {
-						setInfoStates(this, info, this.config.selectedSessionInfos, this.config.sessionStatistics, isSession);
-					} else {
-						setInfoStates(this, info, this.config.selectedSystemInfos, this.config.systemStatistics, isSession);
-					}
-				}
-
-				/**
-				 * @param {object} adapter
-				 * @param {object} info
-				 * @param {string[]} selectedInfosList
-				 * @param {boolean} enabled
-				 * @param {boolean} isSession
-				 */
-				async function setInfoStates(adapter, info, selectedInfosList, enabled, isSession) {
-					if (selectedInfosList.includes(info.name) && enabled) {
-						// this.log.info(parseFloat(info.value).toString());
-
-						if (isNaN(parseFloat(info.value))) {
-							await adapter.createStatisticObjectString(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, `${info.name.replace(/_/g, " ")}`);
-							await adapter.setStateAsync(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, info.value, true);
+					if (info && info.name && info.value) {
+						if (isSession) {
+							setInfoStates(this, info, this.config.selectedSessionInfos, this.config.sessionStatistics, isSession);
 						} else {
+							setInfoStates(this, info, this.config.selectedSystemInfos, this.config.systemStatistics, isSession);
+						}
+					}
 
-							if (info.name.toLowerCase().includes('bytes')) {
-								await adapter.createStatisticObjectNumber(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, `${info.name.replace(/_/g, " ")}`, 'MB');
-								await adapter.setStateAsync(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, Math.round(parseFloat(info.value) / 1024 / 1024 * 100) / 100, true);
+					/**
+					 * @param {object} adapter
+					 * @param {object} info
+					 * @param {string[]} selectedInfosList
+					 * @param {boolean} enabled
+					 * @param {boolean} isSession
+					 */
+					async function setInfoStates(adapter, info, selectedInfosList, enabled, isSession) {
+						if (selectedInfosList.includes(info.name) && enabled) {
+							// this.log.info(parseFloat(info.value).toString());
+
+							if (isNaN(parseFloat(info.value))) {
+								await adapter.createStatisticObjectString(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, `${info.name.replace(/_/g, " ")}`);
+								await adapter.setStateAsync(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, info.value, true);
 							} else {
-								await adapter.createStatisticObjectNumber(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, `${info.name.replace(/_/g, " ")}`, '');
-								await adapter.setStateAsync(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, parseFloat(info.value), true);
+
+								if (info.name.toLowerCase().includes('bytes')) {
+									await adapter.createStatisticObjectNumber(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, `${info.name.replace(/_/g, " ")}`, 'MB');
+									await adapter.setStateAsync(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, Math.round(parseFloat(info.value) / 1024 / 1024 * 100) / 100, true);
+								} else {
+									await adapter.createStatisticObjectNumber(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, `${info.name.replace(/_/g, " ")}`, '');
+									await adapter.setStateAsync(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, parseFloat(info.value), true);
+								}
+							}
+						} else {
+							if (await adapter.getObjectAsync(`${adapter.name}.${adapter.instance}.${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`)) {
+								await adapter.delObjectAsync(`${adapter.name}.${adapter.instance}.${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`);
 							}
 						}
-					} else {
-						if (await adapter.getObjectAsync(`${adapter.name}.${adapter.instance}.${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`)) {
-							await adapter.delObjectAsync(`${adapter.name}.${adapter.instance}.${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`);
-						}
 					}
 				}
-			}
 
-			this.log.info(`Successful updating ${isSession ? 'session' : 'system'} statistics!`);
-		} else {
-			this.log.error(`[${instanceObj.native.dbtype}] ${isSession ? 'session' : 'system'} statistics is ${JSON.stringify(avaiableInfos)}. Please report this issue to the developer!`);
+				this.log.info(`Successful updating ${isSession ? 'session' : 'system'} statistics!`);
+			} else {
+				this.log.error(`[${instanceObj.native.dbtype}] ${isSession ? 'session' : 'system'} statistics is ${JSON.stringify(avaiableInfos)}. Please report this issue to the developer!`);
+			}
+		} catch (err) {
+			this.log.error(`[createSystemOrSessionStatistic] error: ${err.message}, stack: ${err.stack}`);
 		}
 	}
 
@@ -655,6 +661,9 @@ class Sqlstatistics extends utils.Adapter {
 				// The state was changed
 				this.setState('info.connection', Boolean(state.val), state.ack);
 				connected === Boolean(state.val);
+
+				await this.updateAvailableInfos();
+
 			} else {
 				// The state was deleted
 				this.setState('info.connection', false, true);
@@ -665,7 +674,7 @@ class Sqlstatistics extends utils.Adapter {
 		if (id === `${this.name}.${this.instance}.update`) {
 			if (!updateIsRunning) {
 				await this.updateDatabaseStatistic();
-				await this.updateSystemOrSessionStatistic();
+				await this.updateStatistic();
 			} else {
 				this.log.warn(`update is currently running, please wait until its finished!`);
 			}
