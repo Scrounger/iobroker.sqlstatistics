@@ -64,8 +64,66 @@ class Sqlstatistics extends utils.Adapter {
 				adapter.updateSystemOrSessionStatistic();
 			}, this.config.updateSystemSessionInterval * 60000);
 
-			await this.updateStatistic();
-			await this.updateSystemOrSessionStatistic();
+			await this.updateAvailableInfos();
+			// await this.updateStatistic();
+			// await this.updateSystemOrSessionStatistic();
+		}
+	}
+
+	async updateAvailableInfos() {
+		try {
+			updateIsRunning = true;
+
+			if (connected) {
+				this.log.info(`connected with '${this.config.sqlInstance}' instance.`);
+				let instanceObj = await this.getForeignObjectAsync(`system.adapter.${this.config.sqlInstance}`)
+
+				if (instanceObj && instanceObj.native) {
+					if (instanceObj.native.dbtype !== 'sqlite') {
+						this.log.info(`updating avaiable system / session infos for database provider '${instanceObj.native.dbtype}'...`);
+
+						SQLFuncs = await require(__dirname + '/lib/' + instanceObj.native.dbtype);
+						let infoList = await this.getQueryResult(SQLFuncs.getAvailableInfos());
+
+						if (infoList && Object.keys(infoList).length > 0) {
+							let avaiableInfos = [];
+							for (const info of infoList) {
+
+								try {
+									this.log.debug(`[${instanceObj.native.dbtype}] creating statistics for database '${info.name}'`);
+
+									avaiableInfos.push(info.name);
+
+								} catch (tableErr) {
+									this.log.error(`[updateAvailableInfos] info: '${info.name}', error: ${tableErr.message}, stack: ${tableErr.stack}`);
+								}
+							}
+
+							let updateObj = await this.getObjectAsync('update');
+							if (updateObj) {
+								updateObj.native.availableInfos = avaiableInfos;
+								await this.extendObjectAsync('update', updateObj);
+								this.log.info(`Successful updating avaiable system / session infos! `);
+							} else {
+								this.log.error(`datapoint '${this.name}.${this.instance}.update' not exist!`);
+							}
+							
+						} else {
+							this.log.error(`[${instanceObj.native.dbtype}] list of available infos is ${JSON.stringify(infoList)}. Please report this issue to the developer!`);
+						}
+					} else {
+						this.log.warn(`Database type 'SQLite3' is not supported!`);
+					}
+				} else {
+					this.log.error(`Instance object 'system.adapter.${this.config.sqlInstance}' not exist!`);
+				}
+			} else {
+				this.log.warn(`Instance '${this.config.sqlInstance}' has no connection to database!`);
+			}
+
+			updateIsRunning = false;
+		} catch (err) {
+			this.log.error(`[updateAvailableInfos] error: ${err.message}, stack: ${err.stack}`);
 		}
 	}
 
@@ -205,7 +263,7 @@ class Sqlstatistics extends utils.Adapter {
 						if (this.config.systemStatistics) {
 							await this.createSystemSessionStatistic(instanceObj);
 						} else {
-							if(this.config.deleteObjects){
+							if (this.config.deleteObjects) {
 								let stateList = await this.getStatesAsync(`${this.name}.${this.instance}.system.*`);
 								for (const id in stateList) {
 									await this.delObjectAsync(id);
@@ -216,7 +274,7 @@ class Sqlstatistics extends utils.Adapter {
 						if (this.config.sessionStatistics) {
 							await this.createSystemSessionStatistic(instanceObj, true);
 						} else {
-							if(this.config.deleteObjects){
+							if (this.config.deleteObjects) {
 								let stateList = await this.getStatesAsync(`${this.name}.${this.instance}.session.*`);
 								for (const id in stateList) {
 									await this.delObjectAsync(id);
@@ -254,7 +312,7 @@ class Sqlstatistics extends utils.Adapter {
 			this.log.debug(`[${instanceObj.native.dbtype}] ${isSession ? 'session' : 'system'} statistics received, ${Object.keys(systemStatistics).length} values exists`);
 
 			for (const info of systemStatistics) {
-				
+
 				if (info.name === 'Bytes_received' || info.name === 'Bytes_sent') {
 					await this.createStatisticObjectNumber(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, `${info.name.replace(/_/g, " ")}`, 'MB');
 					await this.setStateAsync(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, Math.round((info.value / 1024 / 1024) * 100) / 100, true);
