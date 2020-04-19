@@ -81,12 +81,9 @@
 				}
 			});
 
-
-
 			loadAvailableInfos(settings);
 
 			showHideSettings();
-			list2chips('.blackListDatabases', settings.blackListDatabases || '', onChange);
 
 			getSqlInstances(settings);
 
@@ -189,32 +186,6 @@
 			});
 		}
 
-		function list2chips(selector, list, onChange) {
-			var chips = list.split(/[,;\s]+/);
-			var data = [];
-			for (var c = 0; c < chips.length; c++) {
-				if (chips[c] && chips[c].trim()) {
-					data.push({ tag: chips[c].trim() });
-				}
-			}
-			$(selector).chips({
-				data: data,
-				placeholder: _('DatabaseName'),
-				secondaryPlaceholder: _('AddDatabase'),
-				onChipAdd: onChange,
-				onChipDelete: onChange
-			});
-		}
-
-		function chips2list(selector) {
-			var data = $(selector).chips('getData');
-			var text = [];
-			for (var lib = 0; lib < data.length; lib++) {
-				text.push(data[lib].tag);
-			}
-			return text.join(' ');
-		}
-
 		function loadAvailableInfos(settings) {
 			// Read all available infos from update object
 			const result = getObject(`${myNamespace}.update`, (err, state) => {
@@ -297,8 +268,6 @@
 				}
 			});
 
-			obj.blackListDatabases = chips2list('.blackListDatabases');
-
 			obj.selectedSystemInfos = []
 			$('.selectedSystemDatapoints').each(function () {
 				if ($(this).prop('checked')) {
@@ -359,12 +328,6 @@
 					<div class="input-field col s12 m4">
 						<input id="foreignTableStatistics" type="checkbox" class="value" />
 						<label class="translate" for="foreignTableStatistics">createTableStatistics</label>
-					</div>
-				</div>
-				<div class="row myVisibleHandler">
-					<div class="col s12">
-						<label class="translate">BlacklistDatabases</label>
-						<div class="chips blackListDatabases"></div>
 					</div>
 				</div>
 				<div class="row myVisibleHandler">

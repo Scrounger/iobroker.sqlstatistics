@@ -85,7 +85,7 @@
 		"sqlInstance": "",
 		"updateInterval": 6,
 		"updateSystemSessionInterval": 5,
-		"blackListDatabases": "sys information_schema performance_schema mysql",
+		"blackListDatabases": ["sys", "information_schema", "performance_schema", "mysql"],
 		"foreignTableStatistics": false,
 		"systemStatistics": true,
 		"sessionStatistics": true,

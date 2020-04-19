@@ -67,7 +67,7 @@ class Sqlstatistics extends utils.Adapter {
 			await this.updateAvailableInfos();
 
 			await this.updateSystemOrSessionStatistic();
-			// await this.updateStatistic();
+			await this.updateStatistic();
 		}
 	}
 
@@ -124,7 +124,7 @@ class Sqlstatistics extends utils.Adapter {
 						if (updateObj) {
 							updateObj.native.availableInfos = avaiableInfos;
 							updateObj.native.availableDatabases = availableDatabases;
-							
+
 							await this.extendObjectAsync('update', updateObj);
 							this.log.info(`Successful updating avaiable system / session / database infos! `);
 						} else {
@@ -248,7 +248,7 @@ class Sqlstatistics extends utils.Adapter {
 
 							await this.deleteUnsedObjects();
 
-							this.log.info(`Successful updating statistics in ${duration}s! `);
+							this.log.info(`Successful updating databases statistics in ${duration}s! `);
 						} else {
 							this.log.error(`[${instanceObj.native.dbtype}] list of databases is ${JSON.stringify(databaseList)}. Please report this issue to the developer!`);
 						}
