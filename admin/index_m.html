@@ -57,9 +57,11 @@
 		var availableInfos = null;
 		var availableDatabases = null;
 
-		let defaultSystemInfos = ["Bytes_received", "Bytes_sent", "Max_used_connections", "Connections"];
-		let defaultSessionInfos = ["Bytes_received", "Bytes_sent"];
 		let defaultDatabasesBlacklist = ["sys", "information_schema", "performance_schema", "mysql"];
+
+		let defaultSystemInfos = ["Aborted_clients", "Aborted_connects", "Bytes_received", "Bytes_sent", "Connection_errors_accept", "Connection_errors_internal", "Connection_errors_max_connections", "Connection_errors_peer_address", "Connection_errors_select", "Connection_errors_tcpwrap", "Connections", "Max_used_connections", "Questions", "Slow_queries", "Threads_cached", "Threads_connected", "Threads_created", "Threads_running", "Uptime"];
+
+		let defaultSessionInfos = ["Bytes_received", "Bytes_sent", "Questions", "Uptime_since_flush_status"];
 
 		// This will be called by the admin adapter when the settings page loads
 		function load(settings, onChange) {
@@ -329,7 +331,7 @@
 
 					if ($('#sqlInstance').val()) {
 						getObject(`system.adapter.${$('#sqlInstance').val()}`, (err, state) => {
-							
+
 							if (state.native.dbname) {
 								for (var i = 0; i < availableDatabases.length; i++) {
 									if (availableDatabases[i] !== state.native.dbname) {
@@ -411,11 +413,10 @@
 			</div>
 			<div id="tab-general" class="col s12 page">
 				<div class="row">
-					<div class="col s12 m4 l2">
+					<div class="col s2 m1 l1">
 						<img src="sqlstatistics.png" class="logo">
 					</div>
 				</div>
-
 				<!-- Put your content here -->
 
 				<!-- For example columns with settings: -->
@@ -424,7 +425,7 @@
 						<select class="value" id="sqlInstance">
 							<option value="" class="translate">none</option>
 						</select>
-						<label class="translate" for="sqlInstance">SelectSqlHistoryInstance</label>
+						<label class="translate" for="sqlInstance" style="margin-top: 10px !important;">SelectSqlHistoryInstance</label>
 					</div>
 				</div>
 				<div class="row myVisibleHandler">
@@ -467,12 +468,7 @@
 			</div>
 			<div id="tab-databasesBlackList" class="col s12 page">
 				<div class="row myVisibleHandler" style="margin-right: 0px">
-					<div class="row">
-						<div class="col s12 m4 l2">
-							<img src="sqlstatistics.png" class="logo">
-						</div>
-					</div>
-					<div class="row databasesBlacklistButtons" style="padding: 0 12px;">
+					<div class="row databasesBlacklistButtons" style="padding: 12px;">
 						<a id="defaultDatabasesBlacklist" class="waves-effect waves-light btn-small myButton"><i
 								class="material-icons left">settings_backup_restore</i><span
 								class="translate">default</span></a>
@@ -492,12 +488,7 @@
 			</div>
 			<div id="tab-systemDatapoints" class="col s12 page">
 				<div class="row myVisibleHandler">
-					<div class="row">
-						<div class="col s12 m4 l2">
-							<img src="sqlstatistics.png" class="logo">
-						</div>
-					</div>
-					<div class="row systemButtons" style="padding: 0 12px">
+					<div class="row systemButtons" style="padding: 12px">
 						<a id="defaultSystemDatapoints" class="waves-effect waves-light btn-small myButton"><i
 								class="material-icons left">settings_backup_restore</i><span
 								class="translate">default</span></a>
@@ -517,12 +508,7 @@
 			</div>
 			<div id="tab-sessionDatapoints" class="col s12 page">
 				<div class="row myVisibleHandler">
-					<div class="row">
-						<div class="col s12 m4 l2">
-							<img src="sqlstatistics.png" class="logo">
-						</div>
-					</div>
-					<div class="row sessionButtons" style="padding: 0 12px">
+					<div class="row sessionButtons" style="padding: 12px">
 						<a id="defaultSessionDatapoints" class="waves-effect waves-light btn-small myButton"><i
 								class="material-icons left">settings_backup_restore</i><span
 								class="translate">default</span></a>
