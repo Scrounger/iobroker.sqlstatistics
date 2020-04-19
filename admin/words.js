@@ -87,16 +87,16 @@ systemDictionary = {
 		"zh-cn": "黑名单数据库：不应包含在统计信息中的数据库"
 	},
 	"createTableStatistics": {
-		"en": "create statistics for non ioBroker tables",
-		"de": "Statistiken für nicht ioBroker Tabellen erzeugen",
-		"ru": "создать статистику для таблиц не ioBroker",
-		"pt": "criar estatísticas para tabelas não ioBroker",
-		"nl": "maak statistieken voor niet ioBroker-tabellen",
-		"fr": "créer des statistiques pour les tables non ioBroker",
-		"it": "creare statistiche per tabelle non ioBroker",
-		"es": "crear estadísticas para tablas que no sean ioBroker",
-		"pl": "tworzyć statystyki dla tabel innych niż ioBroker",
-		"zh-cn": "为非ioBroker表创建统计信息"
+		"en": "create statistics for tables",
+		"de": "Statistiken für Tabellen erstellen",
+		"ru": "создать статистику для таблиц",
+		"pt": "criar estatísticas para tabelas",
+		"nl": "maak statistieken voor tabellen",
+		"fr": "créer des statistiques pour les tableaux",
+		"it": "creare statistiche per le tabelle",
+		"es": "crear estadísticas para tablas",
+		"pl": "tworzyć statystyki dla tabel",
+		"zh-cn": "创建表统计信息"
 	},
 	"donationInfo": {
 		"en": "You like the adapter? Then support the adapter developer (Scrounger) with a small donation.",
