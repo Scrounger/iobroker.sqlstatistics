@@ -41,8 +41,7 @@
 		}
 
 		.myButton {
-			margin-top: 16px !important;
-			margin-bottom: 16px !important;
+			margin-right: 16px !important;
 		}
 	</style>
 
@@ -52,13 +51,13 @@
 		var retryTimer = [];
 		var availableInfos = null;
 
+		let defaultSystemInfos = ["Bytes_received", "Bytes_sent", "Max_used_connections", "Connections"];
+		let defaultSessionInfos = ["Bytes_received", "Bytes_sent"];
+
 		// This will be called by the admin adapter when the settings page loads
 		function load(settings, onChange) {
 			_onChange = onChange;
 			myNamespace = adapter + '.' + instance;
-
-			let defaultSystemInfos = ["Bytes_received", "Bytes_sent", "Max_used_connections", "Connections"];
-			let defaultSessionInfos = ["Bytes_received", "Bytes_sent"];
 
 			// example: select elements with id=key and class=value and insert value
 			if (!settings) return;
@@ -91,6 +90,22 @@
 
 			getSqlInstances(settings);
 
+			buttonEvents();
+
+			onChange(false);
+			// reinitialize all the Materialize labels on the page if you are dynamically adding inputs:
+			if (M) M.updateTextFields();
+		}
+
+		function showHideSettings(id) {
+			if ($('#sqlInstance').val()) {
+				$('.mySettings').show();
+			} else {
+				$('.mySettings').hide();
+			}
+		}
+
+		function buttonEvents() {
 			$('#defaultSystemDatapoints').on('click', function () {
 				$('.selectedSystemDatapoints').each(function () {
 					let $this = $(this);
@@ -101,6 +116,20 @@
 						$this.prop('checked', false);
 					}
 
+					_onChange();
+				});
+			})
+
+			$('#allSystemDatapoints').on('click', function () {
+				$('.selectedSystemDatapoints').each(function () {
+					let $this = $(this).prop('checked', true);
+					_onChange();
+				});
+			})
+
+			$('#noneSystemDatapoints').on('click', function () {
+				$('.selectedSystemDatapoints').each(function () {
+					let $this = $(this).prop('checked', false);
 					_onChange();
 				});
 			})
@@ -119,19 +148,19 @@
 				});
 			})
 
-			console.log('fuuuu');
+			$('#allSessionDatapoints').on('click', function () {
+				$('.selectedSessionDatapoints').each(function () {
+					let $this = $(this).prop('checked', true);
+					_onChange();
+				});
+			})
 
-			onChange(false);
-			// reinitialize all the Materialize labels on the page if you are dynamically adding inputs:
-			if (M) M.updateTextFields();
-		}
-
-		function showHideSettings(id) {
-			if ($('#sqlInstance').val()) {
-				$('.mySettings').show();
-			} else {
-				$('.mySettings').hide();
-			}
+			$('#noneSessionDatapoints').on('click', function () {
+				$('.selectedSessionDatapoints').each(function () {
+					let $this = $(this).prop('checked', false);
+					_onChange();
+				});
+			})
 		}
 
 		function getSqlInstances(settings) {
@@ -205,7 +234,8 @@
 						loadAvailableInfos(settings);
 					}, 1000);
 
-
+					$('.systemButtons').hide();
+					$('.sessionButtons').hide();
 				} else {
 					// Clear retry timer when running
 
@@ -237,6 +267,9 @@
 							'</label>';
 					}
 					$sessionDatapoints.html(text);
+
+					$('.systemButtons').show();
+					$('.sessionButtons').show();
 				}
 
 				$('.selectedSystemDatapoints').on('change', function () {
@@ -364,11 +397,16 @@
 					<div class="col s2 m2">
 						<img src="sqlstatistics.png" class="logo">
 					</div>
-					<div class="col s2 m2">
-						<a id="defaultSystemDatapoints" class="waves-effect waves-light btn-small myButton"><i
-								class="material-icons left">settings_backup_restore</i><span
-								class="translate">default</span></a>
-					</div>
+				</div>
+				<div class="row systemButtons" style="padding: 0 12px">
+					<a id="defaultSystemDatapoints" class="waves-effect waves-light btn-small myButton"><i
+							class="material-icons left">settings_backup_restore</i><span
+							class="translate">default</span></a>
+					<a id="allSystemDatapoints" class="waves-effect waves-light btn-small myButton"><i
+							class="material-icons left">check_box</i><span class="translate">selectAll</span></a>
+					<a id="noneSystemDatapoints" class="waves-effect waves-light btn-small myButton"><i
+							class="material-icons left">check_box_outline_blank</i><span
+							class="translate">selectNone</span></a>
 				</div>
 				<div class="row" id="systemDatapoints">
 					<div class="progress">
@@ -382,11 +420,16 @@
 					<div class="col s12 m4 l2">
 						<img src="sqlstatistics.png" class="logo">
 					</div>
-					<div class="col s2 m2">
-						<a id="defaultSessionDatapoints" class="waves-effect waves-light btn-small myButton"><i
-								class="material-icons left">settings_backup_restore</i><span
-								class="translate">default</span></a>
-					</div>
+				</div>
+				<div class="row sessionButtons" style="padding: 0 12px">
+					<a id="defaultSessionDatapoints" class="waves-effect waves-light btn-small myButton"><i
+							class="material-icons left">settings_backup_restore</i><span
+							class="translate">default</span></a>
+					<a id="allSessionDatapoints" class="waves-effect waves-light btn-small myButton"><i
+							class="material-icons left">check_box</i><span class="translate">selectAll</span></a>
+					<a id="noneSessionDatapoints" class="waves-effect waves-light btn-small myButton"><i
+							class="material-icons left">check_box_outline_blank</i><span
+							class="translate">selectNone</span></a>
 				</div>
 				<div class="row" id="sessionDatapoints">
 					<div class="progress">

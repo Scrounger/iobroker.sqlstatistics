@@ -205,5 +205,41 @@ systemDictionary = {
 		"es": "¡La selección de puntos de datos aún no está disponible, el adaptador debe ejecutarse con éxito 1 vez para mostrar los puntos de datos disponibles!",
 		"pl": "Wybór punktów danych nie jest jeszcze dostępny, adapter musi pomyślnie uruchomić 1 raz, aby wyświetlić dostępne punkty danych!",
 		"zh-cn": "数据点选择尚不可用，适配器必须成功运行1次才能显示可用数据点！"
+	},
+	"default": {
+		"en": "default",
+		"de": "Standard",
+		"ru": "по умолчанию",
+		"pt": "padrão",
+		"nl": "standaard",
+		"fr": "défaut",
+		"it": "predefinito",
+		"es": "defecto",
+		"pl": "domyślna",
+		"zh-cn": "默认"
+	},
+	"selectAll": {
+		"en": "all select",
+		"de": "alle auswählen",
+		"ru": "все выбирают",
+		"pt": "tudo selecionado",
+		"nl": "allemaal selecteren",
+		"fr": "tout sélectionner",
+		"it": "tutti selezionano",
+		"es": "todo selecto",
+		"pl": "wszystko wybierz",
+		"zh-cn": "全部选择"
+	},
+	"selectNone": {
+		"en": "nothing select",
+		"de": "nichts auswählen",
+		"ru": "ничего не выбрать",
+		"pt": "nada selecione",
+		"nl": "niets selecteren",
+		"fr": "rien sélectionner",
+		"it": "niente selezionare",
+		"es": "nada selecto",
+		"pl": "nic nie wybieram",
+		"zh-cn": "没有选择"
 	}
 };
