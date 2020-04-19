@@ -57,17 +57,17 @@ class Sqlstatistics extends utils.Adapter {
 
 			let adapter = this;
 			setInterval(function () {
-				adapter.updateStatistic();
-			}, this.config.updateInterval * 3600000);
+				adapter.updateDatabaseStatistic();
+			}, this.config.updateIntervalDatabases * 3600000);
 
 			setInterval(function () {
 				adapter.updateSystemOrSessionStatistic();
-			}, this.config.updateSystemSessionInterval * 60000);
+			}, this.config.updateIntervalStatistics * 60000);
 
 			await this.updateAvailableInfos();
 
 			await this.updateSystemOrSessionStatistic();
-			await this.updateStatistic();
+			await this.updateDatabaseStatistic();
 		}
 	}
 
@@ -146,7 +146,7 @@ class Sqlstatistics extends utils.Adapter {
 		}
 	}
 
-	async updateStatistic() {
+	async updateDatabaseStatistic() {
 		try {
 			updateIsRunning = true;
 
@@ -204,9 +204,9 @@ class Sqlstatistics extends utils.Adapter {
 													this.setMyState(`${idTablePrefix}.rows`, rowsCount[0].rows, true, instanceObj, { dbname: database.name, name: "rows in table", unit: '', isTable: true });
 												} else {
 													if (!table.name.toLowerCase().includes('innodb_')) {
-														this.log.warn(`[updateStatistic] database: '${database.name}', table: '${table.name}' rowsCount is '${JSON.stringify(rowsCount)}'`);
+														this.log.warn(`[updateDatabaseStatistic] database: '${database.name}', table: '${table.name}' rowsCount is '${JSON.stringify(rowsCount)}'`);
 													} else {
-														this.log.debug(`[updateStatistic] database: '${database.name}', table: '${table.name}' rowsCount is '${JSON.stringify(rowsCount)}'`);
+														this.log.debug(`[updateDatabaseStatistic] database: '${database.name}', table: '${table.name}' rowsCount is '${JSON.stringify(rowsCount)}'`);
 													}
 													this.setMyState(`${idTablePrefix}.rows`, 0, true, instanceObj, { dbname: database.name, name: "rows in table", unit: '', isTable: true });
 												}
@@ -215,7 +215,7 @@ class Sqlstatistics extends utils.Adapter {
 													await this.createIobSpecialTableStatistic(database, table, idTablePrefix, instanceObj);
 												}
 											} catch (tableErr) {
-												this.log.error(`[updateStatistic] database: '${database.name}', table: '${table.name}' error: ${tableErr.message}, stack: ${tableErr.stack}`);
+												this.log.error(`[updateDatabaseStatistic] database: '${database.name}', table: '${table.name}' error: ${tableErr.message}, stack: ${tableErr.stack}`);
 											}
 										}
 									} else {
@@ -226,7 +226,7 @@ class Sqlstatistics extends utils.Adapter {
 									totalRows = totalRows + databaseRows;
 
 								} catch (dbErr) {
-									this.log.error(`[updateStatistic] database: '${database.name}' error: ${dbErr.message}, stack: ${dbErr.stack}`);
+									this.log.error(`[updateDatabaseStatistic] database: '${database.name}' error: ${dbErr.message}, stack: ${dbErr.stack}`);
 								}
 							}
 
@@ -264,7 +264,7 @@ class Sqlstatistics extends utils.Adapter {
 
 			updateIsRunning = false;
 		} catch (err) {
-			this.log.error(`[updateStatistic] error: ${err.message}, stack: ${err.stack}`);
+			this.log.error(`[updateDatabaseStatistic] error: ${err.message}, stack: ${err.stack}`);
 		}
 	}
 
@@ -280,6 +280,7 @@ class Sqlstatistics extends utils.Adapter {
 					if (instanceObj.native.dbtype !== 'sqlite') {
 						await this.createSystemOrSessionStatistic(instanceObj);
 						await this.createSystemOrSessionStatistic(instanceObj, true);
+						await this.createClientStatistic(instanceObj);
 					} else {
 						this.log.warn(`Database type 'SQLite3' is not supported!`);
 					}
@@ -294,6 +295,13 @@ class Sqlstatistics extends utils.Adapter {
 		} catch (err) {
 			this.log.error(`[updateSystemStatistic] error: ${err.message}, stack: ${err.stack}`);
 		}
+	}
+
+	/**
+	 * @param {ioBroker.Object} instanceObj
+	 */
+	async createClientStatistic(instanceObj) {
+		this.log.info(`updating client statistics for database provider '${instanceObj.native.dbtype}'...`);
 	}
 
 	/**
@@ -549,7 +557,7 @@ class Sqlstatistics extends utils.Adapter {
 			},
 			native: {}
 		}, function (err, obj) {
-			if (!err && obj) adapter.log.debug('[updateStatistic] statistic object ' + id + ' created');
+			if (!err && obj) adapter.log.debug('[createStatisticObjectNumber] statistic object ' + id + ' created');
 		});
 	}
 
@@ -570,7 +578,7 @@ class Sqlstatistics extends utils.Adapter {
 			},
 			native: {}
 		}, function (err, obj) {
-			if (!err && obj) adapter.log.debug('[updateStatistic] statistic object ' + id + ' created');
+			if (!err && obj) adapter.log.debug('[createStatisticObjectNumber] statistic object ' + id + ' created');
 		});
 	}
 
@@ -622,7 +630,7 @@ class Sqlstatistics extends utils.Adapter {
 
 		if (id === `${this.name}.${this.instance}.update`) {
 			if (!updateIsRunning) {
-				await this.updateStatistic();
+				await this.updateDatabaseStatistic();
 				await this.updateSystemOrSessionStatistic();
 			} else {
 				this.log.warn(`update is currently running, please wait until its finished!`);

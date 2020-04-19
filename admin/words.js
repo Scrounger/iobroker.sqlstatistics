@@ -38,17 +38,17 @@ systemDictionary = {
 		"pl": "Aktualizacja interwału dla statystyk baz danych w godzinach",
 		"zh-cn": "数据库统计信息的更新间隔（以小时为单位）"
 	},
-	"UpdateIntervalSystemOrSession": {
-		"en": "Update interval for system and session statistics in minutes",
-		"de": "Aktualisierungsintervall für System- und Sitzungsstatistiken in Minuten",
-		"ru": "Интервал обновления системной и сессионной статистики в минутах",
-		"pt": "Intervalo de atualização para estatísticas do sistema e da sessão em minutos",
-		"nl": "Update-interval voor systeem- en sessiestatistieken in minuten",
-		"fr": "Intervalle de mise à jour des statistiques système et de session en minutes",
-		"it": "Intervallo di aggiornamento per le statistiche di sistema e di sessione in minuti",
-		"es": "Intervalo de actualización para estadísticas del sistema y sesión en minutos",
-		"pl": "Aktualizacja interwału dla statystyki systemu i sesji w minutach",
-		"zh-cn": "系统和会话统计信息的更新间隔（以分钟为单位）"
+	"UpdateIntervalStatistics": {
+		"en": "Update interval for statistics in minutes",
+		"de": "Aktualisierungsintervall für Statistiken in Minuten",
+		"ru": "Интервал обновления статистики в минутах",
+		"pt": "Intervalo de atualização para estatísticas em minutos",
+		"nl": "Update-interval voor statistieken in minuten",
+		"fr": "Intervalle de mise à jour des statistiques en minutes",
+		"it": "Intervallo di aggiornamento per statistiche in minuti",
+		"es": "Intervalo de actualización para estadísticas en minutos",
+		"pl": "Zaktualizuj interwał dla statystyk w minutach",
+		"zh-cn": "统计信息的更新间隔（以分钟为单位）"
 	},
 	"DatabaseName": {
 		"en": "Database name",
@@ -122,17 +122,17 @@ systemDictionary = {
 		"pl": "ustawienie dla statystyk baz danych",
 		"zh-cn": "设置数据库统计信息"
 	},
-	"settingSystemOrSessionStatistics": {
-		"en": "setting for system and session statistics",
-		"de": "Einstellung für System- und Sitzungsstatistik",
-		"ru": "настройка для системной и сеансовой статистики",
-		"pt": "configuração para estatísticas do sistema e da sessão",
-		"nl": "instelling voor systeem- en sessiestatistieken",
-		"fr": "réglage des statistiques système et de session",
-		"it": "impostazione per statistiche di sistema e di sessione",
-		"es": "Configuración de estadísticas de sistema y sesión",
-		"pl": "ustawienie statystyk systemu i sesji",
-		"zh-cn": "设置系统和会话统计信息"
+	"settingStatistics": {
+		"en": "setting for statistics",
+		"de": "Einstellung für Statistiken",
+		"ru": "настройка для статистики",
+		"pt": "configuração para estatísticas",
+		"nl": "instelling voor statistieken",
+		"fr": "réglage pour les statistiques",
+		"it": "impostazione per le statistiche",
+		"es": "ajuste de estadísticas",
+		"pl": "ustawienie dla statystyk",
+		"zh-cn": "统计设置"
 	},
 	"enableSystemStatistics": {
 		"en": "enable system statistics",
@@ -157,6 +157,18 @@ systemDictionary = {
 		"es": "habilitar estadísticas de sesión",
 		"pl": "włącz statystyki sesji",
 		"zh-cn": "启用会话统计"
+	},
+	"enableClientStatistics": {
+		"en": "enable clients statistics",
+		"de": "Clients-Statistiken aktivieren",
+		"ru": "включить статистику клиентов",
+		"pt": "ativar estatísticas de clientes",
+		"nl": "klantenstatistieken inschakelen",
+		"fr": "activer les statistiques des clients",
+		"it": "abilitare le statistiche dei clienti",
+		"es": "habilitar estadísticas de clientes",
+		"pl": "włączyć statystyki klientów",
+		"zh-cn": "启用客户统计"
 	},
 	"general": {
 		"en": "general",

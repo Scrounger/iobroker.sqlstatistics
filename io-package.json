@@ -83,12 +83,13 @@
 	},
 	"native": {
 		"sqlInstance": "",
-		"updateInterval": 6,
-		"updateSystemSessionInterval": 5,
+		"updateIntervalDatabases": 6,
+		"updateIntervalStatistics": 5,
 		"blackListDatabases": ["sys", "information_schema", "performance_schema", "mysql"],
 		"foreignTableStatistics": false,
 		"systemStatistics": true,
 		"sessionStatistics": true,
+		"clientStatistics": true,
 		"selectedSystemInfos": ["Aborted_clients", "Aborted_connects", "Bytes_received", "Bytes_sent", "Connection_errors_accept", "Connection_errors_internal", "Connection_errors_max_connections", "Connection_errors_peer_address", "Connection_errors_select", "Connection_errors_tcpwrap", "Connections", "Max_used_connections", "Questions", "Slow_queries", "Threads_cached", "Threads_connected", "Threads_created", "Threads_running", "Uptime"],
 		"selectedSessionInfos": ["Bytes_received", "Bytes_sent", "Questions", "Uptime_since_flush_status"]
 	},

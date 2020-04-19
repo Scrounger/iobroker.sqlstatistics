@@ -433,8 +433,8 @@
 				</div>
 				<div class="row myVisibleHandler">
 					<div class="input-field real-sql col s12 m4">
-						<input id="updateInterval" type="number" min="1" max="23" class="value" />
-						<label class="translate" for="updateInterval">UpdateIntervalDatabases</label>
+						<input id="updateIntervalDatabases" type="number" min="1" max="23" class="value" />
+						<label class="translate" for="updateIntervalDatabases">UpdateIntervalDatabases</label>
 					</div>
 					<div class="input-field col s12 m4">
 						<input id="foreignTableStatistics" type="checkbox" class="value" />
@@ -442,7 +442,7 @@
 					</div>
 				</div>
 				<div class="row myVisibleHandler">
-					<h6 class="translate sub-title">settingSystemOrSessionStatistics</h6>
+					<h6 class="translate sub-title">settingStatistics</h6>
 				</div>
 				<div class="row myVisibleHandler">
 					<div class="input-field col s12 m4">
@@ -453,11 +453,15 @@
 						<input id="sessionStatistics" type="checkbox" class="value" />
 						<label class="translate" for="sessionStatistics">enableSessionStatistics</label>
 					</div>
+					<div class="input-field col s12 m4">
+						<input id="clientStatistics" type="checkbox" class="value" />
+						<label class="translate" for="clientStatistics">enableClientStatistics</label>
+					</div>					
 				</div>
 				<div class="row myVisibleHandler">
 					<div class="input-field real-sql col s12 m4">
-						<input id="updateSystemSessionInterval" type="number" min="1" max="23" class="value" />
-						<label class="translate" for="updateSystemSessionInterval">UpdateIntervalSystemOrSession</label>
+						<input id="updateIntervalStatistics" type="number" min="1" max="23" class="value" />
+						<label class="translate" for="updateIntervalStatistics">UpdateIntervalStatistics</label>
 					</div>
 				</div>
 				<div class="row">
