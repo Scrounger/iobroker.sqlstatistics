@@ -322,12 +322,11 @@ class Sqlstatistics extends utils.Adapter {
 				/**
 				 * @param {object} adapter
 				 * @param {object} info
-				 * @param {never[]} selectedInfosList
+				 * @param {string[]} selectedInfosList
 				 * @param {boolean} enabled
 				 * @param {boolean} isSession
 				 */
 				async function setInfoStates(adapter, info, selectedInfosList, enabled, isSession) {
-					// @ts-ignore
 					if (selectedInfosList.includes(info.name) && enabled) {
 						// this.log.info(parseFloat(info.value).toString());
 
@@ -335,8 +334,14 @@ class Sqlstatistics extends utils.Adapter {
 							await adapter.createStatisticObjectString(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, `${info.name.replace(/_/g, " ")}`);
 							await adapter.setStateAsync(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, info.value, true);
 						} else {
-							await adapter.createStatisticObjectNumber(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, `${info.name.replace(/_/g, " ")}`, '');
-							await adapter.setStateAsync(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, parseFloat(info.value), true);
+
+							if (info.name.toLowerCase().includes('bytes')) {
+								await adapter.createStatisticObjectNumber(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, `${info.name.replace(/_/g, " ")}`, 'MB');
+								await adapter.setStateAsync(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, Math.round(parseFloat(info.value) / 1024 / 1024 * 100) / 100, true);
+							} else {
+								await adapter.createStatisticObjectNumber(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, `${info.name.replace(/_/g, " ")}`, '');
+								await adapter.setStateAsync(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, parseFloat(info.value), true);
+							}
 						}
 					} else {
 						if (await adapter.getObjectAsync(`${adapter.name}.${adapter.instance}.${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`)) {
