@@ -74,17 +74,17 @@ systemDictionary = {
 		"pl": "Dodaj bazę danych",
 		"zh-cn": "添加数据库"
 	},
-	"BlacklistDatabases": {
-		"en": "Blacklist databases: databases that should not be in the statistic",
-		"de": "Blacklist-Datenbanken: Datenbanken, die nicht in der Statistik enthalten sein sollten",
-		"ru": "Базы данных черного списка: базы данных, которых не должно быть в статистике",
-		"pt": "Bancos de dados da lista negra: bancos de dados que não devem estar na estatística",
-		"nl": "Blacklist databases: databases die niet in de statistiek mogen staan",
-		"fr": "Bases de données de liste noire: bases de données qui ne devraient pas figurer dans la statistique",
-		"it": "Database blacklist: database che non dovrebbero essere nella statistica",
-		"es": "Bases de datos de listas negras: bases de datos que no deberían estar en la estadística",
-		"pl": "Bazy danych z czarnej listy: bazy danych, które nie powinny znajdować się w statystykach",
-		"zh-cn": "黑名单数据库：不应包含在统计信息中的数据库"
+	"databasesBlacklist": {
+		"en": "databases Blacklist",
+		"de": "Datenbanken Blacklist",
+		"ru": "черный список баз данных",
+		"pt": "lista negra de bancos de dados",
+		"nl": "databases zwarte lijst",
+		"fr": "base de données liste noire",
+		"it": "database Blacklist",
+		"es": "lista negra de bases de datos",
+		"pl": "czarna lista baz danych",
+		"zh-cn": "数据库黑名单"
 	},
 	"createTableStatistics": {
 		"en": "create statistics for tables",
