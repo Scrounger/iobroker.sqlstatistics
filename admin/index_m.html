@@ -57,6 +57,9 @@
 			_onChange = onChange;
 			myNamespace = adapter + '.' + instance;
 
+			let defaultSystemInfos = ["Bytes_received", "Bytes_sent"];
+			let defaultSessionInfos = ["Bytes_received", "Bytes_sent"];
+
 			// example: select elements with id=key and class=value and insert value
 			if (!settings) return;
 			$('.value').each(function () {
@@ -89,7 +92,11 @@
 			getSqlInstances(settings);
 
 			$('#defaultSystemDatapoints').on('click', function () {
-				console.log('jaaa');
+				$('.info').each(function(){
+					console.log(this)
+
+				});
+				
 			})
 
 			console.log('fuuuu');
@@ -195,7 +202,7 @@
 					var text = '';
 					for (var i = 0; i < availableInfos.length; i++) {
 						text += '<label class="col s4 input-field myCheckBoxListItem">' +
-							'<input type="checkbox" class="info" ' + (settings.selectedSystemInfos.indexOf(availableInfos[i]) !== -1 ? 'checked ' : '') + ' data-info="' + availableInfos[i] + '" />' +
+							'<input type="checkbox" class="selectedSystemDatapoints" ' + (settings.selectedSystemInfos.indexOf(availableInfos[i]) !== -1 ? 'checked ' : '') + ' data-info="' + availableInfos[i] + '" />' +
 							'<span class="black-text">' + _(availableInfos[i]) + '</span>' +
 							'</label>';
 					}
@@ -205,14 +212,18 @@
 					var text = '';
 					for (var i = 0; i < availableInfos.length; i++) {
 						text += '<label class="col s4 input-field myCheckBoxListItem">' +
-							'<input type="checkbox" class="info" ' + (settings.selectedSessionInfos.indexOf(availableInfos[i]) !== -1 ? 'checked ' : '') + ' data-info="' + availableInfos[i] + '" />' +
+							'<input type="checkbox" class="selectedSessionDatapoints" ' + (settings.selectedSessionInfos.indexOf(availableInfos[i]) !== -1 ? 'checked ' : '') + ' data-info="' + availableInfos[i] + '" />' +
 							'<span class="black-text">' + _(availableInfos[i]) + '</span>' +
 							'</label>';
 					}
 					$sessionDatapoints.html(text);
 				}
 
-				$('.info').on('change', function () {
+				$('.selectedSystemDatapoints').on('change', function () {
+					_onChange()
+				});
+				
+				$('.selectedSessionDatapoints').on('change', function () {
 					_onChange()
 				});
 				// reinitialize all the Materialize labels on the page if you are dynamically adding inputs:
@@ -234,6 +245,20 @@
 			});
 
 			obj.blackListDatabases = chips2list('.blackListDatabases');
+
+			obj.selectedSystemInfos = []
+            $('.selectedSystemDatapoints').each(function () {
+                if ($(this).prop('checked')) {
+                    obj.selectedSystemInfos.push($(this).data('info'));
+                }
+            });
+			
+			obj.selectedSessionInfos = []
+            $('.selectedSessionDatapoints').each(function () {
+                if ($(this).prop('checked')) {
+                    obj.selectedSessionInfos.push($(this).data('info'));
+                }
+            });
 
 			callback(obj);
 		}
