@@ -81,36 +81,54 @@ class Sqlstatistics extends utils.Adapter {
 
 				if (instanceObj && instanceObj.native) {
 					if (instanceObj.native.dbtype !== 'sqlite') {
-						this.log.info(`updating avaiable system / session infos for database provider '${instanceObj.native.dbtype}'...`);
+						this.log.info(`updating avaiable system / session / database infos for database provider '${instanceObj.native.dbtype}'...`);
+						let avaiableInfos = [];
+						let availableDatabases = [];
 
 						SQLFuncs = await require(__dirname + '/lib/' + instanceObj.native.dbtype);
 						let infoList = await this.getQueryResult(SQLFuncs.getSystemOrSessionInfos());
 
 						if (infoList && Object.keys(infoList).length > 0) {
-							let avaiableInfos = [];
 							for (const info of infoList) {
-
 								try {
-									this.log.debug(`[${instanceObj.native.dbtype}] creating statistics for database '${info.name}'`);
+									this.log.debug(`[${instanceObj.native.dbtype}] adding '${info.name}' to available system / session infos`);
 
 									avaiableInfos.push(info.name);
 
-								} catch (tableErr) {
-									this.log.error(`[updateAvailableInfos] info: '${info.name}', error: ${tableErr.message}, stack: ${tableErr.stack}`);
+								} catch (infoErr) {
+									this.log.error(`[updateAvailableInfos] info: '${info.name}', error: ${infoErr.message}, stack: ${infoErr.stack}`);
 								}
 							}
-
-							let updateObj = await this.getObjectAsync('update');
-							if (updateObj) {
-								updateObj.native.availableInfos = avaiableInfos;
-								await this.extendObjectAsync('update', updateObj);
-								this.log.info(`Successful updating avaiable system / session infos! `);
-							} else {
-								this.log.error(`datapoint '${this.name}.${this.instance}.update' not exist!`);
-							}
-
 						} else {
-							this.log.error(`[${instanceObj.native.dbtype}] list of available infos is ${JSON.stringify(infoList)}. Please report this issue to the developer!`);
+							this.log.error(`[${instanceObj.native.dbtype}] list of available system / session infos is ${JSON.stringify(infoList)}. Please report this issue to the developer!`);
+						}
+
+						let databaseList = await this.getQueryResult(SQLFuncs.getDatabases());
+
+						if (databaseList && Object.keys(databaseList).length > 0) {
+							for (const database of databaseList) {
+								try {
+									this.log.debug(`[${instanceObj.native.dbtype}] adding '${database.name}' to available databases`);
+
+									availableDatabases.push(database.name);
+
+								} catch (dbErr) {
+									this.log.error(`[updateAvailableInfos] database: '${database.name}' error: ${dbErr.message}, stack: ${dbErr.stack}`);
+								}
+							}
+						} else {
+							this.log.error(`[${instanceObj.native.dbtype}] list of databases is ${JSON.stringify(databaseList)}. Please report this issue to the developer!`);
+						}
+
+						let updateObj = await this.getObjectAsync('update');
+						if (updateObj) {
+							updateObj.native.availableInfos = avaiableInfos;
+							updateObj.native.availableDatabases = availableDatabases;
+							
+							await this.extendObjectAsync('update', updateObj);
+							this.log.info(`Successful updating avaiable system / session / database infos! `);
+						} else {
+							this.log.error(`datapoint '${this.name}.${this.instance}.update' not exist!`);
 						}
 					} else {
 						this.log.warn(`Database type 'SQLite3' is not supported!`);
