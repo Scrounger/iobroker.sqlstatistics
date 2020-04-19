@@ -84,7 +84,7 @@ class Sqlstatistics extends utils.Adapter {
 						this.log.info(`updating avaiable system / session infos for database provider '${instanceObj.native.dbtype}'...`);
 
 						SQLFuncs = await require(__dirname + '/lib/' + instanceObj.native.dbtype);
-						let infoList = await this.getQueryResult(SQLFuncs.getAvailableInfos());
+						let infoList = await this.getQueryResult(SQLFuncs.getSystemOrSessionInfos());
 
 						if (infoList && Object.keys(infoList).length > 0) {
 							let avaiableInfos = [];

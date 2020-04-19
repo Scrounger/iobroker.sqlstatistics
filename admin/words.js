@@ -14,31 +14,7 @@ systemDictionary = {
 		'pl': 'Ustawienia adaptera dla sqlstatistics',
 		'zh-cn': 'sqlstatistics的适配器设置'
 	},
-	'option1': {
-		'en': 'option1',
-		'de': 'Option 1',
-		'ru': 'Опция 1',
-		'pt': 'Opção 1',
-		'nl': 'Optie 1',
-		'fr': 'Option 1',
-		'it': 'opzione 1',
-		'es': 'Opción 1',
-		'pl': 'opcja 1',
-		'zh-cn': '选项1'
-	},
-	'option2': {
-		'en': 'option2',
-		'de': 'Option 2',
-		'ru': 'option2',
-		'pt': 'opção 2',
-		'nl': 'Optie 2',
-		'fr': 'Option 2',
-		'it': 'opzione 2',
-		'es': 'opcion 2',
-		'pl': 'Opcja 2',
-		'zh-cn': '选项2'
-	},
-	"Select sql history instance:": {
+	"SelectSqlHistoryInstance": {
 		"en": "Select sql history instance:",
 		"de": "Wählen die SQL History Instanz aus:",
 		"ru": "Выберите экземпляр истории sql:",
@@ -50,7 +26,7 @@ systemDictionary = {
 		"pl": "Wybierz wystąpienie historii sql:",
 		"zh-cn": "选择SQL历史记录实例："
 	},
-	"Update interval for databases statistics in hours": {
+	"UpdateIntervalDatabases": {
 		"en": "Update interval for databases statistics in hours",
 		"de": "Aktualisierungsintervall für Datenbankstatistiken in Stunden",
 		"ru": "Интервал обновления статистики баз данных в часах",
@@ -62,7 +38,7 @@ systemDictionary = {
 		"pl": "Aktualizacja interwału dla statystyk baz danych w godzinach",
 		"zh-cn": "数据库统计信息的更新间隔（以小时为单位）"
 	},
-	"Update interval for system and session statistics in minutes": {
+	"UpdateIntervalSystemOrSession": {
 		"en": "Update interval for system and session statistics in minutes",
 		"de": "Aktualisierungsintervall für System- und Sitzungsstatistiken in Minuten",
 		"ru": "Интервал обновления системной и сессионной статистики в минутах",
@@ -74,19 +50,7 @@ systemDictionary = {
 		"pl": "Aktualizacja interwału dla statystyki systemu i sesji w minutach",
 		"zh-cn": "系统和会话统计信息的更新间隔（以分钟为单位）"
 	},
-	"Delete unused datapoints": {
-		"en": "Delete unused datapoints",
-		"de": "Nicht verwendete Datenpunkte löschen",
-		"ru": "Удалить неиспользуемые точки данных",
-		"pt": "Excluir pontos de dados não utilizados",
-		"nl": "Verwijder ongebruikte datapunten",
-		"fr": "Supprimer les points de données inutilisés",
-		"it": "Elimina i punti dati non utilizzati",
-		"es": "Eliminar puntos de datos no utilizados",
-		"pl": "Usuń nieużywane punkty danych",
-		"zh-cn": "删除未使用的数据点"
-	},
-	"Database name": {
+	"DatabaseName": {
 		"en": "Database name",
 		"de": "Name der Datenbank",
 		"ru": "Имя базы данных",
@@ -98,7 +62,7 @@ systemDictionary = {
 		"pl": "Nazwa bazy danych",
 		"zh-cn": "数据库名称"
 	},
-	"Add database": {
+	"AddDatabase": {
 		"en": "Add database",
 		"de": "Datenbank hinzufügen",
 		"ru": "Добавить базу данных",
@@ -110,7 +74,7 @@ systemDictionary = {
 		"pl": "Dodaj bazę danych",
 		"zh-cn": "添加数据库"
 	},
-	"Blacklist databases: databases that should not be in the statistic": {
+	"BlacklistDatabases": {
 		"en": "Blacklist databases: databases that should not be in the statistic",
 		"de": "Blacklist-Datenbanken: Datenbanken, die nicht in der Statistik enthalten sein sollten",
 		"ru": "Базы данных черного списка: базы данных, которых не должно быть в статистике",
@@ -122,7 +86,7 @@ systemDictionary = {
 		"pl": "Bazy danych z czarnej listy: bazy danych, które nie powinny znajdować się w statystykach",
 		"zh-cn": "黑名单数据库：不应包含在统计信息中的数据库"
 	},
-	"create statistics for non ioBroker tables": {
+	"createTableStatistics": {
 		"en": "create statistics for non ioBroker tables",
 		"de": "Statistiken für nicht ioBroker Tabellen erzeugen",
 		"ru": "создать статистику для таблиц не ioBroker",
@@ -134,7 +98,7 @@ systemDictionary = {
 		"pl": "tworzyć statystyki dla tabel innych niż ioBroker",
 		"zh-cn": "为非ioBroker表创建统计信息"
 	},
-	"You like the adapter? Then support us with a small donation.": {
+	"donationInfo": {
 		"en": "You like the adapter? Then support the adapter developer (Scrounger) with a small donation.",
 		"de": "Dir gefällt der Adapter? Dann unterstütze den Adapterentwickler (Scrounger) mit einer kleinen Spende.",
 		"ru": "Вам нравится адаптер? Затем поддержите разработчика адаптера (Scrounger) с небольшим пожертвованием.",
@@ -146,7 +110,7 @@ systemDictionary = {
 		"pl": "Podoba ci się adapter? Następnie wesprzyj programistę adaptera (Scrounger) niewielką darowizną.",
 		"zh-cn": "您喜欢适配器吗？然后以少量捐款支持适配器开发人员（Scrounger）。"
 	},
-	"setting for databases statistics": {
+	"settingDatabasesStatistics": {
 		"en": "setting for databases statistics",
 		"de": "Einstellung für Datenbankstatistiken",
 		"ru": "настройка для статистики баз данных",
@@ -158,7 +122,7 @@ systemDictionary = {
 		"pl": "ustawienie dla statystyk baz danych",
 		"zh-cn": "设置数据库统计信息"
 	},
-	"setting for system and session statistics": {
+	"settingSystemOrSessionStatistics": {
 		"en": "setting for system and session statistics",
 		"de": "Einstellung für System- und Sitzungsstatistik",
 		"ru": "настройка для системной и сеансовой статистики",
@@ -170,7 +134,7 @@ systemDictionary = {
 		"pl": "ustawienie statystyk systemu i sesji",
 		"zh-cn": "设置系统和会话统计信息"
 	},
-	"enable system statistics": {
+	"enableSystemStatistics": {
 		"en": "enable system statistics",
 		"de": "Systemstatistik aktivieren",
 		"ru": "включить системную статистику",
@@ -182,7 +146,7 @@ systemDictionary = {
 		"pl": "włącz statystyki systemowe",
 		"zh-cn": "启用系统统计信息"
 	},
-	"enable session statistics": {
+	"enableSessionStatistics": {
 		"en": "enable session statistics",
 		"de": "Sitzungsstatistik aktivieren",
 		"ru": "включить статистику сеанса",
@@ -206,7 +170,7 @@ systemDictionary = {
 		"pl": "generał",
 		"zh-cn": "一般"
 	},
-	"system datapoints": {
+	"systemDatapoints": {
 		"en": "system datapoints",
 		"de": "System Datenpunkte",
 		"ru": "системные данные",
@@ -218,7 +182,7 @@ systemDictionary = {
 		"pl": "systemowe punkty danych",
 		"zh-cn": "系统数据点"
 	},
-	"session datapoints": {
+	"sessionDatapoints": {
 		"en": "session datapoints",
 		"de": "Sitzungs Datenpunkte",
 		"ru": "точки данных сеанса",
@@ -229,5 +193,17 @@ systemDictionary = {
 		"es": "puntos de datos de sesión",
 		"pl": "punkty danych sesji",
 		"zh-cn": "会话数据点"
+	},
+	"DatapointsSelectionNotYetAvailable": {
+		"en": "Datapoints selection not yet available, adapter must successfully run 1 time to show available datapoints!",
+		"de": "Datenpunktauswahl noch nicht verfügbar, Adapter muss 1 Mal erfolgreich ausgeführt werden, um verfügbare Datenpunkte anzuzeigen!",
+		"ru": "Выбор точек данных еще не доступен, адаптер должен успешно запускаться 1 раз, чтобы показать доступные точки данных!",
+		"pt": "Seleção de pontos de dados ainda não disponível, o adaptador deve ser executado com êxito 1 vez para mostrar os pontos de dados disponíveis!",
+		"nl": "Datapunten selectie nog niet beschikbaar, adapter moet 1 keer succesvol draaien om de beschikbare datapunten te tonen!",
+		"fr": "La sélection des points de données n'est pas encore disponible, l'adaptateur doit fonctionner avec succès 1 fois pour afficher les points de données disponibles!",
+		"it": "Selezione dei punti dati non ancora disponibile, l'adattatore deve essere eseguito correttamente 1 volta per mostrare i punti dati disponibili!",
+		"es": "¡La selección de puntos de datos aún no está disponible, el adaptador debe ejecutarse con éxito 1 vez para mostrar los puntos de datos disponibles!",
+		"pl": "Wybór punktów danych nie jest jeszcze dostępny, adapter musi pomyślnie uruchomić 1 raz, aby wyświetlić dostępne punkty danych!",
+		"zh-cn": "数据点选择尚不可用，适配器必须成功运行1次才能显示可用数据点！"
 	}
 };
