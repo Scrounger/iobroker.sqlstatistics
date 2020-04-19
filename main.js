@@ -125,7 +125,7 @@ class Sqlstatistics extends utils.Adapter {
 							updateObj.native.availableInfos = avaiableInfos;
 							updateObj.native.availableDatabases = availableDatabases;
 
-							await this.extendObjectAsync('update', updateObj);
+							await this.setObjectAsync('update', updateObj);
 							this.log.info(`Successful updating avaiable system / session / database infos! `);
 						} else {
 							this.log.error(`datapoint '${this.name}.${this.instance}.update' not exist!`);
@@ -662,8 +662,9 @@ class Sqlstatistics extends utils.Adapter {
 				this.setState('info.connection', Boolean(state.val), state.ack);
 				connected === Boolean(state.val);
 
-				await this.updateAvailableInfos();
-
+				if (state.val) {
+					await this.updateAvailableInfos();
+				}
 			} else {
 				// The state was deleted
 				this.setState('info.connection', false, true);
