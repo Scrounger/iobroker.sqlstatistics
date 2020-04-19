@@ -24,11 +24,30 @@
 			background: #64b5f6;
 			color: white;
 		}
+
+		#systemDatapoints {
+			height: calc(100% - 70px);
+			overflow: auto;
+		}
+		#sessionDatapoints {
+			height: calc(100% - 70px);
+			overflow: auto;
+		}
+		.myCheckBoxListItem{
+			margin-top: 2px !important;
+			margin-bottom: 2px !important;
+		}		
 	</style>
 
 	<script type="text/javascript">
+		var myNamespace;
+		var retryTimer = [];
+		var availableInfos = null;
+
 		// This will be called by the admin adapter when the settings page loads
 		function load(settings, onChange) {
+			myNamespace = adapter + '.' + instance;
+
 			// example: select elements with id=key and class=value and insert value
 			if (!settings) return;
 			$('.value').each(function () {
@@ -50,6 +69,8 @@
 						;
 				}
 			});
+
+			loadAvailableInfos(settings);
 
 			showHideSettings();
 			list2chips('.blackListDatabases', settings.blackListDatabases || '', onChange);
@@ -119,6 +140,67 @@
 				text.push(data[lib].tag);
 			}
 			return text.join(' ');
+		}
+
+		function loadAvailableInfos(settings) {
+			// Read all available infos from update object
+			const result = getObject(`${myNamespace}.update`, (err, state) => {
+
+				// Error handling if available infos are not known
+				if (!state.native.availableInfos) {
+
+					// console.log('AvailableInfos not yet present, did the adapter successfully run for the first time ?')
+
+					// Reset timer (if running) and start new one for next polling interval
+					if (retryTimer['loadAvailableInfos']) {
+						clearTimeout(retryTimer['loadAvailableInfos']);
+						retryTimer['loadAvailableInfos'] = null;
+					}
+
+					retryTimer['loadAvailableInfos'] = setTimeout(() => {
+						loadAvailableInfos(settings);
+					}, 1000);
+
+
+				} else {
+					// Clear retry timer when running
+
+					if (retryTimer['loadAvailableInfos']) {
+						clearTimeout(retryTimer['loadAvailableInfos']);
+						retryTimer['loadAvailableInfos'] = null;
+					}
+
+					availableInfos = state.native.availableInfos;
+					availableInfos = availableInfos.sort();
+					// console.log('All available infos sorted object : ' + JSON.stringify(availableInfos));
+
+					var $systemDatapoints = $('#systemDatapoints');
+					var text = '';
+					for (var i = 0; i < availableInfos.length; i++) {
+						text += '<label class="col s4 input-field myCheckBoxListItem">' +
+							'<input type="checkbox" class="info" ' + (settings.selectedSystemInfos.indexOf(availableInfos[i]) !== -1 ? 'checked ' : '') + ' data-info="' + availableInfos[i] + '" />' +
+							'<span class="black-text">' + _(availableInfos[i]) + '</span>' +
+							'</label>';
+					}
+					$systemDatapoints.html(text);
+
+					var $sessionDatapoints = $('#sessionDatapoints');
+					var text = '';
+					for (var i = 0; i < availableInfos.length; i++) {
+						text += '<label class="col s4 input-field myCheckBoxListItem">' +
+							'<input type="checkbox" class="info" ' + (settings.selectedSessionInfos.indexOf(availableInfos[i]) !== -1 ? 'checked ' : '') + ' data-info="' + availableInfos[i] + '" />' +
+							'<span class="black-text">' + _(availableInfos[i]) + '</span>' +
+							'</label>';
+					}
+					$sessionDatapoints.html(text);
+				}
+
+				$('.info').on('change', function () {
+					_onChange()
+				});
+				// reinitialize all the Materialize labels on the page if you are dynamically adding inputs:
+				M && M.updateTextFields();
+			});
 		}
 
 		// This will be called by the admin adapter when the user presses the save button
@@ -231,8 +313,14 @@
 				<div class="row">
 					<div class="col s12 m4 l2">
 						<img src="sqlstatistics.png" class="logo">
-					</div>
+					</div>				
 				</div>
+				<div class="row" id="systemDatapoints">
+					<div class="progress">
+						<div class="indeterminate"></div>
+					</div>
+					<h6 class="center translate">Countries selection not (yet) available, adapter must successfully run 1 time to get all countries!</h6>
+				</div>				
 			</div>
 			<div id="tab-session" class="col s12 page">
 				<div class="row">
@@ -240,7 +328,13 @@
 						<img src="sqlstatistics.png" class="logo">
 					</div>
 				</div>
-			</div>			
+				<div class="row" id="sessionDatapoints">
+					<div class="progress">
+						<div class="indeterminate"></div>
+					</div>
+					<h6 class="center translate">Countries selection not (yet) available, adapter must successfully run 1 time to get all countries!</h6>
+				</div>				
+			</div>
 		</div>
 	</div>
 </body>
