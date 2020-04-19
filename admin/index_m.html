@@ -57,7 +57,7 @@
 			_onChange = onChange;
 			myNamespace = adapter + '.' + instance;
 
-			let defaultSystemInfos = ["Bytes_received", "Bytes_sent"];
+			let defaultSystemInfos = ["Bytes_received", "Bytes_sent", "Max_used_connections", "Connections"];
 			let defaultSessionInfos = ["Bytes_received", "Bytes_sent"];
 
 			// example: select elements with id=key and class=value and insert value
@@ -92,11 +92,31 @@
 			getSqlInstances(settings);
 
 			$('#defaultSystemDatapoints').on('click', function () {
-				$('.info').each(function(){
-					console.log(this)
+				$('.selectedSystemDatapoints').each(function () {
+					let $this = $(this);
 
+					if (defaultSystemInfos.includes($this.data('info'))) {
+						$this.prop('checked', true);
+					} else {
+						$this.prop('checked', false);
+					}
+
+					_onChange();
 				});
-				
+			})
+
+			$('#defaultSessionDatapoints').on('click', function () {
+				$('.selectedSessionDatapoints').each(function () {
+					let $this = $(this);
+
+					if (defaultSessionInfos.includes($this.data('info'))) {
+						$this.prop('checked', true);
+					} else {
+						$this.prop('checked', false);
+					}
+
+					_onChange();
+				});
 			})
 
 			console.log('fuuuu');
@@ -222,7 +242,7 @@
 				$('.selectedSystemDatapoints').on('change', function () {
 					_onChange()
 				});
-				
+
 				$('.selectedSessionDatapoints').on('change', function () {
 					_onChange()
 				});
@@ -247,18 +267,18 @@
 			obj.blackListDatabases = chips2list('.blackListDatabases');
 
 			obj.selectedSystemInfos = []
-            $('.selectedSystemDatapoints').each(function () {
-                if ($(this).prop('checked')) {
-                    obj.selectedSystemInfos.push($(this).data('info'));
-                }
-            });
-			
+			$('.selectedSystemDatapoints').each(function () {
+				if ($(this).prop('checked')) {
+					obj.selectedSystemInfos.push($(this).data('info'));
+				}
+			});
+
 			obj.selectedSessionInfos = []
-            $('.selectedSessionDatapoints').each(function () {
-                if ($(this).prop('checked')) {
-                    obj.selectedSessionInfos.push($(this).data('info'));
-                }
-            });
+			$('.selectedSessionDatapoints').each(function () {
+				if ($(this).prop('checked')) {
+					obj.selectedSessionInfos.push($(this).data('info'));
+				}
+			});
 
 			callback(obj);
 		}
@@ -345,7 +365,9 @@
 						<img src="sqlstatistics.png" class="logo">
 					</div>
 					<div class="col s2 m2">
-						<a id="defaultSystemDatapoints" class="waves-effect waves-light btn-small myButton"><i class="material-icons left">settings_backup_restore</i><span class="translate">default</span></a>
+						<a id="defaultSystemDatapoints" class="waves-effect waves-light btn-small myButton"><i
+								class="material-icons left">settings_backup_restore</i><span
+								class="translate">default</span></a>
 					</div>
 				</div>
 				<div class="row" id="systemDatapoints">
@@ -361,7 +383,9 @@
 						<img src="sqlstatistics.png" class="logo">
 					</div>
 					<div class="col s2 m2">
-						<a id="defaultSessionDatapoints" class="waves-effect waves-light btn-small myButton"><i class="material-icons left">settings_backup_restore</i><span class="translate">default</span></a>
+						<a id="defaultSessionDatapoints" class="waves-effect waves-light btn-small myButton"><i
+								class="material-icons left">settings_backup_restore</i><span
+								class="translate">default</span></a>
 					</div>
 				</div>
 				<div class="row" id="sessionDatapoints">
