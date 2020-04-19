@@ -107,7 +107,7 @@ class Sqlstatistics extends utils.Adapter {
 							} else {
 								this.log.error(`datapoint '${this.name}.${this.instance}.update' not exist!`);
 							}
-							
+
 						} else {
 							this.log.error(`[${instanceObj.native.dbtype}] list of available infos is ${JSON.stringify(infoList)}. Please report this issue to the developer!`);
 						}
@@ -263,22 +263,18 @@ class Sqlstatistics extends utils.Adapter {
 						if (this.config.systemStatistics) {
 							await this.createSystemSessionStatistic(instanceObj);
 						} else {
-							if (this.config.deleteObjects) {
-								let stateList = await this.getStatesAsync(`${this.name}.${this.instance}.system.*`);
-								for (const id in stateList) {
-									await this.delObjectAsync(id);
-								}
+							let stateList = await this.getStatesAsync(`${this.name}.${this.instance}.system.*`);
+							for (const id in stateList) {
+								await this.delObjectAsync(id);
 							}
 						}
 
 						if (this.config.sessionStatistics) {
 							await this.createSystemSessionStatistic(instanceObj, true);
 						} else {
-							if (this.config.deleteObjects) {
-								let stateList = await this.getStatesAsync(`${this.name}.${this.instance}.session.*`);
-								for (const id in stateList) {
-									await this.delObjectAsync(id);
-								}
+							let stateList = await this.getStatesAsync(`${this.name}.${this.instance}.session.*`);
+							for (const id in stateList) {
+								await this.delObjectAsync(id);
 							}
 						}
 
@@ -413,23 +409,21 @@ class Sqlstatistics extends utils.Adapter {
 
 	async deleteUnsedObjects() {
 		try {
-			if (this.config.deleteObjects) {
-				this.log.debug(`deleting unused objects...`);
+			this.log.debug(`deleting unused objects...`);
 
-				let stateList = await this.getStatesAsync(`${this.name}.${this.instance}.databases.*`);
+			let stateList = await this.getStatesAsync(`${this.name}.${this.instance}.databases.*`);
 
-				let counter = 0;
-				for (const id in stateList) {
-					if (usedDatapoints.length > 0 && !usedDatapoints.includes(id.replace(`${this.name}.${this.instance}.`, ''))) {
-						await this.delObjectAsync(id);
-						this.log.silly(`object '${id}' deleted`);
+			let counter = 0;
+			for (const id in stateList) {
+				if (usedDatapoints.length > 0 && !usedDatapoints.includes(id.replace(`${this.name}.${this.instance}.`, ''))) {
+					await this.delObjectAsync(id);
+					this.log.silly(`object '${id}' deleted`);
 
-						counter++;
-					}
+					counter++;
 				}
-
-				this.log.debug(`${counter} unused objects deleted`);
 			}
+
+			this.log.debug(`${counter} unused objects deleted`);
 		} catch (err) {
 			this.log.error(`[deleteUnsedObjects] error: ${err.message}, stack: ${err.stack}`);
 		}
