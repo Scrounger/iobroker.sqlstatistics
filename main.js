@@ -67,7 +67,7 @@ class Sqlstatistics extends utils.Adapter {
 			await this.updateAvailableInfos();
 
 			await this.updateSystemOrSessionStatistic();
-			await this.updateDatabaseStatistic();
+			// await this.updateDatabaseStatistic();
 		}
 	}
 
@@ -302,6 +302,40 @@ class Sqlstatistics extends utils.Adapter {
 	 */
 	async createClientStatistic(instanceObj) {
 		this.log.info(`updating client statistics for database provider '${instanceObj.native.dbtype}'...`);
+
+		SQLFuncs = await require(__dirname + '/lib/' + instanceObj.native.dbtype);
+
+		let clientInfos = await this.getQueryResult(SQLFuncs.getClientStatistics());
+		if (clientInfos && Object.keys(clientInfos).length > 0) {
+			this.log.debug(`[${instanceObj.native.dbtype}] client statistics received, ${Object.keys(clientInfos).length} values exists`);
+
+			for (var i = 0; i <= clientInfos.length - 1; i++) {
+				if (clientInfos[i]) {
+					let idPrefix = `clients.${i}`
+
+					for (const [key, value] of Object.entries(clientInfos[i])) {
+						if (key.includes('memory')) {
+							await this.createStatisticObjectNumber(`${idPrefix}.${key.toLowerCase()}`, `${key.replace(/_/g, " ")}`, 'MB');
+							await this.setStateAsync(`${idPrefix}.${key.toLowerCase()}`, Math.round(parseFloat(value) / 1024 / 1024 * 100) / 100, true);
+						} else if (key.includes('latency')) {
+							await this.createStatisticObjectNumber(`${idPrefix}.${key.toLowerCase()}`, `${key.replace(/_/g, " ")}`, 'ms');
+							await this.setStateAsync(`${idPrefix}.${key.toLowerCase()}`, Math.round(parseFloat(value) / 1000 / 1000 / 1000 * 100) / 100, true);
+						} else if (isNaN(parseFloat(value)) || key === 'host') {
+							await this.createStatisticObjectString(`${idPrefix}.${key.toLowerCase()}`, `${key.replace(/_/g, " ")}`);
+							await this.setStateAsync(`${idPrefix}.${key.toLowerCase()}`, value, true);
+						} else {
+							await this.createStatisticObjectNumber(`${idPrefix}.${key.toLowerCase()}`, `${key.replace(/_/g, " ")}`, '');
+							await this.setStateAsync(`${idPrefix}.${key.toLowerCase()}`, parseFloat(value), true);
+						}
+
+						this.log.info(key + ': ' + value);
+					}
+				}
+			}
+			this.log.info(`Successful updating clientstatistics!`);
+		} else {
+			this.log.error(`[${instanceObj.native.dbtype}] client statistics is ${JSON.stringify(clientInfos)}. Please report this issue to the developer!`);
+		}
 	}
 
 	/**
