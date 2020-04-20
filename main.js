@@ -29,7 +29,6 @@ class Sqlstatistics extends utils.Adapter {
 	 * @param {Partial<ioBroker.AdapterOptions>} [options={}]
 	 */
 	constructor(options) {
-		// @ts-ignore
 		super({
 			...options,
 			name: 'sqlstatistics',
@@ -66,8 +65,8 @@ class Sqlstatistics extends utils.Adapter {
 
 			await this.updateAvailableInfos();
 
-			await this.updateStatistic();
-			await this.updateDatabaseStatistic();
+			// await this.updateStatistic();
+			// await this.updateDatabaseStatistic();
 		}
 	}
 
@@ -81,9 +80,10 @@ class Sqlstatistics extends utils.Adapter {
 
 				if (instanceObj && instanceObj.native) {
 					if (instanceObj.native.dbtype !== 'sqlite') {
-						this.log.info(`updating avaiable system / session / database infos for database provider '${instanceObj.native.dbtype}'...`);
+						this.log.info(`updating avaiable datapoint infos for database provider '${instanceObj.native.dbtype}'...`);
 						let avaiableInfos = [];
 						let availableDatabases = [];
+						let availableClientInfos = [];
 
 						SQLFuncs = await require(__dirname + '/lib/' + instanceObj.native.dbtype);
 						let infoList = await this.getQueryResult(SQLFuncs.getSystemOrSessionInfos());
@@ -91,7 +91,7 @@ class Sqlstatistics extends utils.Adapter {
 						if (infoList && Object.keys(infoList).length > 0) {
 							for (const info of infoList) {
 								try {
-									this.log.debug(`[${instanceObj.native.dbtype}] adding '${info.name}' to available system / session infos`);
+									this.log.debug(`[${instanceObj.native.dbtype}] adding '${info.name}' to available system / session datapoint infos`);
 
 									avaiableInfos.push(info.name);
 
@@ -108,7 +108,7 @@ class Sqlstatistics extends utils.Adapter {
 						if (databaseList && Object.keys(databaseList).length > 0) {
 							for (const database of databaseList) {
 								try {
-									this.log.debug(`[${instanceObj.native.dbtype}] adding '${database.name}' to available databases`);
+									this.log.debug(`[${instanceObj.native.dbtype}] adding '${database.name}' to available databases datapoints`);
 
 									availableDatabases.push(database.name);
 
@@ -120,13 +120,33 @@ class Sqlstatistics extends utils.Adapter {
 							this.log.error(`[${instanceObj.native.dbtype}] list of databases is ${JSON.stringify(databaseList)}. Please report this issue to the developer!`);
 						}
 
-						let updateObj = await this.getObjectAsync('update');
-						if (updateObj) {
-							updateObj.native.availableInfos = avaiableInfos;
-							updateObj.native.availableDatabases = availableDatabases;
+						let clientList = await this.getQueryResult(SQLFuncs.getClientStatistics(1));
 
-							await this.setObjectAsync('update', updateObj);
-							this.log.info(`Successful updating avaiable system / session / database infos! `);
+						if (clientList && Object.keys(clientList).length > 0) {
+							for (const client of clientList) {
+								try {
+									this.log.debug(`[${instanceObj.native.dbtype}] adding to available client datapoint infos`);
+
+									for (const [key, value] of Object.entries(client)) {
+										availableClientInfos.push(key);
+									}
+								} catch (dbErr) {
+									this.log.error(`[updateAvailableInfos] client: error: ${dbErr.message}, stack: ${dbErr.stack}`);
+								}
+							}
+						} else {
+							this.log.error(`[${instanceObj.native.dbtype}] list of client is ${JSON.stringify(clientList)}. Please report this issue to the developer!`);
+						}
+
+						let updateObj = await this.getObjectAsync('info');
+						if (updateObj) {
+							updateObj.native.globalStatus = avaiableInfos;
+							updateObj.native.sessionStatus = avaiableInfos;
+							updateObj.native.databases = availableDatabases;
+							updateObj.native.clients = availableClientInfos;
+
+							await this.setObjectAsync('info', updateObj);
+							this.log.info(`Successful updating avaiable datapoint infos! `);
 						} else {
 							this.log.error(`datapoint '${this.name}.${this.instance}.update' not exist!`);
 						}
@@ -298,7 +318,7 @@ class Sqlstatistics extends utils.Adapter {
 	}
 
 	/**
-	 * @param {ioBroker.Object} instanceObj
+	 * @param {ioBroker.Object} instanceObj id des native points
 	 */
 	async createClientStatistic(instanceObj) {
 		try {
@@ -358,9 +378,9 @@ class Sqlstatistics extends utils.Adapter {
 
 					if (info && info.name && info.value) {
 						if (isSession) {
-							setInfoStates(this, info, this.config.selectedSessionInfos, this.config.sessionStatistics, isSession);
+							setInfoStates(this, info, this.config.sessionStatus, this.config.sessionStatistics, isSession);
 						} else {
-							setInfoStates(this, info, this.config.selectedSystemInfos, this.config.systemStatistics, isSession);
+							setInfoStates(this, info, this.config.globalStatus, this.config.systemStatistics, isSession);
 						}
 					}
 
@@ -519,7 +539,7 @@ class Sqlstatistics extends utils.Adapter {
 	 */
 	setMyState(id, value, ack, instanceObj, options = undefined) {
 		if (options) {
-			if (!this.config.blackListDatabases.includes(options.dbname)) {
+			if (!this.config.databases.includes(options.dbname)) {
 
 				if (!options.isTable || options.dbname === instanceObj.native.dbname) {
 					this.createStatisticObjectNumber(id, options.name, options.unit);

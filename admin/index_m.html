@@ -1,7 +1,6 @@
 <html>
 
 <head>
-
 	<!-- Load ioBroker scripts and styles-->
 	<link rel="stylesheet" type="text/css" href="../../css/adapter.css" />
 	<link rel="stylesheet" type="text/css" href="../../lib/css/materialize.css">
@@ -16,6 +15,7 @@
 	<!-- Load our own files -->
 	<link rel="stylesheet" type="text/css" href="style.css" />
 	<script type="text/javascript" src="words.js"></script>
+	<script type="text/javascript" src="index_m.js"></script>
 
 	<style>
 		.sub-title {
@@ -25,392 +25,44 @@
 			color: white;
 		}
 
-		#systemDatapoints {
+		.checkbox_list {
 			height: calc(100% - 70px);
 			overflow: auto;
 		}
 
-		#sessionDatapoints {
-			height: calc(100% - 70px);
-			overflow: auto;
-		}
-
-		#databasesBlacklist {
-			height: calc(100% - 70px);
-			overflow: auto;
-		}
-
-		.myCheckBoxListItem {
+		.checkbox_list_item {
 			margin-top: 2px !important;
 			margin-bottom: 2px !important;
+		}
+
+		.myButtonPanel {
+			margin: 12px !important;
 		}
 
 		.myButton {
 			margin-right: 16px !important;
 		}
+
+		.myTab {
+			height: calc(100% - 120px) !important;
+			overflow: hidden !important;
+		}
 	</style>
-
-	<script type="text/javascript">
-		var _onChange = null;
-		var myNamespace;
-		var retryTimer = [];
-		var availableInfos = null;
-		var availableDatabases = null;
-
-		let defaultDatabasesBlacklist = ["sys", "information_schema", "performance_schema", "mysql"];
-
-		let defaultSystemInfos = ["Aborted_clients", "Aborted_connects", "Bytes_received", "Bytes_sent", "Connection_errors_accept", "Connection_errors_internal", "Connection_errors_max_connections", "Connection_errors_peer_address", "Connection_errors_select", "Connection_errors_tcpwrap", "Connections", "Max_used_connections", "Questions", "Slow_queries", "Threads_cached", "Threads_connected", "Threads_created", "Threads_running", "Uptime"];
-
-		let defaultSessionInfos = ["Bytes_received", "Bytes_sent", "Questions", "Uptime_since_flush_status"];
-
-		let defaultClientInfos = ["host", "statement_avg_latency", "file_io_latency", "current_connections", "total_connections", "current_memory", "total_memory_allocated"];
-
-		// This will be called by the admin adapter when the settings page loads
-		function load(settings, onChange) {
-			_onChange = onChange;
-			myNamespace = adapter + '.' + instance;
-
-			// example: select elements with id=key and class=value and insert value
-			if (!settings) return;
-			$('.value').each(function () {
-				var $key = $(this);
-				var id = $key.attr('id');
-				if ($key.attr('type') === 'checkbox') {
-					// do not call onChange direct, because onChange could expect some arguments
-					$key.prop('checked', settings[id])
-						.on('change', () => onChange())
-						;
-				} else {
-					// do not call onChange direct, because onChange could expect some arguments
-					$key.val(settings[id])
-						.on('change', function () {
-							if (id === 'sqlInstance') showHideSettings();
-							onChange()
-						})
-						.on('keyup', () => onChange())
-						;
-				}
-			});
-
-			getSqlInstances(settings);
-
-			loadAvailableInfos(settings);
-
-			loadDatabaseBlacklist(settings);
-
-			buttonEvents();
-
-			showHideSettings();
-
-			onChange(false);
-			// reinitialize all the Materialize labels on the page if you are dynamically adding inputs:
-			if (M) M.updateTextFields();
-		}
-
-		function showHideSettings(id) {
-			if ($('#sqlInstance').val()) {
-				$('.myVisibleHandler').show();
-			} else {
-				$('.myVisibleHandler').hide();
-			}
-		}
-
-		function buttonEvents() {
-			$('#defaultSystemDatapoints').on('click', function () {
-				$('.selectedSystemDatapoints').each(function () {
-					let $this = $(this);
-
-					if (defaultSystemInfos.includes($this.data('info'))) {
-						$this.prop('checked', true);
-					} else {
-						$this.prop('checked', false);
-					}
-
-					_onChange();
-				});
-			})
-
-			$('#allSystemDatapoints').on('click', function () {
-				$('.selectedSystemDatapoints').each(function () {
-					let $this = $(this).prop('checked', true);
-					_onChange();
-				});
-			})
-
-			$('#noneSystemDatapoints').on('click', function () {
-				$('.selectedSystemDatapoints').each(function () {
-					let $this = $(this).prop('checked', false);
-					_onChange();
-				});
-			})
-
-			$('#defaultSessionDatapoints').on('click', function () {
-				$('.selectedSessionDatapoints').each(function () {
-					let $this = $(this);
-
-					if (defaultSessionInfos.includes($this.data('info'))) {
-						$this.prop('checked', true);
-					} else {
-						$this.prop('checked', false);
-					}
-
-					_onChange();
-				});
-			})
-
-			$('#allSessionDatapoints').on('click', function () {
-				$('.selectedSessionDatapoints').each(function () {
-					let $this = $(this).prop('checked', true);
-					_onChange();
-				});
-			})
-
-			$('#noneSessionDatapoints').on('click', function () {
-				$('.selectedSessionDatapoints').each(function () {
-					let $this = $(this).prop('checked', false);
-					_onChange();
-				});
-			})
-
-			$('#defaultDatabasesBlacklist').on('click', function () {
-				$('.selectedDatabasesBlacklist').each(function () {
-					let $this = $(this);
-
-					if (defaultDatabasesBlacklist.includes($this.data('info'))) {
-						$this.prop('checked', true);
-					} else {
-						$this.prop('checked', false);
-					}
-
-					_onChange();
-				});
-			})
-
-			$('#allDatabasesBlacklist').on('click', function () {
-				$('.selectedDatabasesBlacklist').each(function () {
-					let $this = $(this).prop('checked', true);
-					_onChange();
-				});
-			})
-
-			$('#noneDatabasesBlacklist').on('click', function () {
-				$('.selectedDatabasesBlacklist').each(function () {
-					let $this = $(this).prop('checked', false);
-					_onChange();
-				});
-			})
-		}
-
-		function getSqlInstances(settings) {
-			socket.emit('getObjectView', 'system', 'instance', { startkey: 'system.adapter.sql.', endkey: 'system.adapter.sql.\u9999' }, function (err, doc) {
-				if (err) {
-					console.error(err);
-				} else {
-					if (doc.rows.length) {
-						var result = [];
-						for (var i = 0; i < doc.rows.length; i++) {
-							result.push(doc.rows[i].value);
-						}
-						result = result.filter(function (adp) {
-							return adp && adp.common && adp.common.getHistory;
-						});
-
-						var text = '';
-						for (var r = 0; r < result.length; r++) {
-							var name = result[r]._id.substring('system.adapter.'.length);
-							text += '<option value="' + name + '">' + name + '</option>';
-						}
-						$('#sqlInstance').append(text).val(settings.sqlInstance).select();
-						showHideSettings();
-					}
-				}
-			});
-		}
-
-		function loadAvailableInfos(settings) {
-			// Read all available infos from update object
-			const result = getObject(`${myNamespace}.update`, (err, state) => {
-
-				// Error handling if available infos are not known
-				if (!state.native.availableInfos) {
-
-					// console.log('AvailableInfos not yet present, did the adapter successfully run for the first time ?')
-
-					// Reset timer (if running) and start new one for next polling interval
-					if (retryTimer['loadAvailableInfos']) {
-						clearTimeout(retryTimer['loadAvailableInfos']);
-						retryTimer['loadAvailableInfos'] = null;
-					}
-
-					retryTimer['loadAvailableInfos'] = setTimeout(() => {
-						loadAvailableInfos(settings);
-					}, 1000);
-
-					$('.systemButtons').hide();
-					$('.sessionButtons').hide();
-				} else {
-					// Clear retry timer when running
-
-					if (retryTimer['loadAvailableInfos']) {
-						clearTimeout(retryTimer['loadAvailableInfos']);
-						retryTimer['loadAvailableInfos'] = null;
-					}
-
-					availableInfos = state.native.availableInfos;
-					availableInfos = availableInfos.sort();
-					// console.log('All available infos sorted object : ' + JSON.stringify(availableInfos));
-
-					var $systemDatapoints = $('#systemDatapoints');
-					var text = '';
-					for (var i = 0; i < availableInfos.length; i++) {
-						text += '<label class="col s4 input-field myCheckBoxListItem">' +
-							'<input type="checkbox" class="selectedSystemDatapoints" ' + (settings.selectedSystemInfos.indexOf(availableInfos[i]) !== -1 ? 'checked ' : '') + ' data-info="' + availableInfos[i] + '" />' +
-							'<span class="black-text">' + _(availableInfos[i]) + '</span>' +
-							'</label>';
-					}
-					$systemDatapoints.html(text);
-
-					var $sessionDatapoints = $('#sessionDatapoints');
-					var text = '';
-					for (var i = 0; i < availableInfos.length; i++) {
-						text += '<label class="col s4 input-field myCheckBoxListItem">' +
-							'<input type="checkbox" class="selectedSessionDatapoints" ' + (settings.selectedSessionInfos.indexOf(availableInfos[i]) !== -1 ? 'checked ' : '') + ' data-info="' + availableInfos[i] + '" />' +
-							'<span class="black-text">' + _(availableInfos[i]) + '</span>' +
-							'</label>';
-					}
-					$sessionDatapoints.html(text);
-
-					$('.systemButtons').show();
-					$('.sessionButtons').show();
-				}
-
-				$('.selectedSystemDatapoints').on('change', function () {
-					_onChange()
-				});
-
-				$('.selectedSessionDatapoints').on('change', function () {
-					_onChange()
-				});
-				// reinitialize all the Materialize labels on the page if you are dynamically adding inputs:
-				M && M.updateTextFields();
-			});
-		}
-
-		function loadDatabaseBlacklist(settings) {
-			// Read all available databases from update object
-			const result = getObject(`${myNamespace}.update`, (err, state) => {
-
-				// Error handling if available infos are not known
-				if (!state.native.availableInfos) {
-
-					// console.log('AvailableInfos not yet present, did the adapter successfully run for the first time ?')
-
-					// Reset timer (if running) and start new one for next polling interval
-					if (retryTimer['loadDatabaseBlacklist']) {
-						clearTimeout(retryTimer['loadDatabaseBlacklist']);
-						retryTimer['loadDatabaseBlacklist'] = null;
-					}
-
-					retryTimer['loadDatabaseBlacklist'] = setTimeout(() => {
-						loadDatabaseBlacklist(settings);
-					}, 1000);
-
-					$('.databasesBlacklistButtons').hide();
-				} else {
-					// Clear retry timer when running
-
-					if (retryTimer['loadDatabaseBlacklist']) {
-						clearTimeout(retryTimer['loadDatabaseBlacklist']);
-						retryTimer['loadDatabaseBlacklist'] = null;
-					}
-
-					availableDatabases = state.native.availableDatabases;
-					availableDatabases = availableDatabases.sort();
-					// console.log('All available infos sorted object : ' + JSON.stringify(availableInfos));
-
-					var $databasesBlacklist = $('#databasesBlacklist');
-					var text = '';
-
-					if ($('#sqlInstance').val()) {
-						getObject(`system.adapter.${$('#sqlInstance').val()}`, (err, state) => {
-
-							if (state.native.dbname) {
-								for (var i = 0; i < availableDatabases.length; i++) {
-									if (availableDatabases[i] !== state.native.dbname) {
-										text += '<label class="col s4 input-field myCheckBoxListItem">' +
-											'<input type="checkbox" class="selectedDatabasesBlacklist" ' + (settings.blackListDatabases.indexOf(availableDatabases[i]) !== -1 ? 'checked ' : '') + ' data-info="' + availableDatabases[i] + '" />' +
-											'<span class="black-text">' + _(availableDatabases[i]) + '</span>' +
-											'</label>';
-									}
-								}
-								$databasesBlacklist.html(text);
-
-								$('.databasesBlacklistButtons').show();
-							}
-						});
-					}
-				}
-
-				$('.selectedDatabasesBlacklist').on('change', function () {
-					_onChange()
-				});
-
-				// reinitialize all the Materialize labels on the page if you are dynamically adding inputs:
-				M && M.updateTextFields();
-			});
-		}
-
-		// This will be called by the admin adapter when the user presses the save button
-		function save(callback) {
-			// example: select elements with class=value and build settings object
-			var obj = {};
-			$('.value').each(function () {
-				var $this = $(this);
-				if ($this.attr('type') === 'checkbox') {
-					obj[$this.attr('id')] = $this.prop('checked');
-				} else {
-					obj[$this.attr('id')] = $this.val();
-				}
-			});
-
-			obj.selectedSystemInfos = []
-			$('.selectedSystemDatapoints').each(function () {
-				if ($(this).prop('checked')) {
-					obj.selectedSystemInfos.push($(this).data('info'));
-				}
-			});
-
-			obj.selectedSessionInfos = []
-			$('.selectedSessionDatapoints').each(function () {
-				if ($(this).prop('checked')) {
-					obj.selectedSessionInfos.push($(this).data('info'));
-				}
-			});
-
-			obj.blackListDatabases = []
-			$('.selectedDatabasesBlacklist').each(function () {
-				if ($(this).prop('checked')) {
-					obj.blackListDatabases.push($(this).data('info'));
-				}
-			});
-
-			callback(obj);
-		}
-	</script>
-
 </head>
 
 <body>
-
 	<div class="m adapter-container">
 		<div class="row">
 			<div class="col s12">
 				<ul class="tabs">
 					<li class="tab col s3"><a href="#tab-general" class="translate active">general</a></li>
-					<li class="tab col s3"><a href="#tab-databasesBlackList" class="translate">databasesBlacklist</a></li>
-					<li class="tab col s2"><a href="#tab-systemDatapoints" class="translate">systemDatapoints</a></li>
-					<li class="tab col s2"><a href="#tab-sessionDatapoints" class="translate">sessionDatapoints</a></li>
-					<li class="tab col s2"><a href="#tab-clientDatapoints" class="translate">clientDatapoints</a></li>
+					<li class="tab col s3"><a href="#tab_datapoints_databases" class="translate">databasesBlacklist</a>
+					</li>
+					<li class="tab col s2"><a href="#tab_datapoints_globalStatus" class="translate">systemDatapoints</a>
+					</li>
+					<li class="tab col s2"><a href="#tab_datapoints_sessionStatus"
+							class="translate">sessionDatapoints</a></li>
+					<li class="tab col s2"><a href="#tab_datapoints_clients" class="translate">clientDatapoints</a></li>
 				</ul>
 			</div>
 			<div id="tab-general" class="col s12 page">
@@ -427,7 +79,8 @@
 						<select class="value" id="sqlInstance">
 							<option value="" class="translate">none</option>
 						</select>
-						<label class="translate" for="sqlInstance" style="margin-top: 10px !important;">SelectSqlHistoryInstance</label>
+						<label class="translate" for="sqlInstance"
+							style="margin-top: 10px !important;">SelectSqlHistoryInstance</label>
 					</div>
 				</div>
 				<div class="row myVisibleHandler">
@@ -458,7 +111,7 @@
 					<div class="input-field col s12 m4">
 						<input id="clientStatistics" type="checkbox" class="value" />
 						<label class="translate" for="clientStatistics">enableClientStatistics</label>
-					</div>					
+					</div>
 				</div>
 				<div class="row myVisibleHandler">
 					<div class="input-field real-sql col s12 m4">
@@ -472,39 +125,19 @@
 					</div>
 				</div>
 			</div>
-			<div id="tab-databasesBlackList" class="col s12 page">
-				<div class="row myVisibleHandler" style="margin-right: 0px">
-					<div class="row databasesBlacklistButtons" style="padding: 12px;">
-						<a id="defaultDatabasesBlacklist" class="waves-effect waves-light btn-small myButton"><i
-								class="material-icons left">settings_backup_restore</i><span
-								class="translate">default</span></a>
-						<a id="allDatabasesBlacklist" class="waves-effect waves-light btn-small myButton"><i
-								class="material-icons left">check_box</i><span class="translate">selectAll</span></a>
-						<a id="noneDatabasesBlacklist" class="waves-effect waves-light btn-small myButton"><i
-								class="material-icons left">check_box_outline_blank</i><span
-								class="translate">selectNone</span></a>
-					</div>
-					<div class="row" id="databasesBlacklist">
-						<div class="progress">
-							<div class="indeterminate"></div>
-						</div>
-						<h6 class="center translate">DatabasesBlacklistNotYetAvailable</h6>
-					</div>
-				</div>
-			</div>
-			<div id="tab-systemDatapoints" class="col s12 page">
+			<div id="tab_datapoints_databases" class="col s12 page myTab">
 				<div class="row myVisibleHandler">
-					<div class="row systemButtons" style="padding: 12px">
-						<a id="defaultSystemDatapoints" class="waves-effect waves-light btn-small myButton"><i
+					<div class="col s12 databases_button_panel myButtonPanel">
+						<a id="databases_button_default" class="waves-effect waves-light btn-small myButton"><i
 								class="material-icons left">settings_backup_restore</i><span
 								class="translate">default</span></a>
-						<a id="allSystemDatapoints" class="waves-effect waves-light btn-small myButton"><i
+						<a id="databases_button_all" class="waves-effect waves-light btn-small myButton"><i
 								class="material-icons left">check_box</i><span class="translate">selectAll</span></a>
-						<a id="noneSystemDatapoints" class="waves-effect waves-light btn-small myButton"><i
+						<a id="databases_button_none" class="waves-effect waves-light btn-small myButton"><i
 								class="material-icons left">check_box_outline_blank</i><span
 								class="translate">selectNone</span></a>
 					</div>
-					<div class="row" id="systemDatapoints">
+					<div class="col s12 checkbox_list" id="databases_checkbox_list">
 						<div class="progress">
 							<div class="indeterminate"></div>
 						</div>
@@ -512,19 +145,19 @@
 					</div>
 				</div>
 			</div>
-			<div id="tab-sessionDatapoints" class="col s12 page">
+			<div id="tab_datapoints_globalStatus" class="col s12 page myTab">
 				<div class="row myVisibleHandler">
-					<div class="row sessionButtons" style="padding: 12px">
-						<a id="defaultSessionDatapoints" class="waves-effect waves-light btn-small myButton"><i
+					<div class="col s12 globalStatus_button_panel myButtonPanel">
+						<a id="globalStatus_button_default" class="waves-effect waves-light btn-small myButton"><i
 								class="material-icons left">settings_backup_restore</i><span
 								class="translate">default</span></a>
-						<a id="allSessionDatapoints" class="waves-effect waves-light btn-small myButton"><i
+						<a id="globalStatus_button_all" class="waves-effect waves-light btn-small myButton"><i
 								class="material-icons left">check_box</i><span class="translate">selectAll</span></a>
-						<a id="noneSessionDatapoints" class="waves-effect waves-light btn-small myButton"><i
+						<a id="globalStatus_button_none" class="waves-effect waves-light btn-small myButton"><i
 								class="material-icons left">check_box_outline_blank</i><span
 								class="translate">selectNone</span></a>
 					</div>
-					<div class="row" id="sessionDatapoints">
+					<div class="col s12 checkbox_list" id="globalStatus_checkbox_list">
 						<div class="progress">
 							<div class="indeterminate"></div>
 						</div>
@@ -532,26 +165,46 @@
 					</div>
 				</div>
 			</div>
-			<div id="tab-clientDatapoints" class="col s12 page">
-				<div class="row myVisibleHandler" style="margin-right: 0px">
-					<div class="row clientButtons" style="padding: 12px">
-						<a id="defaultClientDatapoints" class="waves-effect waves-light btn-small myButton"><i
-							class="material-icons left">settings_backup_restore</i><span
-							class="translate">default</span></a>						
-						<a id="allClientDatapoints" class="waves-effect waves-light btn-small myButton"><i
+			<div id="tab_datapoints_sessionStatus" class="col s12 page myTab">
+				<div class="row myVisibleHandler">
+					<div class="col s12 sessionStatus_button_panel myButtonPanel">
+						<a id="sessionStatus_button_default" class="waves-effect waves-light btn-small myButton"><i
+								class="material-icons left">settings_backup_restore</i><span
+								class="translate">default</span></a>
+						<a id="sessionStatus_button_all" class="waves-effect waves-light btn-small myButton"><i
 								class="material-icons left">check_box</i><span class="translate">selectAll</span></a>
-						<a id="noneClientDatapoints" class="waves-effect waves-light btn-small myButton"><i
+						<a id="sessionStatus_button_none" class="waves-effect waves-light btn-small myButton"><i
 								class="material-icons left">check_box_outline_blank</i><span
 								class="translate">selectNone</span></a>
 					</div>
-					<div class="row" id="clientDatapoints">
+					<div class="col s12 checkbox_list" id="sessionStatus_checkbox_list">
 						<div class="progress">
 							<div class="indeterminate"></div>
 						</div>
 						<h6 class="center translate">DatapointsSelectionNotYetAvailable</h6>
 					</div>
 				</div>
-			</div>			
+			</div>
+			<div id="tab_datapoints_clients" class="col s12 page myTab">
+				<div class="row myVisibleHandler">
+					<div class="col s12 clients_button_panel myButtonPanel">
+						<a id="clients_button_default" class="waves-effect waves-light btn-small myButton"><i
+								class="material-icons left">settings_backup_restore</i><span
+								class="translate">default</span></a>
+						<a id="clients_button_all" class="waves-effect waves-light btn-small myButton"><i
+								class="material-icons left">check_box</i><span class="translate">selectAll</span></a>
+						<a id="clients_button_none" class="waves-effect waves-light btn-small myButton"><i
+								class="material-icons left">check_box_outline_blank</i><span
+								class="translate">selectNone</span></a>
+					</div>
+					<div class="col s12 checkbox_list" id="clients_checkbox_list">
+						<div class="progress">
+							<div class="indeterminate"></div>
+						</div>
+						<h6 class="center translate">DatapointsSelectionNotYetAvailable</h6>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 </body>
