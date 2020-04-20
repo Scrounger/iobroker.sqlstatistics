@@ -65,8 +65,8 @@ class Sqlstatistics extends utils.Adapter {
 
 			await this.updateAvailableInfos();
 
-			// await this.updateStatistic();
-			// await this.updateDatabaseStatistic();
+			await this.updateStatistic();
+			await this.updateDatabaseStatistic();
 		}
 	}
 
@@ -148,7 +148,7 @@ class Sqlstatistics extends utils.Adapter {
 							await this.setObjectAsync('info', updateObj);
 							this.log.info(`Successful updating avaiable datapoint infos! `);
 						} else {
-							this.log.error(`datapoint '${this.name}.${this.instance}.update' not exist!`);
+							this.log.error(`datapoint '${this.namespace}.update' not exist!`);
 						}
 					} else {
 						this.log.warn(`Database type 'SQLite3' is not supported!`);
@@ -336,16 +336,19 @@ class Sqlstatistics extends utils.Adapter {
 
 						for (const [key, value] of Object.entries(clientInfos[i])) {
 							if (key.includes('memory')) {
-								await this.createStatisticObjectNumber(`${idPrefix}.${key.toLowerCase()}`, `${key.replace(/_/g, " ")}`, 'MB');
+								await this.createStatisticObjectNumber(`${idPrefix}.${key.toLowerCase()}`, key.replace(/_/g, " "), 'MB');
 								await this.setStateAsync(`${idPrefix}.${key.toLowerCase()}`, Math.round(parseFloat(value) / 1024 / 1024 * 100) / 100, true);
+
 							} else if (key.includes('latency')) {
-								await this.createStatisticObjectNumber(`${idPrefix}.${key.toLowerCase()}`, `${key.replace(/_/g, " ")}`, 'ms');
+								await this.createStatisticObjectNumber(`${idPrefix}.${key.toLowerCase()}`, key.replace(/_/g, " "), 'ms');
 								await this.setStateAsync(`${idPrefix}.${key.toLowerCase()}`, Math.round(parseFloat(value) / 1000 / 1000 / 1000 * 100) / 100, true);
+
 							} else if (isNaN(parseFloat(value)) || key === 'host') {
-								await this.createStatisticObjectString(`${idPrefix}.${key.toLowerCase()}`, `${key.replace(/_/g, " ")}`);
+								await this.createStatisticObjectString(`${idPrefix}.${key.toLowerCase()}`, key.replace(/_/g, " "));
 								await this.setStateAsync(`${idPrefix}.${key.toLowerCase()}`, value, true);
+								
 							} else {
-								await this.createStatisticObjectNumber(`${idPrefix}.${key.toLowerCase()}`, `${key.replace(/_/g, " ")}`, '');
+								await this.createStatisticObjectNumber(`${idPrefix}.${key.toLowerCase()}`, key.replace(/_/g, " "), '');
 								await this.setStateAsync(`${idPrefix}.${key.toLowerCase()}`, parseFloat(value), true);
 							}
 						}
@@ -396,15 +399,15 @@ class Sqlstatistics extends utils.Adapter {
 							// this.log.info(parseFloat(info.value).toString());
 
 							if (isNaN(parseFloat(info.value))) {
-								await adapter.createStatisticObjectString(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, `${info.name.replace(/_/g, " ")}`);
+								await adapter.createStatisticObjectString(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, info.name.replace(/_/g, " "));
 								await adapter.setStateAsync(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, info.value, true);
 							} else {
 
 								if (info.name.toLowerCase().includes('bytes')) {
-									await adapter.createStatisticObjectNumber(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, `${info.name.replace(/_/g, " ")}`, 'MB');
+									await adapter.createStatisticObjectNumber(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, info.name.replace(/_/g, " "), 'MB');
 									await adapter.setStateAsync(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, Math.round(parseFloat(info.value) / 1024 / 1024 * 100) / 100, true);
 								} else {
-									await adapter.createStatisticObjectNumber(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, `${info.name.replace(/_/g, " ")}`, '');
+									await adapter.createStatisticObjectNumber(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, info.name.replace(/_/g, " "), '');
 									await adapter.setStateAsync(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, parseFloat(info.value), true);
 								}
 							}
@@ -461,7 +464,7 @@ class Sqlstatistics extends utils.Adapter {
 								brokenRows++;
 								brokenRowsList.push({ id: row.id, name: row.name, existInIoBroker: true });
 
-								this.log.silly(`[${instanceObj.native.dbtype}] object '${row.name}' exist in ioBroker but has no custom property for '${this.name}.${this.instance}' instance, added to broken list`);
+								this.log.silly(`[${instanceObj.native.dbtype}] object '${row.name}' exist in ioBroker but has no custom property for '${this.namespace}' instance, added to broken list`);
 							}
 						}
 					}
@@ -512,11 +515,11 @@ class Sqlstatistics extends utils.Adapter {
 		try {
 			this.log.debug(`deleting unused objects...`);
 
-			let stateList = await this.getStatesAsync(`${this.name}.${this.instance}.databases.*`);
+			let stateList = await this.getStatesAsync(`${this.namespace}.databases.*`);
 
 			let counter = 0;
 			for (const id in stateList) {
-				if (usedDatapoints.length > 0 && !usedDatapoints.includes(id.replace(`${this.name}.${this.instance}.`, ''))) {
+				if (usedDatapoints.length > 0 && !usedDatapoints.includes(id.replace(`${this.namespace}.`, ''))) {
 					await this.delObjectAsync(id);
 					this.log.silly(`object '${id}' deleted`);
 
@@ -692,7 +695,7 @@ class Sqlstatistics extends utils.Adapter {
 			}
 		}
 
-		if (id === `${this.name}.${this.instance}.update`) {
+		if (id === `${this.namespace}.update`) {
 			if (!updateIsRunning) {
 				await this.updateDatabaseStatistic();
 				await this.updateStatistic();
