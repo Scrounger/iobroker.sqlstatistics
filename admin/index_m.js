@@ -15,25 +15,29 @@ function load(settings, onChange) {
             id: `${myNamespace}.info`,
             property: 'databases',
             defaults: ["sys", "information_schema", "performance_schema", "mysql"],
-            ignores: ['iobroker_dev']
+            ignores: ['iobroker_dev'],
+            parentContainerId: 'container_databases'
         },
         {
             // global status
             id: `${myNamespace}.info`,
             property: 'globalStatus',
-            defaults: ["Aborted_clients", "Aborted_connects", "Bytes_received", "Bytes_sent", "Connection_errors_accept", "Connection_errors_internal", "Connection_errors_max_connections", "Connection_errors_peer_address", "Connection_errors_select", "Connection_errors_tcpwrap", "Connections", "Max_used_connections", "Questions", "Slow_queries", "Threads_cached", "Threads_connected", "Threads_created", "Threads_running", "Uptime"]
+            defaults: ["Aborted_clients", "Aborted_connects", "Bytes_received", "Bytes_sent", "Connection_errors_accept", "Connection_errors_internal", "Connection_errors_max_connections", "Connection_errors_peer_address", "Connection_errors_select", "Connection_errors_tcpwrap", "Connections", "Max_used_connections", "Questions", "Slow_queries", "Threads_cached", "Threads_connected", "Threads_created", "Threads_running", "Uptime"],
+            parentContainerId: 'container_globalStatus'
         },
         {
             // session status
             id: `${myNamespace}.info`,
             property: 'sessionStatus',
-            defaults: ["Bytes_received", "Bytes_sent", "Questions", "Uptime_since_flush_status"]
+            defaults: ["Bytes_received", "Bytes_sent", "Questions", "Uptime_since_flush_status"],
+            parentContainerId: 'container_sessionStatus'
         },
         {
             // clients
             id: `${myNamespace}.info`,
             property: 'clients',
-            defaults: ["host", "statement_avg_latency", "file_io_latency", "current_connections", "total_connections", "current_memory", "total_memory_allocated"]
+            defaults: ["host", "statement_avg_latency", "file_io_latency", "current_connections", "total_connections", "current_memory", "total_memory_allocated"],
+            parentContainerId: 'container_clients'
         }
     ]
 
@@ -83,11 +87,31 @@ function load(settings, onChange) {
  * @param {string} property				-> name of the array in native object, property name where the selected items store must have the same name in io-package.json
  * @param {Array<string>} defaults		-> default selection used by default button -> if no default is defined, button will hide
  * @param {Array<string>} ignores		-> will be ignore by creating the checkbox list
+ * @param {string} parentContainerId    -> id of parent container where the checklist should be added to.
  */
 function generateCheckboxList(options, settings, onChange) {
     try {
+        $(`#${options.parentContainerId}`).html(
+            `<div class="col s12 ${options.property}_button_panel myButtonPanel">
+                <a id="${options.property}_button_default" class="waves-effect waves-light btn-small myButton"><i
+                        class="material-icons left">settings_backup_restore</i><span
+                        class="translate">${_("default")}</span></a>
+                <a id="${options.property}_button_all" class="waves-effect waves-light btn-small myButton"><i
+                        class="material-icons left">check_box</i><span class="translate">${_("selectAll")}</span></a>
+                <a id="${options.property}_button_none" class="waves-effect waves-light btn-small myButton"><i
+                        class="material-icons left">check_box_outline_blank</i><span
+                        class="translate">${_("selectNone")}</span></a>
+            </div>
+            <div class="col s12 checkbox_list" id="${options.property}_checkbox_list">
+                <div class="progress">
+                    <div class="indeterminate"></div>
+                </div>
+                <h6 class="center translate">${_("notYetAvailable")}</h6>
+            </div>`
+        )
+
         // Read all available datapoints from object
-        const result = getObject(options.id, (err, state) => {
+        getObject(options.id, (err, state) => {
 
             // If native has not the array, loop until array is available
             if (!state.native[options.property]) {
@@ -122,7 +146,7 @@ function generateCheckboxList(options, settings, onChange) {
                             checkboxElementsList.push(
                                 `<label class="col s4 input-field checkbox_list_item">
                                     <input type="checkbox" class="${options.property}_checkbox_item" ${settings[options.property].indexOf(datapoint) !== -1 ? 'checked ' : ''} data-info="${datapoint}" />
-                                    <span class="black-text">${_(datapoint.replace(/_/g,' '))}</span>
+                                    <span class="black-text">${_(datapoint.replace(/_/g, ' '))}</span>
                                 </label>`
                             )
                         }
@@ -186,7 +210,6 @@ function showHideSettings(id) {
         $('.myVisibleHandler').hide();
     }
 }
-
 
 function generateSqlInstancesDropDown(settings) {
     socket.emit('getObjectView', 'system', 'instance', { startkey: 'system.adapter.sql.', endkey: 'system.adapter.sql.\u9999' }, function (err, doc) {

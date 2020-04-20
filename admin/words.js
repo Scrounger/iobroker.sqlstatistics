@@ -218,7 +218,7 @@ systemDictionary = {
 		"pl": "punkty danych klienta",
 		"zh-cn": "客户数据点"
 	},
-	"DatapointsSelectionNotYetAvailable": {
+	"notYetAvailable": {
 		"en": "Datapoints selection not yet available, adapter must successfully run 1 time to show available datapoints!",
 		"de": "Datenpunktauswahl noch nicht verfügbar, Adapter muss 1 Mal erfolgreich ausgeführt werden, um verfügbare Datenpunkte anzuzeigen!",
 		"ru": "Выбор точек данных еще не доступен, адаптер должен успешно запускаться 1 раз, чтобы показать доступные точки данных!",
