@@ -206,6 +206,18 @@ systemDictionary = {
 		"pl": "punkty danych sesji",
 		"zh-cn": "会话数据点"
 	},
+	"clientDatapoints": {
+		"en": "client datapoints",
+		"de": "Client-Datenpunkte",
+		"ru": "точки данных клиента",
+		"pt": "pontos de dados do cliente",
+		"nl": "klantgegevenspunten",
+		"fr": "points de données client",
+		"it": "punti dati client",
+		"es": "puntos de datos del cliente",
+		"pl": "punkty danych klienta",
+		"zh-cn": "客户数据点"
+	},
 	"DatapointsSelectionNotYetAvailable": {
 		"en": "Datapoints selection not yet available, adapter must successfully run 1 time to show available datapoints!",
 		"de": "Datenpunktauswahl noch nicht verfügbar, Adapter muss 1 Mal erfolgreich ausgeführt werden, um verfügbare Datenpunkte anzuzeigen!",

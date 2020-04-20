@@ -63,6 +63,8 @@
 
 		let defaultSessionInfos = ["Bytes_received", "Bytes_sent", "Questions", "Uptime_since_flush_status"];
 
+		let defaultClientInfos = ["host", "statement_avg_latency", "file_io_latency", "current_connections", "total_connections", "current_memory", "total_memory_allocated"];
+
 		// This will be called by the admin adapter when the settings page loads
 		function load(settings, onChange) {
 			_onChange = onChange;
@@ -405,10 +407,10 @@
 			<div class="col s12">
 				<ul class="tabs">
 					<li class="tab col s3"><a href="#tab-general" class="translate active">general</a></li>
-					<li class="tab col s3"><a href="#tab-databasesBlackList" class="translate">databasesBlacklist</a>
-					</li>
-					<li class="tab col s3"><a href="#tab-systemDatapoints" class="translate">systemDatapoints</a></li>
-					<li class="tab col s3"><a href="#tab-sessionDatapoints" class="translate">sessionDatapoints</a></li>
+					<li class="tab col s3"><a href="#tab-databasesBlackList" class="translate">databasesBlacklist</a></li>
+					<li class="tab col s2"><a href="#tab-systemDatapoints" class="translate">systemDatapoints</a></li>
+					<li class="tab col s2"><a href="#tab-sessionDatapoints" class="translate">sessionDatapoints</a></li>
+					<li class="tab col s2"><a href="#tab-clientDatapoints" class="translate">clientDatapoints</a></li>
 				</ul>
 			</div>
 			<div id="tab-general" class="col s12 page">
@@ -530,6 +532,26 @@
 					</div>
 				</div>
 			</div>
+			<div id="tab-clientDatapoints" class="col s12 page">
+				<div class="row myVisibleHandler" style="margin-right: 0px">
+					<div class="row clientButtons" style="padding: 12px">
+						<a id="defaultClientDatapoints" class="waves-effect waves-light btn-small myButton"><i
+							class="material-icons left">settings_backup_restore</i><span
+							class="translate">default</span></a>						
+						<a id="allClientDatapoints" class="waves-effect waves-light btn-small myButton"><i
+								class="material-icons left">check_box</i><span class="translate">selectAll</span></a>
+						<a id="noneClientDatapoints" class="waves-effect waves-light btn-small myButton"><i
+								class="material-icons left">check_box_outline_blank</i><span
+								class="translate">selectNone</span></a>
+					</div>
+					<div class="row" id="clientDatapoints">
+						<div class="progress">
+							<div class="indeterminate"></div>
+						</div>
+						<h6 class="center translate">DatapointsSelectionNotYetAvailable</h6>
+					</div>
+				</div>
+			</div>			
 		</div>
 	</div>
 </body>
