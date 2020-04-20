@@ -122,7 +122,7 @@ function generateCheckboxList(options, settings, onChange) {
                             checkboxElementsList.push(
                                 `<label class="col s4 input-field checkbox_list_item">
                                     <input type="checkbox" class="${options.property}_checkbox_item" ${settings[options.property].indexOf(datapoint) !== -1 ? 'checked ' : ''} data-info="${datapoint}" />
-                                    <span class="black-text">_(${datapoint})</span>
+                                    <span class="black-text">${_(datapoint.replace(/_/g,' '))}</span>
                                 </label>`
                             )
                         }
