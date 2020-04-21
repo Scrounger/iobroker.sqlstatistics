@@ -66,7 +66,7 @@ class Sqlstatistics extends utils.Adapter {
 			await this.updateAvailableInfos();
 
 			await this.updateStatistic();
-			await this.updateDatabaseStatistic();
+			// await this.updateDatabaseStatistic();
 		}
 	}
 
@@ -335,21 +335,27 @@ class Sqlstatistics extends utils.Adapter {
 						let idPrefix = `clients.${i}`
 
 						for (const [key, value] of Object.entries(clientInfos[i])) {
-							if (key.includes('memory')) {
-								await this.createStatisticObjectNumber(`${idPrefix}.${key.toLowerCase()}`, key.replace(/_/g, " "), 'MB');
-								await this.setStateAsync(`${idPrefix}.${key.toLowerCase()}`, Math.round(parseFloat(value) / 1024 / 1024 * 100) / 100, true);
+							if (this.config.clients.includes(key) && this.config.clientStatistics) {
+								if (key.includes('memory')) {
+									await this.createStatisticObjectNumber(`${idPrefix}.${key.toLowerCase()}`, key.replace(/_/g, " "), 'MB');
+									await this.setStateAsync(`${idPrefix}.${key.toLowerCase()}`, Math.round(parseFloat(value) / 1024 / 1024 * 100) / 100, true);
 
-							} else if (key.includes('latency')) {
-								await this.createStatisticObjectNumber(`${idPrefix}.${key.toLowerCase()}`, key.replace(/_/g, " "), 'ms');
-								await this.setStateAsync(`${idPrefix}.${key.toLowerCase()}`, Math.round(parseFloat(value) / 1000 / 1000 / 1000 * 100) / 100, true);
+								} else if (key.includes('latency')) {
+									await this.createStatisticObjectNumber(`${idPrefix}.${key.toLowerCase()}`, key.replace(/_/g, " "), 'ms');
+									await this.setStateAsync(`${idPrefix}.${key.toLowerCase()}`, Math.round(parseFloat(value) / 1000 / 1000 / 1000 * 100) / 100, true);
 
-							} else if (isNaN(parseFloat(value)) || key === 'host') {
-								await this.createStatisticObjectString(`${idPrefix}.${key.toLowerCase()}`, key.replace(/_/g, " "));
-								await this.setStateAsync(`${idPrefix}.${key.toLowerCase()}`, value, true);
-								
+								} else if (isNaN(parseFloat(value)) || key === 'host') {
+									await this.createStatisticObjectString(`${idPrefix}.${key.toLowerCase()}`, key.replace(/_/g, " "));
+									await this.setStateAsync(`${idPrefix}.${key.toLowerCase()}`, value, true);
+
+								} else {
+									await this.createStatisticObjectNumber(`${idPrefix}.${key.toLowerCase()}`, key.replace(/_/g, " "), '');
+									await this.setStateAsync(`${idPrefix}.${key.toLowerCase()}`, parseFloat(value), true);
+								}
 							} else {
-								await this.createStatisticObjectNumber(`${idPrefix}.${key.toLowerCase()}`, key.replace(/_/g, " "), '');
-								await this.setStateAsync(`${idPrefix}.${key.toLowerCase()}`, parseFloat(value), true);
+								if (await this.getObjectAsync(`${this.namespace}.${idPrefix}.${key.toLowerCase()}`)) {
+									await this.delObjectAsync(`${this.namespace}.${idPrefix}.${key.toLowerCase()}`);
+								}
 							}
 						}
 					}
@@ -412,8 +418,8 @@ class Sqlstatistics extends utils.Adapter {
 								}
 							}
 						} else {
-							if (await adapter.getObjectAsync(`${adapter.name}.${adapter.instance}.${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`)) {
-								await adapter.delObjectAsync(`${adapter.name}.${adapter.instance}.${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`);
+							if (await adapter.getObjectAsync(`${adapter.namespace}.${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`)) {
+								await adapter.delObjectAsync(`${adapter.namespace}.${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`);
 							}
 						}
 					}
