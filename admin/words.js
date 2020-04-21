@@ -1,7 +1,7 @@
 /*global systemDictionary:true */
 'use strict';
 
-systemDictionary = {
+const dictionary = {
 	'sqlstatistics adapter settings': {
 		'en': 'Adapter settings for sqlstatistics',
 		'de': 'Adaptereinstellungen für sqlstatistics',
@@ -265,6 +265,104 @@ systemDictionary = {
 		"es": "nada selecto",
 		"pl": "nic nie wybieram",
 		"zh-cn": "没有选择"
+	},
+
+	// datbases Datapoints
+	"rows in table": {
+		"en": "rows in table",
+		"de": "Zeilen in der Tabelle",
+		"ru": "строки в таблице",
+		"pt": "linhas na tabela",
+		"nl": "rijen in tabel",
+		"fr": "lignes dans le tableau",
+		"it": "righe nella tabella",
+		"es": "filas en la mesa",
+		"pl": "wiersze w tabeli",
+		"zh-cn": "表中的行"
+	},
+	"size of table": {
+		"en": "size of table",
+		"de": "Größe der Tabelle",
+		"ru": "размер стола",
+		"pt": "tamanho da mesa",
+		"nl": "grootte van de tafel",
+		"fr": "taille de la table",
+		"it": "dimensione del tavolo",
+		"es": "tamaño de la mesa",
+		"pl": "rozmiar stołu",
+		"zh-cn": "桌子的大小"
+	},
+	"rows in database": {
+		"en": "rows in database",
+		"de": "Zeilen in der Datenbank",
+		"ru": "строки в базе данных",
+		"pt": "linhas no banco de dados",
+		"nl": "rijen in database",
+		"fr": "lignes dans la base de données",
+		"it": "righe nel database",
+		"es": "filas en la base de datos",
+		"pl": "wiersze w bazie danych",
+		"zh-cn": "数据库中的行"
+	},
+	"size of database": {
+		"en": "size of database",
+		"de": "Größe der Datenbank",
+		"ru": "размер базы данных",
+		"pt": "tamanho do banco de dados",
+		"nl": "grootte van de database",
+		"fr": "taille de la base de données",
+		"it": "dimensione del database",
+		"es": "tamaño de la base de datos",
+		"pl": "rozmiar bazy danych",
+		"zh-cn": "数据库大小"
+	},
+	"count of tables of database": {
+		"en": "count of tables of database",
+		"de": "Anzahl der Datenbanktabellen",
+		"ru": "количество таблиц базы данных",
+		"pt": "contagem de tabelas do banco de dados",
+		"nl": "aantal tabellen van de database",
+		"fr": "nombre de tables de base de données",
+		"it": "conteggio delle tabelle del database",
+		"es": "recuento de tablas de base de datos",
+		"pl": "liczba tabel bazy danych",
+		"zh-cn": "数据库表数"
+	},
+	"count of rows of all databases": {
+		"en": "count of rows of all databases",
+		"de": "Anzahl der Zeilen aller Datenbanken",
+		"ru": "количество строк всех баз данных",
+		"pt": "contagem de linhas de todos os bancos de dados",
+		"nl": "aantal rijen van alle databases",
+		"fr": "nombre de lignes de toutes les bases de données",
+		"it": "conteggio delle righe di tutti i database",
+		"es": "recuento de filas de todas las bases de datos",
+		"pl": "liczba wierszy wszystkich baz danych",
+		"zh-cn": "所有数据库的行数"
+	},
+	"total size of all databases": {
+		"en": "total size of all databases",
+		"de": "Gesamtgröße aller Datenbanken",
+		"ru": "общий размер всех баз данных",
+		"pt": "tamanho total de todos os bancos de dados",
+		"nl": "totale omvang van alle databases",
+		"fr": "taille totale de toutes les bases de données",
+		"it": "dimensione totale di tutti i database",
+		"es": "tamaño total de todas las bases de datos",
+		"pl": "całkowity rozmiar wszystkich baz danych",
+		"zh-cn": "所有数据库的总大小"
+	},
+	"count of tables of all databases": {
+		"en": "count of tables of all databases",
+		"de": "Anzahl der Tabellen aller Datenbanken",
+		"ru": "количество таблиц всех баз данных",
+		"pt": "contagem de tabelas de todos os bancos de dados",
+		"nl": "aantal tabellen van alle databases",
+		"fr": "nombre de tables de toutes les bases de données",
+		"it": "conteggio delle tabelle di tutti i database",
+		"es": "recuento de tablas de todas las bases de datos",
+		"pl": "liczba tabel wszystkich baz danych",
+		"zh-cn": "所有数据库的表数"
 	},
 
 	// client Datapoints
@@ -3979,3 +4077,10 @@ systemDictionary = {
 		"zh-cn": "自冲洗状态以来的正常运行时间"
 	}
 };
+
+// @ts-ignore
+try {
+	systemDictionary = dictionary;
+} catch (ignore) { }
+
+module.exports = dictionary;

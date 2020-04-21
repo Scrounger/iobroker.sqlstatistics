@@ -7,6 +7,7 @@
 // The adapter-core module gives you access to the core ioBroker functions
 // you need to create an adapter
 const utils = require('@iobroker/adapter-core');
+const words = require('./admin/words.js');
 
 // Load your modules here, e.g.:
 // const fs = require("fs");
@@ -15,6 +16,8 @@ let connected = null;
 let SQLFuncs = null;
 let usedDatapoints = null;
 let updateIsRunning = false;
+let language = 'en';
+let _ = null;
 
 const dbNames = [
 	'ts_number',
@@ -31,7 +34,7 @@ class Sqlstatistics extends utils.Adapter {
 	constructor(options) {
 		super({
 			...options,
-			name: 'sqlstatistics',
+			name: 'sqlstatistics'.toString()
 		});
 		this.on('ready', this.onReady.bind(this));
 		this.on('objectChange', this.onObjectChange.bind(this));
@@ -46,6 +49,24 @@ class Sqlstatistics extends utils.Adapter {
 	async onReady() {
 
 		if (this.config.sqlInstance) {
+
+			// language for Tranlation
+			var sysConfig = await this.getForeignObjectAsync('system.config');
+			if (sysConfig && sysConfig.common && sysConfig.common['language']) {
+				language = sysConfig.common['language']
+			}
+
+			// language Function
+			/**
+			 * @param {string | number} string
+			 */
+			_ = function (string) {
+				if (words[string]) {
+					return words[string][language]
+				} else {
+					return string;
+				}
+			}
 
 			// subscribe on sql instance connection to show connection state to instance
 			this.subscribeForeignStates(`${this.config.sqlInstance}.info.connection`);
@@ -66,7 +87,7 @@ class Sqlstatistics extends utils.Adapter {
 			await this.updateAvailableInfos();
 
 			await this.updateStatistic();
-			// await this.updateDatabaseStatistic();
+			await this.updateDatabaseStatistic();
 		}
 	}
 
@@ -203,7 +224,7 @@ class Sqlstatistics extends utils.Adapter {
 									this.setMyState(`${idDatabasePrefix}.size`, database.size, true, instanceObj, { dbname: database.name, name: "size of database", unit: 'MB' });
 
 									totalTables = totalTables + database.tables;
-									this.setMyState(`${idDatabasePrefix}.tables`, database.tables, true, instanceObj, { dbname: database.name, name: "tables of database", unit: '' });
+									this.setMyState(`${idDatabasePrefix}.tables`, database.tables, true, instanceObj, { dbname: database.name, name: "count of tables of database", unit: '' });
 
 									// table statistics
 									let databaseTableList = await this.getQueryResult(SQLFuncs.getTablesOfDatabases(database.name));
@@ -251,13 +272,13 @@ class Sqlstatistics extends utils.Adapter {
 							}
 
 							// store total sql statistics
-							await this.createStatisticObjectNumber(`databases.size`, "total size of all databases", 'MB');
+							await this.createStatisticObjectNumber(`databases.size`, _("total size of all databases"), 'MB');
 							this.setState(`databases.size`, totalSize, true);
 
-							await this.createStatisticObjectNumber(`databases.rows`, "total rows of all databases", '');
+							await this.createStatisticObjectNumber(`databases.rows`, _("count of rows of all databases"), '');
 							this.setState(`databases.rows`, totalRows, true);
 
-							await this.createStatisticObjectNumber(`databases.tables`, "total tables of all databases", '');
+							await this.createStatisticObjectNumber(`databases.tables`, _("count of tables of all databases"), '');
 							this.setState(`databases.tables`, totalTables, true);
 
 							let updateEnd = new Date().getTime();
@@ -337,19 +358,19 @@ class Sqlstatistics extends utils.Adapter {
 						for (const [key, value] of Object.entries(clientInfos[i])) {
 							if (this.config.clients.includes(key) && this.config.clientStatistics) {
 								if (key.includes('memory')) {
-									await this.createStatisticObjectNumber(`${idPrefix}.${key.toLowerCase()}`, key.replace(/_/g, " "), 'MB');
+									await this.createStatisticObjectNumber(`${idPrefix}.${key.toLowerCase()}`, _(key.replace(/_/g, " ")), 'MB');
 									await this.setStateAsync(`${idPrefix}.${key.toLowerCase()}`, Math.round(parseFloat(value) / 1024 / 1024 * 100) / 100, true);
 
 								} else if (key.includes('latency')) {
-									await this.createStatisticObjectNumber(`${idPrefix}.${key.toLowerCase()}`, key.replace(/_/g, " "), 'ms');
+									await this.createStatisticObjectNumber(`${idPrefix}.${key.toLowerCase()}`, _(key.replace(/_/g, " ")), 'ms');
 									await this.setStateAsync(`${idPrefix}.${key.toLowerCase()}`, Math.round(parseFloat(value) / 1000 / 1000 / 1000 * 100) / 100, true);
 
 								} else if (isNaN(parseFloat(value)) || key === 'host') {
-									await this.createStatisticObjectString(`${idPrefix}.${key.toLowerCase()}`, key.replace(/_/g, " "));
+									await this.createStatisticObjectString(`${idPrefix}.${key.toLowerCase()}`, _(key.replace(/_/g, " ")));
 									await this.setStateAsync(`${idPrefix}.${key.toLowerCase()}`, value, true);
 
 								} else {
-									await this.createStatisticObjectNumber(`${idPrefix}.${key.toLowerCase()}`, key.replace(/_/g, " "), '');
+									await this.createStatisticObjectNumber(`${idPrefix}.${key.toLowerCase()}`, _(key.replace(/_/g, " ")), '');
 									await this.setStateAsync(`${idPrefix}.${key.toLowerCase()}`, parseFloat(value), true);
 								}
 							} else {
@@ -405,15 +426,15 @@ class Sqlstatistics extends utils.Adapter {
 							// this.log.info(parseFloat(info.value).toString());
 
 							if (isNaN(parseFloat(info.value))) {
-								await adapter.createStatisticObjectString(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, info.name.replace(/_/g, " "));
+								await adapter.createStatisticObjectString(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, _(info.name.replace(/_/g, " ")));
 								await adapter.setStateAsync(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, info.value, true);
 							} else {
 
 								if (info.name.toLowerCase().includes('bytes')) {
-									await adapter.createStatisticObjectNumber(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, info.name.replace(/_/g, " "), 'MB');
+									await adapter.createStatisticObjectNumber(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, _(info.name.replace(/_/g, " ")), 'MB');
 									await adapter.setStateAsync(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, Math.round(parseFloat(info.value) / 1024 / 1024 * 100) / 100, true);
 								} else {
-									await adapter.createStatisticObjectNumber(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, info.name.replace(/_/g, " "), '');
+									await adapter.createStatisticObjectNumber(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, _(info.name.replace(/_/g, " ")), '');
 									await adapter.setStateAsync(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, parseFloat(info.value), true);
 								}
 							}
@@ -502,10 +523,10 @@ class Sqlstatistics extends utils.Adapter {
 			}
 
 			if (dbNames.includes(table.name) || table.name === 'datapoints') {
-				await this.createStatisticObjectNumber(`${idTablePrefix}.brokenRows`, 'broken rows in table', '');
+				await this.createStatisticObjectNumber(`${idTablePrefix}.brokenRows`, _('broken rows in table'), '');
 				this.setMyState(`${idTablePrefix}.brokenRows`, brokenRows, true, instanceObj);
 
-				await this.createStatisticObjectString(`${idTablePrefix}.brokenRowsIds`, "ids of broken rows in table");
+				await this.createStatisticObjectString(`${idTablePrefix}.brokenRowsIds`, _("ids of broken rows in table"));
 				if (brokenRowsList.length > 0) {
 					this.setMyState(`${idTablePrefix}.brokenRowsIds`, JSON.stringify(brokenRowsList), true, instanceObj);
 				} else {
@@ -551,7 +572,7 @@ class Sqlstatistics extends utils.Adapter {
 			if (!this.config.databases.includes(options.dbname)) {
 
 				if (!options.isTable || options.dbname === instanceObj.native.dbname) {
-					this.createStatisticObjectNumber(id, options.name, options.unit);
+					this.createStatisticObjectNumber(id, _(options.name), options.unit);
 
 					this.log.silly(`store state '${id}', value: ${value}`);
 					this.setState(id, value, ack);
@@ -559,7 +580,7 @@ class Sqlstatistics extends utils.Adapter {
 				} else {
 					// table
 					if (this.config.foreignTableStatistics) {
-						this.createStatisticObjectNumber(id, options.name, options.unit);
+						this.createStatisticObjectNumber(id, _(options.name), options.unit);
 
 						this.log.silly(`store state '${id}', value: ${value}`);
 						this.setState(id, value, ack);
