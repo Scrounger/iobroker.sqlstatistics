@@ -613,21 +613,33 @@ class Sqlstatistics extends utils.Adapter {
 	 * @param {any} unit
 	 */
 	async createStatisticObjectNumber(id, name, unit) {
-		let adapter = this;
-		this.setObjectNotExists(id, {
-			type: 'state',
-			common: {
-				name: name,
-				desc: 'sql statistic',
-				type: 'number',
-				unit: unit,
-				read: true,
-				write: false
-			},
-			native: {}
-		}, function (err, obj) {
-			if (!err && obj) adapter.log.debug('[createStatisticObjectNumber] statistic object ' + id + ' created');
-		});
+		let obj = await this.getObjectAsync(id);
+
+		if (obj) {
+			if (obj.common.name !== name || obj.common['unit'] !== unit) {
+				this.log.info(JSON.stringify(obj));
+
+				obj.common.name = name;
+				obj.common['unit'] = unit;
+
+				await this.setObject(id, obj);
+			}
+		} else {
+			await this.setObjectNotExistsAsync(id,
+				{
+					type: 'state',
+					common: {
+						name: name,
+						desc: 'sql statistic',
+						type: 'number',
+						unit: unit,
+						read: true,
+						write: false,
+						role: 'value'
+					},
+					native: {}
+				});
+		}
 	}
 
 	/**
@@ -635,20 +647,28 @@ class Sqlstatistics extends utils.Adapter {
 	 * @param {string} name
 	 */
 	async createStatisticObjectString(id, name) {
-		let adapter = this;
-		this.setObjectNotExists(id, {
-			type: 'state',
-			common: {
-				name: name,
-				desc: 'sql statistic',
-				type: 'string',
-				read: true,
-				write: false
-			},
-			native: {}
-		}, function (err, obj) {
-			if (!err && obj) adapter.log.debug('[createStatisticObjectNumber] statistic object ' + id + ' created');
-		});
+		let obj = await this.getObjectAsync(id);
+
+		if (obj) {
+			if (obj.common.name !== name) {
+				obj.common.name = name;
+				await this.setObject(id, obj);
+			}
+		} else {
+			await this.setObjectNotExistsAsync(id,
+				{
+					type: 'state',
+					common: {
+						name: name,
+						desc: 'sql statistic',
+						type: 'string',
+						read: true,
+						write: false,
+						role: 'value'
+					},
+					native: {}
+				});
+		}
 	}
 
 	/**
