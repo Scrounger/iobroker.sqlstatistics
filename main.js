@@ -169,7 +169,7 @@ class Sqlstatistics extends utils.Adapter {
 							await this.setObjectAsync('info', updateObj);
 							this.log.info(`Successful updating avaiable datapoint infos! `);
 						} else {
-							this.log.error(`datapoint '${this.namespace}.update' not exist!`);
+							this.log.error(`datapoint '${this.namespace}.info' not exist!`);
 						}
 					} else {
 						this.log.warn(`Database type 'SQLite3' is not supported!`);
@@ -365,7 +365,7 @@ class Sqlstatistics extends utils.Adapter {
 									await this.createStatisticObjectNumber(`${idPrefix}.${key.toLowerCase()}`, _(key.replace(/_/g, " ")), 'ms');
 									await this.setStateAsync(`${idPrefix}.${key.toLowerCase()}`, Math.round(parseFloat(value) / 1000 / 1000 / 1000 * 100) / 100, true);
 
-								} else if (isNaN(parseFloat(value)) || key === 'host') {
+								} else if (isNaN(value)) {
 									await this.createStatisticObjectString(`${idPrefix}.${key.toLowerCase()}`, _(key.replace(/_/g, " ")));
 									await this.setStateAsync(`${idPrefix}.${key.toLowerCase()}`, value, true);
 
@@ -425,7 +425,7 @@ class Sqlstatistics extends utils.Adapter {
 						if (selectedInfosList.includes(info.name) && enabled) {
 							// this.log.info(parseFloat(info.value).toString());
 
-							if (isNaN(parseFloat(info.value))) {
+							if (isNaN(info.value)) {
 								await adapter.createStatisticObjectString(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, _(info.name.replace(/_/g, " ")));
 								await adapter.setStateAsync(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, info.value, true);
 							} else {

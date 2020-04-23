@@ -92,13 +92,13 @@ function load(settings, onChange) {
 function generateCheckboxList(options, settings, onChange) {
     try {
         $(`#${options.parentContainerId}`).html(
-            `<div class="col s12 ${options.property}_button_panel myButtonPanel">
-                <a id="${options.property}_button_default" class="waves-effect waves-light btn-small myButton"><i
+            `<div class="col s12 ${options.property}_button_panel checkbox_list_buttons_container">
+                <a id="${options.property}_button_default" class="waves-effect waves-light btn-small checkbox_list_button"><i
                         class="material-icons left">settings_backup_restore</i><span
                         class="translate">${_("default")}</span></a>
-                <a id="${options.property}_button_all" class="waves-effect waves-light btn-small myButton"><i
+                <a id="${options.property}_button_all" class="waves-effect waves-light btn-small checkbox_list_button"><i
                         class="material-icons left">check_box</i><span class="translate">${_("selectAll")}</span></a>
-                <a id="${options.property}_button_none" class="waves-effect waves-light btn-small myButton"><i
+                <a id="${options.property}_button_none" class="waves-effect waves-light btn-small checkbox_list_button"><i
                         class="material-icons left">check_box_outline_blank</i><span
                         class="translate">${_("selectNone")}</span></a>
             </div>
@@ -203,7 +203,7 @@ function generateCheckboxList(options, settings, onChange) {
     }
 }
 
-function showHideSettings(id) {
+function showHideSettings() {
     if ($('#sqlInstance').val()) {
         $('.myVisibleHandler').show();
     } else {
