@@ -638,7 +638,6 @@ class Sqlstatistics extends utils.Adapter {
 
 		if (obj) {
 			if (obj.common.name !== name || obj.common['unit'] !== unit) {
-				this.log.info(JSON.stringify(obj));
 
 				obj.common.name = name;
 				obj.common['unit'] = unit;

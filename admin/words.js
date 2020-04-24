@@ -3430,7 +3430,7 @@ const dictionary = {
 	},
 	"Questions": {
 		"en": "Questions",
-		"de": "Fragen",
+		"de": "Anfragen",
 		"ru": "Вопросов",
 		"pt": "Questões",
 		"nl": "Vragen",
@@ -4066,7 +4066,7 @@ const dictionary = {
 	},
 	"Uptime since flush status": {
 		"en": "Uptime since flush status",
-		"de": "Betriebszeit seit Spülstatus",
+		"de": "Betriebszeit seit Zurücksetzen der Session Daten",
 		"ru": "Время работы с момента сброса",
 		"pt": "Tempo de atividade desde o status de liberação",
 		"nl": "Uptime sinds flush status",
@@ -4078,8 +4078,8 @@ const dictionary = {
 	}
 };
 
-// @ts-ignore
 try {
+	// @ts-ignore
 	systemDictionary = dictionary;
 } catch (ignore) { }
 

@@ -26,6 +26,11 @@ SQLite3 database is not supported!
 
 ## Changelog
 
+### __WORK IN PROGRESS__
+* (Scrounger) system statistics added
+* (Scrounger) adapter settings added
+* (Scrounger) translation added
+
 ### 0.1.0 (2020-04-18)
 * (Scrounger) alpha release
 
