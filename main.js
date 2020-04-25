@@ -8,6 +8,7 @@
 // you need to create an adapter
 const utils = require('@iobroker/adapter-core');
 const words = require('./admin/words.js');
+const schedule = require('cron').CronJob;
 
 // Load your modules here, e.g.:
 // const fs = require("fs");
@@ -34,7 +35,7 @@ class Sqlstatistics extends utils.Adapter {
 	constructor(options) {
 		super({
 			...options,
-			name: 'sqlstatistics'.toString()
+			name: 'sqlstatistics'
 		});
 		this.on('ready', this.onReady.bind(this));
 		this.on('objectChange', this.onObjectChange.bind(this));
@@ -84,10 +85,46 @@ class Sqlstatistics extends utils.Adapter {
 				adapter.updateStatistic();
 			}, this.config.updateIntervalStatistics * 60000);
 
+
+			this.resetSessionStatistics();
+
 			await this.updateAvailableInfos();
 
 			await this.updateStatistic();
 			await this.updateDatabaseStatistic();
+		}
+	}
+
+	async resetSessionStatistics() {
+
+		if (this.config.resetSessionStatistics) {
+			new schedule('0 0 * * *', async () => {
+				try {
+					if (connected) {
+						this.log.info(`connected with '${this.config.sqlInstance}' instance.`);
+						let instanceObj = await this.getForeignObjectAsync(`system.adapter.${this.config.sqlInstance}`)
+
+						if (instanceObj && instanceObj.native) {
+							if (instanceObj.native.dbtype !== 'sqlite') {
+
+								SQLFuncs = await require(__dirname + '/lib/' + instanceObj.native.dbtype);
+								let result = await this.getQueryResult(SQLFuncs.resetSessionStatistics());
+
+								this.log.info('Reset of session statistics successful!');
+
+							} else {
+								this.log.warn(`Database type 'SQLite3' is not supported!`);
+							}
+						} else {
+							this.log.error(`Instance object 'system.adapter.${this.config.sqlInstance}' not exist!`);
+						}
+					} else {
+						this.log.warn(`Instance '${this.config.sqlInstance}' has no connection to database!`);
+					}
+				} catch (err) {
+					this.log.error(`[resetSessionStatistics] error: ${err.message}, stack: ${err.stack}`);
+				}
+			}).start();
 		}
 	}
 

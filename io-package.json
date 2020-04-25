@@ -92,7 +92,8 @@
 		"clientStatistics": true,
 		"globalStatus": ["Aborted_clients", "Aborted_connects", "Bytes_received", "Bytes_sent", "Connection_errors_accept", "Connection_errors_internal", "Connection_errors_max_connections", "Connection_errors_peer_address", "Connection_errors_select", "Connection_errors_tcpwrap", "Connections", "Max_used_connections", "Questions", "Slow_queries", "Threads_cached", "Threads_connected", "Threads_created", "Threads_running", "Uptime"],
 		"sessionStatus": ["Bytes_received", "Bytes_sent", "Questions", "Uptime_since_flush_status"],
-		"clients": ["host", "statement_avg_latency", "file_io_latency", "current_connections", "total_connections", "current_memory", "total_memory_allocated"]
+		"clients": ["host", "statement_avg_latency", "file_io_latency", "current_connections", "total_connections", "current_memory", "total_memory_allocated"],
+		"resetSessionStatistics": false
 	},
 	"objects": [],
 	"instanceObjects": [

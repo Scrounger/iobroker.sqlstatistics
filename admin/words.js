@@ -266,6 +266,18 @@ const dictionary = {
 		"pl": "nic nie wybieram",
 		"zh-cn": "没有选择"
 	},
+	"resetSessionStatistics": {
+		"en": "reset session statistics every day",
+		"de": "Sitzungsstatistik jeden Tag zurücksetzen",
+		"ru": "сбросить сессионную статистику каждый день",
+		"pt": "redefinir estatísticas da sessão todos os dias",
+		"nl": "sessie-statistieken elke dag opnieuw instellen",
+		"fr": "réinitialiser les statistiques de session tous les jours",
+		"it": "ripristina le statistiche della sessione ogni giorno",
+		"es": "restablecer las estadísticas de la sesión todos los días",
+		"pl": "codziennie resetuj statystyki sesji",
+		"zh-cn": "每天重置会话统计信息"
+	},
 
 	// datbases Datapoints
 	"rows in table": {
