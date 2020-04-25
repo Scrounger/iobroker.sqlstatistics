@@ -87,16 +87,16 @@ const dictionary = {
 		"zh-cn": "数据库黑名单"
 	},
 	"createTableStatistics": {
-		"en": "create statistics for tables",
-		"de": "Statistiken für Tabellen erstellen",
-		"ru": "создать статистику для таблиц",
-		"pt": "criar estatísticas para tabelas",
-		"nl": "maak statistieken voor tabellen",
-		"fr": "créer des statistiques pour les tableaux",
-		"it": "creare statistiche per le tabelle",
-		"es": "crear estadísticas para tablas",
-		"pl": "tworzyć statystyki dla tabel",
-		"zh-cn": "创建表统计信息"
+		"en": "create statistics for every tables",
+		"de": "Statistiken für jede Tabelle erstellen",
+		"ru": "создать статистику для каждой таблицы",
+		"pt": "criar estatísticas para todas as tabelas",
+		"nl": "maak statistieken voor elke tabellen",
+		"fr": "créer des statistiques pour toutes les tables",
+		"it": "creare statistiche per ogni tabella",
+		"es": "crear estadísticas para cada tabla",
+		"pl": "tworzyć statystyki dla każdej tabeli",
+		"zh-cn": "为每个表创建统计信息"
 	},
 	"donationInfo": {
 		"en": "You like the adapter? Then support the adapter developer (Scrounger) with a small donation.",
@@ -375,6 +375,42 @@ const dictionary = {
 		"es": "recuento de tablas de todas las bases de datos",
 		"pl": "liczba tabel wszystkich baz danych",
 		"zh-cn": "所有数据库的表数"
+	},
+	"broken rows in table": {
+		"en": "not used rows",
+		"de": "nicht verwendete Zeilen",
+		"ru": "неиспользуемые строки",
+		"pt": "linhas não usadas",
+		"nl": "niet gebruikte rijen",
+		"fr": "lignes non utilisées",
+		"it": "righe non utilizzate",
+		"es": "filas no utilizadas",
+		"pl": "nie używane wiersze",
+		"zh-cn": "未使用的行"
+	},
+	"ids of broken rows in table": {
+		"en": "ids of not used rows",
+		"de": "IDs nicht verwendeter Zeilen",
+		"ru": "идентификаторы неиспользуемых строк",
+		"pt": "IDs de linhas não usadas",
+		"nl": "id's van niet gebruikte rijen",
+		"fr": "identifiants des lignes non utilisées",
+		"it": "ID di righe non utilizzate",
+		"es": "ID de filas no utilizadas",
+		"pl": "identyfikatory niewykorzystanych wierszy",
+		"zh-cn": "未使用行的ID"
+	},
+	"broken rows in database": {
+		"en": "not used rows in database",
+		"de": "nicht verwendete Zeilen in der Datenbank",
+		"ru": "неиспользуемые строки в базе данных",
+		"pt": "linhas não usadas no banco de dados",
+		"nl": "niet gebruikte rijen in database",
+		"fr": "lignes non utilisées dans la base de données",
+		"it": "righe non utilizzate nel database",
+		"es": "filas no utilizadas en la base de datos",
+		"pl": "nieużywane wiersze w bazie danych",
+		"zh-cn": "数据库中未使用的行"
 	},
 
 	// client Datapoints
@@ -4095,4 +4131,6 @@ try {
 	systemDictionary = dictionary;
 } catch (ignore) { }
 
-module.exports = dictionary;
+try {
+	module.exports = dictionary;
+} catch (ignore) { }

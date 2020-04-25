@@ -31,6 +31,7 @@ SQLite3 database is not supported!
 * adapter settings added
 * translation added
 * option to reset session statistics every day added
+* sum of not used rows in iob database added
 
 ### 0.1.0 (2020-04-18)
 * (Scrounger) alpha release

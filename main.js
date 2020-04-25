@@ -255,6 +255,7 @@ class Sqlstatistics extends utils.Adapter {
 
 									let idDatabasePrefix = `databases.${database.name}`;
 									let databaseRows = 0;
+									let iobBrokenRows = 0;
 
 									// store database statistics
 									totalSize = totalSize + database.size;
@@ -290,7 +291,10 @@ class Sqlstatistics extends utils.Adapter {
 												}
 
 												if (database.name === instanceObj.native.dbname) {
-													await this.createIobSpecialTableStatistic(database, table, idTablePrefix, instanceObj);
+													let brokenRows = await this.createIobSpecialTableStatistic(database, table, idTablePrefix, instanceObj);
+
+													// @ts-ignore
+													iobBrokenRows = iobBrokenRows + brokenRows;
 												}
 											} catch (tableErr) {
 												this.log.error(`[updateDatabaseStatistic] database: '${database.name}', table: '${table.name}' error: ${tableErr.message}, stack: ${tableErr.stack}`);
@@ -302,6 +306,10 @@ class Sqlstatistics extends utils.Adapter {
 
 									this.setMyState(`${idDatabasePrefix}.rows`, databaseRows, true, instanceObj, { dbname: database.name, name: "rows in database", unit: '' });
 									totalRows = totalRows + databaseRows;
+
+									if (database.name === instanceObj.native.dbname) {
+										this.setMyState(`${idDatabasePrefix}.brokerRows`, iobBrokenRows, true, instanceObj, { dbname: database.name, name: "broken rows in database", unit: '' });
+									}
 
 								} catch (dbErr) {
 									this.log.error(`[updateDatabaseStatistic] database: '${database.name}' error: ${dbErr.message}, stack: ${dbErr.stack}`);
@@ -317,6 +325,8 @@ class Sqlstatistics extends utils.Adapter {
 
 							await this.createStatisticObjectNumber(`databases.tables`, _("count of tables of all databases"), '');
 							this.setState(`databases.tables`, totalTables, true);
+
+
 
 							let updateEnd = new Date().getTime();
 							let duration = Math.round(((updateEnd - updateStart) / 1000) * 100) / 100;
@@ -570,6 +580,8 @@ class Sqlstatistics extends utils.Adapter {
 					this.setMyState(`${idTablePrefix}.brokenRowsIds`, 'none', true, instanceObj);
 				}
 			}
+
+			return brokenRows;
 		} catch (err) {
 			this.log.error(`[createIobSpecialTableStatistic] error: ${err.message}, stack: ${err.stack}`);
 		}
@@ -780,8 +792,8 @@ class Sqlstatistics extends utils.Adapter {
 
 		if (id === `${this.namespace}.update`) {
 			if (!updateIsRunning) {
-				await this.updateDatabaseStatistic();
 				await this.updateStatistic();
+				await this.updateDatabaseStatistic();				
 			} else {
 				this.log.warn(`update is currently running, please wait until its finished!`);
 			}
