@@ -1,162 +1,212 @@
 {
-	"common": {
-		"name": "sqlstatistics",
-		"version": "0.1.2",
-		"news": {
-			"0.1.0": {
-				"en": "alpha release",
-				"de": "Alpha-Release",
-				"ru": "альфа-релиз",
-				"pt": "liberação alfa",
-				"nl": "alpha release",
-				"fr": "version alpha",
-				"it": "rilascio alfa",
-				"es": "lanzamiento alfa",
-				"pl": "wersja alfa",
-				"zh-cn": "阿尔法释放"
-			},
-			"0.0.1": {
-				"en": "initial release",
-				"de": "Erstveröffentlichung",
-				"ru": "Начальная версия",
-				"pt": "lançamento inicial",
-				"nl": "Eerste uitgave",
-				"fr": "Première version",
-				"it": "Versione iniziale",
-				"es": "Versión inicial",
-				"pl": "Pierwsze wydanie",
-				"zh-cn": "首次出版"
-			}
-		},
-		"title": "SQL History Statistics",
-		"titleLang": {
-			"en": "SQL History Statistics",
-			"de": "SQL History Statistics",
-			"ru": "SQL History Statistics",
-			"pt": "SQL History Statistics",
-			"nl": "SQL History Statistics",
-			"fr": "SQL History Statistics",
-			"it": "SQL History Statistics",
-			"es": "SQL History Statistics",
-			"pl": "SQL History Statistics",
-			"zh-cn": "SQL History Statistics"
-		},
-		"desc": {
-			"en": "Statistics for your database provider by using the SQL History Adapter",
-			"de": "Statistiken für Ihren Datenbankanbieter mithilfe des SQL History Adapter",
-			"ru": "Статистика для вашего поставщика базы данных с помощью адаптера истории SQL",
-			"pt": "Estatísticas para seu provedor de banco de dados usando o SQL History Adapter",
-			"nl": "Statistieken voor uw databaseprovider met behulp van de SQL History Adapter",
-			"fr": "Statistiques pour votre fournisseur de base de données à l'aide de l'adaptateur d'historique SQL",
-			"it": "Statistiche per il provider del database utilizzando l'adattatore cronologia SQL",
-			"es": "Estadísticas para su proveedor de base de datos utilizando el Adaptador de historial de SQL",
-			"pl": "Statystyki dla dostawcy bazy danych przy użyciu adaptera historii SQL",
-			"zh-cn": "使用SQL历史记录适配器的数据库提供程序的统计信息"
-		},
-		"authors": [
-			"Scrounger <scrounger@gmx.net>"
-		],
-		"keywords": [
-			"sql",
-			"statistic"
-		],
-		"license": "MIT",
-		"platform": "Javascript/Node.js",
-		"main": "main.js",
-		"icon": "sqlstatistics.png",
-		"enabled": true,
-		"extIcon": "https://raw.githubusercontent.com/Scrounger/ioBroker.sqlstatistics/master/admin/sqlstatistics.png",
-		"readme": "https://github.com/Scrounger/ioBroker.sqlstatistics/blob/master/README.md",
-		"loglevel": "info",
-		"mode": "daemon",
-		"type": "storage",
-		"compact": true,
-		"connectionType": "local",
-		"dataSource": "poll",
-		"materialize": true,
-		"dependencies": [
-			{
-				"js-controller": ">=1.4.2",
-				"sql": ">=1.9.5"
-			}
-		]
-	},
-	"native": {
-		"sqlInstance": "",
-		"updateIntervalDatabases": 6,
-		"updateIntervalStatistics": 5,
-		"databases": ["sys", "information_schema", "performance_schema", "mysql"],
-		"foreignTableStatistics": false,
-		"systemStatistics": true,
-		"sessionStatistics": true,
-		"clientStatistics": true,
-		"globalStatus": ["Aborted_clients", "Aborted_connects", "Bytes_received", "Bytes_sent", "Connection_errors_accept", "Connection_errors_internal", "Connection_errors_max_connections", "Connection_errors_peer_address", "Connection_errors_select", "Connection_errors_tcpwrap", "Connections", "Max_used_connections", "Questions", "Slow_queries", "Threads_cached", "Threads_connected", "Threads_created", "Threads_running", "Uptime"],
-		"sessionStatus": ["Bytes_received", "Bytes_sent", "Questions", "Uptime_since_flush_status"],
-		"clients": ["host", "statement_avg_latency", "file_io_latency", "current_connections", "total_connections", "current_memory", "total_memory_allocated"],
-		"resetSessionStatistics": false
-	},
-	"objects": [],
-	"instanceObjects": [
-		{
-			"_id": "info",
-			"type": "channel",
-			"common": {
-				"name": "Information"
-			},
-			"native": {}
-		},
-		{
-			"_id": "info.connection",
-			"type": "state",
-			"common": {
-				"role": "indicator.connected",
-				"name": "If connected to sql instance",
-				"type": "boolean",
-				"read": true,
-				"write": false,
-				"def": false
-			},
-			"native": {}
-		},
-		{
-			"_id": "update",
-			"type": "state",
-			"common": {
-				"role": "button",
-				"name": "start update now",
-				"type": "boolean",
-				"read": true,
-				"write": true,
-				"def": false
-			},
-			"native": {}
-		},
-		{
-			"_id": "lastUpdate",
-			"type": "state",
-			"common": {
-				"role": "",
-				"name": "timestamp of last update",
-				"type": "number",
-				"read": true,
-				"write": false,
-				"def": 0
-			},
-			"native": {}
-		},
-		{
-			"_id": "lastUpdateDuration",
-			"type": "state",
-			"common": {
-				"role": "",
-				"name": "duration of last update",
-				"type": "number",
-				"read": true,
-				"write": false,
-				"def": 0,
-				"unit": "s"
-			},
-			"native": {}
-		}
-	]
+    "common": {
+        "name": "sqlstatistics",
+        "version": "0.2.0",
+        "news": {
+            "0.2.0": {
+                "en": "* system statistics added\r\n* adapter settings added\r\n* translation added\r\n* option to reset session statistics every day added\r\n* sum of not used rows in iob database added",
+                "de": "* Systemstatistik hinzugefügt\r\n* Adaptereinstellungen hinzugefügt\r\n* Übersetzung hinzugefügt\r\n* Option zum Zurücksetzen der Sitzungsstatistik jeden Tag hinzugefügt\r\n* Summe der nicht verwendeten Zeilen in der iob-Datenbank hinzugefügt",
+                "ru": "* добавлена системная статистика\r\n* добавлены настройки адаптера\r\n* перевод добавлен\r\n* добавлена возможность сброса статистики сессий каждый день\r\n* добавлена сумма неиспользуемых строк в базе данных iob",
+                "pt": "* estatísticas do sistema adicionadas\r\n* configurações do adaptador adicionadas\r\n* tradução adicionada\r\n* opção para redefinir as estatísticas da sessão todos os dias adicionados\r\n* soma de linhas não usadas no banco de dados iob adicionada",
+                "nl": "* systeemstatistieken toegevoegd\r\n* adapterinstellingen toegevoegd\r\n* vertaling toegevoegd\r\n* optie om sessiestatistieken elke dag toegevoegd opnieuw in te stellen\r\n* som van niet gebruikte rijen in iob-database toegevoegd",
+                "fr": "* statistiques système ajoutées\r\n* paramètres d'adaptateur ajoutés\r\n* traduction ajoutée\r\n* option pour réinitialiser les statistiques de session chaque jour ajoutée\r\n* somme des lignes non utilisées dans la base de données iob ajoutée",
+                "it": "* statistiche di sistema aggiunte\r\n* aggiunte impostazioni dell'adattatore\r\n* traduzione aggiunta\r\n* opzione per ripristinare le statistiche della sessione ogni giorno aggiunto\r\n* aggiunta la somma delle righe non utilizzate nel database iob",
+                "es": "* estadísticas del sistema agregadas\r\n* configuración del adaptador agregado\r\n* traducción agregada\r\n* Opción para restablecer las estadísticas de sesión cada día agregado\r\n* suma de filas no utilizadas en la base de datos iob agregada",
+                "pl": "* dodano statystyki systemowe\r\n* dodano ustawienia adaptera\r\n* dodano tłumaczenie\r\n* Dodano opcję resetowania statystyk sesji każdego dnia\r\n* dodano sumę nieużywanych wierszy w bazie danych iob",
+                "zh-cn": "*添加系统统计信息\r\n*添加了适配器设置\r\n*添加翻译\r\n*添加每天重置会话统计信息的选项\r\n*添加了iob数据库中未使用的行的总和"
+            },
+            "0.1.0": {
+                "en": "alpha release",
+                "de": "Alpha-Release",
+                "ru": "альфа-релиз",
+                "pt": "liberação alfa",
+                "nl": "alpha release",
+                "fr": "version alpha",
+                "it": "rilascio alfa",
+                "es": "lanzamiento alfa",
+                "pl": "wersja alfa",
+                "zh-cn": "阿尔法释放"
+            },
+            "0.0.1": {
+                "en": "initial release",
+                "de": "Erstveröffentlichung",
+                "ru": "Начальная версия",
+                "pt": "lançamento inicial",
+                "nl": "Eerste uitgave",
+                "fr": "Première version",
+                "it": "Versione iniziale",
+                "es": "Versión inicial",
+                "pl": "Pierwsze wydanie",
+                "zh-cn": "首次出版"
+            }
+        },
+        "title": "SQL History Statistics",
+        "titleLang": {
+            "en": "SQL History Statistics",
+            "de": "SQL History Statistics",
+            "ru": "SQL History Statistics",
+            "pt": "SQL History Statistics",
+            "nl": "SQL History Statistics",
+            "fr": "SQL History Statistics",
+            "it": "SQL History Statistics",
+            "es": "SQL History Statistics",
+            "pl": "SQL History Statistics",
+            "zh-cn": "SQL History Statistics"
+        },
+        "desc": {
+            "en": "Statistics for your database provider by using the SQL History Adapter",
+            "de": "Statistiken für Ihren Datenbankanbieter mithilfe des SQL History Adapter",
+            "ru": "Статистика для вашего поставщика базы данных с помощью адаптера истории SQL",
+            "pt": "Estatísticas para seu provedor de banco de dados usando o SQL History Adapter",
+            "nl": "Statistieken voor uw databaseprovider met behulp van de SQL History Adapter",
+            "fr": "Statistiques pour votre fournisseur de base de données à l'aide de l'adaptateur d'historique SQL",
+            "it": "Statistiche per il provider del database utilizzando l'adattatore cronologia SQL",
+            "es": "Estadísticas para su proveedor de base de datos utilizando el Adaptador de historial de SQL",
+            "pl": "Statystyki dla dostawcy bazy danych przy użyciu adaptera historii SQL",
+            "zh-cn": "使用SQL历史记录适配器的数据库提供程序的统计信息"
+        },
+        "authors": [
+            "Scrounger <scrounger@gmx.net>"
+        ],
+        "keywords": [
+            "sql",
+            "statistic"
+        ],
+        "license": "MIT",
+        "platform": "Javascript/Node.js",
+        "main": "main.js",
+        "icon": "sqlstatistics.png",
+        "enabled": true,
+        "extIcon": "https://raw.githubusercontent.com/Scrounger/ioBroker.sqlstatistics/master/admin/sqlstatistics.png",
+        "readme": "https://github.com/Scrounger/ioBroker.sqlstatistics/blob/master/README.md",
+        "loglevel": "info",
+        "mode": "daemon",
+        "type": "storage",
+        "compact": true,
+        "connectionType": "local",
+        "dataSource": "poll",
+        "materialize": true,
+        "dependencies": [
+            {
+                "js-controller": ">=1.4.2",
+                "sql": ">=1.9.5"
+            }
+        ]
+    },
+    "native": {
+        "sqlInstance": "",
+        "updateIntervalDatabases": 6,
+        "updateIntervalStatistics": 5,
+        "databases": [
+            "sys",
+            "information_schema",
+            "performance_schema",
+            "mysql"
+        ],
+        "foreignTableStatistics": false,
+        "systemStatistics": true,
+        "sessionStatistics": true,
+        "clientStatistics": true,
+        "globalStatus": [
+            "Aborted_clients",
+            "Aborted_connects",
+            "Bytes_received",
+            "Bytes_sent",
+            "Connection_errors_accept",
+            "Connection_errors_internal",
+            "Connection_errors_max_connections",
+            "Connection_errors_peer_address",
+            "Connection_errors_select",
+            "Connection_errors_tcpwrap",
+            "Connections",
+            "Max_used_connections",
+            "Questions",
+            "Slow_queries",
+            "Threads_cached",
+            "Threads_connected",
+            "Threads_created",
+            "Threads_running",
+            "Uptime"
+        ],
+        "sessionStatus": [
+            "Bytes_received",
+            "Bytes_sent",
+            "Questions",
+            "Uptime_since_flush_status"
+        ],
+        "clients": [
+            "host",
+            "statement_avg_latency",
+            "file_io_latency",
+            "current_connections",
+            "total_connections",
+            "current_memory",
+            "total_memory_allocated"
+        ],
+        "resetSessionStatistics": false
+    },
+    "objects": [],
+    "instanceObjects": [
+        {
+            "_id": "info",
+            "type": "channel",
+            "common": {
+                "name": "Information"
+            },
+            "native": {}
+        },
+        {
+            "_id": "info.connection",
+            "type": "state",
+            "common": {
+                "role": "indicator.connected",
+                "name": "If connected to sql instance",
+                "type": "boolean",
+                "read": true,
+                "write": false,
+                "def": false
+            },
+            "native": {}
+        },
+        {
+            "_id": "update",
+            "type": "state",
+            "common": {
+                "role": "button",
+                "name": "start update now",
+                "type": "boolean",
+                "read": true,
+                "write": true,
+                "def": false
+            },
+            "native": {}
+        },
+        {
+            "_id": "lastUpdate",
+            "type": "state",
+            "common": {
+                "role": "",
+                "name": "timestamp of last update",
+                "type": "number",
+                "read": true,
+                "write": false,
+                "def": 0
+            },
+            "native": {}
+        },
+        {
+            "_id": "lastUpdateDuration",
+            "type": "state",
+            "common": {
+                "role": "",
+                "name": "duration of last update",
+                "type": "number",
+                "read": true,
+                "write": false,
+                "def": 0,
+                "unit": "s"
+            },
+            "native": {}
+        }
+    ]
 }
