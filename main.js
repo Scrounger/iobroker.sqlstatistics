@@ -389,51 +389,58 @@ class Sqlstatistics extends utils.Adapter {
 	 * @param {ioBroker.Object} instanceObj id des native points
 	 */
 	async createClientStatistic(instanceObj) {
-		try {
-			this.log.info(`updating client statistics for database provider '${instanceObj.native.dbtype}'...`);
+		if (this.config.enableclients) {
+			try {
+				this.log.info(`updating client statistics for database provider '${instanceObj.native.dbtype}'...`);
 
-			SQLFuncs = await require(__dirname + '/lib/' + instanceObj.native.dbtype);
+				SQLFuncs = await require(__dirname + '/lib/' + instanceObj.native.dbtype);
 
-			let clientInfos = await this.getQueryResult(SQLFuncs.getClientStatistics());
-			if (clientInfos && Object.keys(clientInfos).length > 0) {
-				this.log.debug(`[${instanceObj.native.dbtype}] client statistics received, ${Object.keys(clientInfos).length} values exists`);
+				let clientInfos = await this.getQueryResult(SQLFuncs.getClientStatistics());
+				if (clientInfos && Object.keys(clientInfos).length > 0) {
+					this.log.debug(`[${instanceObj.native.dbtype}] client statistics received, ${Object.keys(clientInfos).length} values exists`);
 
-				for (var i = 0; i <= clientInfos.length - 1; i++) {
-					if (clientInfos[i]) {
-						let idPrefix = `clients.${i}`
+					for (var i = 0; i <= clientInfos.length - 1; i++) {
+						if (clientInfos[i]) {
+							let idPrefix = `clients.${i}`
 
-						for (const [key, value] of Object.entries(clientInfos[i])) {
-							if (this.config.clients.includes(key) && this.config.enableclients) {
-								if (key.includes('memory')) {
-									await this.createStatisticObjectNumber(`${idPrefix}.${key.toLowerCase()}`, _(key.replace(/_/g, " ")), 'MB');
-									await this.setStateAsync(`${idPrefix}.${key.toLowerCase()}`, Math.round(parseFloat(value) / 1024 / 1024 * 100) / 100, true);
+							for (const [key, value] of Object.entries(clientInfos[i])) {
+								if (this.config.clients.includes(key)) {
+									if (key.includes('memory')) {
+										await this.createStatisticObjectNumber(`${idPrefix}.${key.toLowerCase()}`, _(key.replace(/_/g, " ")), 'MB');
+										await this.setStateAsync(`${idPrefix}.${key.toLowerCase()}`, Math.round(parseFloat(value) / 1024 / 1024 * 100) / 100, true);
 
-								} else if (key.includes('latency')) {
-									await this.createStatisticObjectNumber(`${idPrefix}.${key.toLowerCase()}`, _(key.replace(/_/g, " ")), 'ms');
-									await this.setStateAsync(`${idPrefix}.${key.toLowerCase()}`, Math.round(parseFloat(value) / 1000 / 1000 / 1000 * 100) / 100, true);
+									} else if (key.includes('latency')) {
+										await this.createStatisticObjectNumber(`${idPrefix}.${key.toLowerCase()}`, _(key.replace(/_/g, " ")), 'ms');
+										await this.setStateAsync(`${idPrefix}.${key.toLowerCase()}`, Math.round(parseFloat(value) / 1000 / 1000 / 1000 * 100) / 100, true);
 
-								} else if (isNaN(value)) {
-									await this.createStatisticObjectString(`${idPrefix}.${key.toLowerCase()}`, _(key.replace(/_/g, " ")));
-									await this.setStateAsync(`${idPrefix}.${key.toLowerCase()}`, value, true);
+									} else if (isNaN(value)) {
+										await this.createStatisticObjectString(`${idPrefix}.${key.toLowerCase()}`, _(key.replace(/_/g, " ")));
+										await this.setStateAsync(`${idPrefix}.${key.toLowerCase()}`, value, true);
 
+									} else {
+										await this.createStatisticObjectNumber(`${idPrefix}.${key.toLowerCase()}`, _(key.replace(/_/g, " ")), '');
+										await this.setStateAsync(`${idPrefix}.${key.toLowerCase()}`, parseFloat(value), true);
+									}
 								} else {
-									await this.createStatisticObjectNumber(`${idPrefix}.${key.toLowerCase()}`, _(key.replace(/_/g, " ")), '');
-									await this.setStateAsync(`${idPrefix}.${key.toLowerCase()}`, parseFloat(value), true);
-								}
-							} else {
-								if (await this.getObjectAsync(`${this.namespace}.${idPrefix}.${key.toLowerCase()}`)) {
-									await this.delObjectAsync(`${this.namespace}.${idPrefix}.${key.toLowerCase()}`);
+									if (await this.getObjectAsync(`${this.namespace}.${idPrefix}.${key.toLowerCase()}`)) {
+										await this.delObjectAsync(`${this.namespace}.${idPrefix}.${key.toLowerCase()}`);
+									}
 								}
 							}
 						}
 					}
+					this.log.info(`Successful updating clientstatistics!`);
+				} else {
+					this.log.error(`[${instanceObj.native.dbtype}] client statistics is ${JSON.stringify(clientInfos)}. Please report this issue to the developer!`);
 				}
-				this.log.info(`Successful updating clientstatistics!`);
-			} else {
-				this.log.error(`[${instanceObj.native.dbtype}] client statistics is ${JSON.stringify(clientInfos)}. Please report this issue to the developer!`);
+			} catch (err) {
+				this.log.error(`[createClientStatistic] error: ${err.message}, stack: ${err.stack}`);
 			}
-		} catch (err) {
-			this.log.error(`[createClientStatistic] error: ${err.message}, stack: ${err.stack}`);
+		} else {
+			let exisitingObj = await this.getForeignObjectsAsync(`${this.namespace}.clients.*`);
+			for (const key of Object.keys(exisitingObj)) {
+				await this.delObjectAsync(key);
+			}
 		}
 	}
 
@@ -793,7 +800,7 @@ class Sqlstatistics extends utils.Adapter {
 		if (id === `${this.namespace}.update`) {
 			if (!updateIsRunning) {
 				await this.updateStatistic();
-				await this.updateDatabaseStatistic();				
+				await this.updateDatabaseStatistic();
 			} else {
 				this.log.warn(`update is currently running, please wait until its finished!`);
 			}
