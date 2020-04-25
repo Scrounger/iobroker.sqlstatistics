@@ -403,7 +403,7 @@ class Sqlstatistics extends utils.Adapter {
 						let idPrefix = `clients.${i}`
 
 						for (const [key, value] of Object.entries(clientInfos[i])) {
-							if (this.config.clients.includes(key) && this.config.clientStatistics) {
+							if (this.config.clients.includes(key) && this.config.enableclients) {
 								if (key.includes('memory')) {
 									await this.createStatisticObjectNumber(`${idPrefix}.${key.toLowerCase()}`, _(key.replace(/_/g, " ")), 'MB');
 									await this.setStateAsync(`${idPrefix}.${key.toLowerCase()}`, Math.round(parseFloat(value) / 1024 / 1024 * 100) / 100, true);
@@ -455,9 +455,9 @@ class Sqlstatistics extends utils.Adapter {
 
 					if (info && info.name && info.value) {
 						if (isSession) {
-							setInfoStates(this, info, this.config.sessionStatus, this.config.sessionStatistics, isSession);
+							setInfoStates(this, info, this.config.sessionStatus, this.config.enablesessionStatus, isSession);
 						} else {
-							setInfoStates(this, info, this.config.globalStatus, this.config.systemStatistics, isSession);
+							setInfoStates(this, info, this.config.globalStatus, this.config.enableglobalStatus, isSession);
 						}
 					}
 

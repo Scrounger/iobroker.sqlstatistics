@@ -69,12 +69,28 @@ function load(settings, onChange) {
         generateCheckboxList(options, settings, onChange)
     }
 
+    eventsHandler();
+
     showHideSettings();
 
     onChange(false);
 
     // reinitialize all the Materialize labels on the page if you are dynamically adding inputs:
     if (M) M.updateTextFields();
+}
+
+function eventsHandler() {
+    $("[id*=enable]").each(function () {
+        let key = $(this).attr('id').replace('enable', '');
+
+        $(this).on('change', function () {
+            if ($(this).prop('checked') === true) {
+                $(`#container_${key}`).show();
+            } else {
+                $(`#container_${key}`).hide();
+            }
+        });
+    });
 }
 
 /**
@@ -209,6 +225,16 @@ function showHideSettings() {
     } else {
         $('.myVisibleHandler').hide();
     }
+
+    $("[id*=enable]").each(function () {
+        let key = $(this).attr('id').replace('enable', '');
+
+        if ($(this).prop('checked') === true && $('#sqlInstance').val()) {
+            $(`#container_${key}`).show();
+        } else {
+            $(`#container_${key}`).hide();
+        }
+    });
 }
 
 function generateSqlInstancesDropDown(settings) {
