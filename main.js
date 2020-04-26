@@ -27,6 +27,13 @@ const dbNames = [
 	'ts_bool'
 ];
 
+
+let availableData = null;
+
+let blacklist = {
+
+}
+
 class Sqlstatistics extends utils.Adapter {
 
 	/**
@@ -88,7 +95,7 @@ class Sqlstatistics extends utils.Adapter {
 
 			this.resetSessionStatistics();
 
-			await this.updateAvailableInfos();
+			await this.getAvailableData();
 
 			await this.updateStatistic();
 			await this.updateDatabaseStatistic();
@@ -100,7 +107,7 @@ class Sqlstatistics extends utils.Adapter {
 		if (this.config.resetSessionStatistics) {
 			new schedule('0 0 * * *', async () => {
 				try {
-					if (connected) {						
+					if (connected) {
 						let instanceObj = await this.getForeignObjectAsync(`system.adapter.${this.config.sqlInstance}`)
 
 						if (instanceObj && instanceObj.native) {
@@ -127,98 +134,83 @@ class Sqlstatistics extends utils.Adapter {
 		}
 	}
 
-	async updateAvailableInfos() {
+	async getAvailableData() {
 		try {
-			updateIsRunning = true;
-
 			if (connected) {
+				availableData = {};
+
 				let instanceObj = await this.getForeignObjectAsync(`system.adapter.${this.config.sqlInstance}`)
 
 				if (instanceObj && instanceObj.native) {
-					if (instanceObj.native.dbtype !== 'sqlite') {
-						this.log.info(`updating avaiable datapoint infos for database provider '${instanceObj.native.dbtype}'...`);
-						let avaiableInfos = [];
-						let availableDatabases = [];
-						let availableClientInfos = [];
+					SQLFuncs = await require(__dirname + '/lib/' + instanceObj.native.dbtype);
 
-						SQLFuncs = await require(__dirname + '/lib/' + instanceObj.native.dbtype);
+					this.getAvailableDataFromObject(await this.getQueryResult(SQLFuncs.getDatabases()), 'databases', instanceObj.native.dbtype);
+
+					if (this.config.enableglobalStatus || this.config.enablesessionStatus) {
 						let infoList = await this.getQueryResult(SQLFuncs.getSystemOrSessionInfos());
 
-						if (infoList && Object.keys(infoList).length > 0) {
-							for (const info of infoList) {
-								try {
-									this.log.debug(`[${instanceObj.native.dbtype}] adding '${info.name}' to available system / session datapoint infos`);
-
-									avaiableInfos.push(info.name);
-
-								} catch (infoErr) {
-									this.log.error(`[updateAvailableInfos] info: '${info.name}', error: ${infoErr.message}, stack: ${infoErr.stack}`);
-								}
-							}
-						} else {
-							this.log.error(`[${instanceObj.native.dbtype}] list of available system / session infos is ${JSON.stringify(infoList)}. Please report this issue to the developer!`);
+						if (this.config.enableglobalStatus) {
+							this.getAvailableDataFromObject(infoList, 'globalStatus', instanceObj.native.dbtype);
 						}
 
-						let databaseList = await this.getQueryResult(SQLFuncs.getDatabases());
-
-						if (databaseList && Object.keys(databaseList).length > 0) {
-							for (const database of databaseList) {
-								try {
-									this.log.debug(`[${instanceObj.native.dbtype}] adding '${database.name}' to available databases datapoints`);
-
-									availableDatabases.push(database.name);
-
-								} catch (dbErr) {
-									this.log.error(`[updateAvailableInfos] database: '${database.name}' error: ${dbErr.message}, stack: ${dbErr.stack}`);
-								}
-							}
-						} else {
-							this.log.error(`[${instanceObj.native.dbtype}] list of databases is ${JSON.stringify(databaseList)}. Please report this issue to the developer!`);
+						if (this.config.enablesessionStatus) {
+							this.getAvailableDataFromObject(infoList, 'sessionStatus', instanceObj.native.dbtype);
 						}
-
-						let clientList = await this.getQueryResult(SQLFuncs.getClientStatistics(1));
-
-						if (clientList && Object.keys(clientList).length > 0) {
-							for (const client of clientList) {
-								try {
-									this.log.debug(`[${instanceObj.native.dbtype}] adding to available client datapoint infos`);
-
-									for (const [key, value] of Object.entries(client)) {
-										availableClientInfos.push(key);
-									}
-								} catch (dbErr) {
-									this.log.error(`[updateAvailableInfos] client: error: ${dbErr.message}, stack: ${dbErr.stack}`);
-								}
-							}
-						} else {
-							this.log.error(`[${instanceObj.native.dbtype}] list of client is ${JSON.stringify(clientList)}. Please report this issue to the developer!`);
-						}
-
-						let updateObj = await this.getObjectAsync('info');
-						if (updateObj) {
-							updateObj.native.globalStatus = avaiableInfos;
-							updateObj.native.sessionStatus = avaiableInfos;
-							updateObj.native.databases = availableDatabases;
-							updateObj.native.clients = availableClientInfos;
-
-							await this.setObjectAsync('info', updateObj);
-							this.log.info(`Successful updating avaiable datapoint infos! `);
-						} else {
-							this.log.error(`datapoint '${this.namespace}.info' not exist!`);
-						}
-					} else {
-						this.log.warn(`Database type 'SQLite3' is not supported!`);
 					}
+
+					if (this.config.enableclients) {
+						this.getAvailableDataFromObject(await this.getQueryResult(SQLFuncs.getClientStatistics(1)), 'clients', instanceObj.native.dbtype);
+					}
+
+
+					let updateObj = await this.getObjectAsync('info');
+					if (updateObj) {
+						updateObj.native = availableData;
+
+						await this.setObjectAsync('info', updateObj);
+						this.log.info(`Successful updating avaiable objects lists!`);
+					} else {
+						this.log.error(`datapoint '${this.namespace}.info' not exist!`);
+					}
+
 				} else {
 					this.log.error(`Instance object 'system.adapter.${this.config.sqlInstance}' not exist!`);
 				}
 			} else {
 				this.log.warn(`Instance '${this.config.sqlInstance}' has no connection to database!`);
 			}
-
-			updateIsRunning = false;
 		} catch (err) {
-			this.log.error(`[updateAvailableInfos] error: ${err.message}, stack: ${err.stack}`);
+			this.log.error(`[getAvailableData] error: ${err.message}, stack: ${err.stack}`);
+		}
+	}
+
+	/**
+	 * @param {Array<object>} list
+	 * @param {string | number} name
+	 * @param {string} dbType
+	 */
+	getAvailableDataFromObject(list, name, dbType) {
+		this.log.info(`[${dbType}] Updating available objects for '${name}' ...`);
+
+		if (list && Object.keys(list).length > 0) {
+			if (!availableData[name]) {
+				availableData[name] = [];
+			}
+
+			for (const item of list) {
+				if ((blacklist[name] && !blacklist[name].includes(item.name)) || !blacklist[name]) {
+
+					if (name === 'clients') {
+						for (const [key, subValue] of Object.entries(item)) {
+							availableData[name].push(key);
+						}
+					} else {
+						availableData[name].push(item.name);
+					}
+				}
+			}
+		} else {
+			this.log.error(`[${dbType}] list of ${name} is '${JSON.stringify(list)}'. Please report this issue to the developer!`);
 		}
 	}
 
@@ -315,7 +307,7 @@ class Sqlstatistics extends utils.Adapter {
 
 							// store total sql statistics
 							await this.createStatisticObjectNumber(`databases.size`, _("total size of all databases"), 'MB');
-							this.setState(`databases.size`, totalSize, true);
+							this.setState(`databases.size`, Math.round(totalSize), true);
 
 							await this.createStatisticObjectNumber(`databases.rows`, _("count of rows of all databases"), '');
 							this.setState(`databases.rows`, totalRows, true);
@@ -323,8 +315,7 @@ class Sqlstatistics extends utils.Adapter {
 							await this.createStatisticObjectNumber(`databases.tables`, _("count of tables of all databases"), '');
 							this.setState(`databases.tables`, totalTables, true);
 
-
-
+							
 							let updateEnd = new Date().getTime();
 							let duration = Math.round(((updateEnd - updateStart) / 1000) * 100) / 100;
 
@@ -791,7 +782,7 @@ class Sqlstatistics extends utils.Adapter {
 				connected === Boolean(state.val);
 
 				if (state.val) {
-					await this.updateAvailableInfos();
+					await this.getAvailableData();
 				}
 			} else {
 				// The state was deleted
