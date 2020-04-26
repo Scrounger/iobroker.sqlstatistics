@@ -100,8 +100,7 @@ class Sqlstatistics extends utils.Adapter {
 		if (this.config.resetSessionStatistics) {
 			new schedule('0 0 * * *', async () => {
 				try {
-					if (connected) {
-						this.log.info(`connected with '${this.config.sqlInstance}' instance.`);
+					if (connected) {						
 						let instanceObj = await this.getForeignObjectAsync(`system.adapter.${this.config.sqlInstance}`)
 
 						if (instanceObj && instanceObj.native) {
@@ -133,7 +132,6 @@ class Sqlstatistics extends utils.Adapter {
 			updateIsRunning = true;
 
 			if (connected) {
-				this.log.info(`connected with '${this.config.sqlInstance}' instance.`);
 				let instanceObj = await this.getForeignObjectAsync(`system.adapter.${this.config.sqlInstance}`)
 
 				if (instanceObj && instanceObj.native) {
@@ -229,7 +227,6 @@ class Sqlstatistics extends utils.Adapter {
 			updateIsRunning = true;
 
 			if (connected) {
-				this.log.info(`connected with '${this.config.sqlInstance}' instance.`);
 				let instanceObj = await this.getForeignObjectAsync(`system.adapter.${this.config.sqlInstance}`)
 
 				if (instanceObj && instanceObj.native) {
@@ -361,13 +358,12 @@ class Sqlstatistics extends utils.Adapter {
 			updateIsRunning = true;
 
 			if (connected) {
-				this.log.info(`connected with '${this.config.sqlInstance}' instance.`);
 				let instanceObj = await this.getForeignObjectAsync(`system.adapter.${this.config.sqlInstance}`)
 
 				if (instanceObj && instanceObj.native) {
 					if (instanceObj.native.dbtype !== 'sqlite') {
-						await this.createSystemOrSessionStatistic(instanceObj);
-						await this.createSystemOrSessionStatistic(instanceObj, true);
+						await this.createSystemOrSessionStatistic(instanceObj, this.config.enableglobalStatus);
+						await this.createSystemOrSessionStatistic(instanceObj, this.config.enablesessionStatus, true);
 						await this.createClientStatistic(instanceObj);
 					} else {
 						this.log.warn(`Database type 'SQLite3' is not supported!`);
@@ -389,8 +385,8 @@ class Sqlstatistics extends utils.Adapter {
 	 * @param {ioBroker.Object} instanceObj id des native points
 	 */
 	async createClientStatistic(instanceObj) {
-		if (this.config.enableclients) {
-			try {
+		try {
+			if (this.config.enableclients) {
 				this.log.info(`updating client statistics for database provider '${instanceObj.native.dbtype}'...`);
 
 				SQLFuncs = await require(__dirname + '/lib/' + instanceObj.native.dbtype);
@@ -433,14 +429,14 @@ class Sqlstatistics extends utils.Adapter {
 				} else {
 					this.log.error(`[${instanceObj.native.dbtype}] client statistics is ${JSON.stringify(clientInfos)}. Please report this issue to the developer!`);
 				}
-			} catch (err) {
-				this.log.error(`[createClientStatistic] error: ${err.message}, stack: ${err.stack}`);
+			} else {
+				let exisitingObj = await this.getForeignObjectsAsync(`${this.namespace}.clients.*`);
+				for (const key of Object.keys(exisitingObj)) {
+					await this.delObjectAsync(key);
+				}
 			}
-		} else {
-			let exisitingObj = await this.getForeignObjectsAsync(`${this.namespace}.clients.*`);
-			for (const key of Object.keys(exisitingObj)) {
-				await this.delObjectAsync(key);
-			}
+		} catch (err) {
+			this.log.error(`[createClientStatistic] error: ${err.message}, stack: ${err.stack}`);
 		}
 	}
 
@@ -448,61 +444,68 @@ class Sqlstatistics extends utils.Adapter {
 	 * @param {ioBroker.Object} instanceObj
 	 * @param {Boolean} isSession
 	 */
-	async createSystemOrSessionStatistic(instanceObj, isSession = false) {
+	async createSystemOrSessionStatistic(instanceObj, enabled, isSession = false) {
 		try {
-			this.log.info(`updating ${isSession ? 'session' : 'system'} statistics for database provider '${instanceObj.native.dbtype}'...`);
+			if (enabled) {
+				this.log.info(`updating ${isSession ? 'session' : 'system'} statistics for database provider '${instanceObj.native.dbtype}'...`);
 
-			SQLFuncs = await require(__dirname + '/lib/' + instanceObj.native.dbtype);
+				SQLFuncs = await require(__dirname + '/lib/' + instanceObj.native.dbtype);
 
-			let avaiableInfos = await this.getQueryResult(SQLFuncs.getSystemOrSessionInfos(isSession));
-			if (avaiableInfos && Object.keys(avaiableInfos).length > 0) {
-				this.log.debug(`[${instanceObj.native.dbtype}] ${isSession ? 'session' : 'system'} statistics received, ${Object.keys(avaiableInfos).length} values exists`);
+				let avaiableInfos = await this.getQueryResult(SQLFuncs.getSystemOrSessionInfos(isSession));
+				if (avaiableInfos && Object.keys(avaiableInfos).length > 0) {
+					this.log.debug(`[${instanceObj.native.dbtype}] ${isSession ? 'session' : 'system'} statistics received, ${Object.keys(avaiableInfos).length} values exists`);
 
-				for (const info of avaiableInfos) {
+					for (const info of avaiableInfos) {
 
-					if (info && info.name && info.value) {
-						if (isSession) {
-							setInfoStates(this, info, this.config.sessionStatus, this.config.enablesessionStatus, isSession);
-						} else {
-							setInfoStates(this, info, this.config.globalStatus, this.config.enableglobalStatus, isSession);
-						}
-					}
-
-					/**
-					 * @param {object} adapter
-					 * @param {object} info
-					 * @param {string[]} selectedInfosList
-					 * @param {boolean} enabled
-					 * @param {boolean} isSession
-					 */
-					async function setInfoStates(adapter, info, selectedInfosList, enabled, isSession) {
-						if (selectedInfosList.includes(info.name) && enabled) {
-							// this.log.info(parseFloat(info.value).toString());
-
-							if (isNaN(info.value)) {
-								await adapter.createStatisticObjectString(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, _(info.name.replace(/_/g, " ")));
-								await adapter.setStateAsync(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, info.value, true);
+						if (info && info.name && info.value) {
+							if (isSession) {
+								setInfoStates(this, info, this.config.sessionStatus, this.config.enablesessionStatus, isSession);
 							} else {
+								setInfoStates(this, info, this.config.globalStatus, this.config.enableglobalStatus, isSession);
+							}
+						}
 
-								if (info.name.toLowerCase().includes('bytes')) {
-									await adapter.createStatisticObjectNumber(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, _(info.name.replace(/_/g, " ")), 'MB');
-									await adapter.setStateAsync(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, Math.round(parseFloat(info.value) / 1024 / 1024 * 100) / 100, true);
+						/**
+						 * @param {object} adapter
+						 * @param {object} info
+						 * @param {string[]} selectedInfosList
+						 * @param {boolean} enabled
+						 * @param {boolean} isSession
+						 */
+						async function setInfoStates(adapter, info, selectedInfosList, enabled, isSession) {
+							if (selectedInfosList.includes(info.name)) {
+								// this.log.info(parseFloat(info.value).toString());
+
+								if (isNaN(info.value)) {
+									await adapter.createStatisticObjectString(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, _(info.name.replace(/_/g, " ")));
+									await adapter.setStateAsync(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, info.value, true);
 								} else {
-									await adapter.createStatisticObjectNumber(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, _(info.name.replace(/_/g, " ")), '');
-									await adapter.setStateAsync(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, parseFloat(info.value), true);
+
+									if (info.name.toLowerCase().includes('bytes')) {
+										await adapter.createStatisticObjectNumber(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, _(info.name.replace(/_/g, " ")), 'MB');
+										await adapter.setStateAsync(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, Math.round(parseFloat(info.value) / 1024 / 1024 * 100) / 100, true);
+									} else {
+										await adapter.createStatisticObjectNumber(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, _(info.name.replace(/_/g, " ")), '');
+										await adapter.setStateAsync(`${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`, parseFloat(info.value), true);
+									}
+								}
+							} else {
+								if (await adapter.getObjectAsync(`${adapter.namespace}.${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`)) {
+									await adapter.delObjectAsync(`${adapter.namespace}.${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`);
 								}
 							}
-						} else {
-							if (await adapter.getObjectAsync(`${adapter.namespace}.${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`)) {
-								await adapter.delObjectAsync(`${adapter.namespace}.${isSession ? 'session' : 'system'}.${info.name.toLowerCase()}`);
-							}
 						}
 					}
-				}
 
-				this.log.info(`Successful updating ${isSession ? 'session' : 'system'} statistics!`);
+					this.log.info(`Successful updating ${isSession ? 'session' : 'system'} statistics!`);
+				} else {
+					this.log.error(`[${instanceObj.native.dbtype}] ${isSession ? 'session' : 'system'} statistics is ${JSON.stringify(avaiableInfos)}. Please report this issue to the developer!`);
+				}
 			} else {
-				this.log.error(`[${instanceObj.native.dbtype}] ${isSession ? 'session' : 'system'} statistics is ${JSON.stringify(avaiableInfos)}. Please report this issue to the developer!`);
+				let exisitingObj = await this.getForeignObjectsAsync(`${this.namespace}.${isSession ? 'session' : 'system'}.*`);
+				for (const key of Object.keys(exisitingObj)) {
+					await this.delObjectAsync(key);
+				}
 			}
 		} catch (err) {
 			this.log.error(`[createSystemOrSessionStatistic] error: ${err.message}, stack: ${err.stack}`);
