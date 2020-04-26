@@ -144,22 +144,22 @@ class Sqlstatistics extends utils.Adapter {
 				if (instanceObj && instanceObj.native) {
 					SQLFuncs = await require(__dirname + '/lib/' + instanceObj.native.dbtype);
 
-					this.getAvailableDataFromObject(await this.getQueryResult(SQLFuncs.getDatabases()), 'databases', instanceObj.native.dbtype);
+					this.getAvailableDataFromObject(await this.getQueryResult(SQLFuncs.getDatabases()), 'databases');
 
 					if (this.config.enableglobalStatus || this.config.enablesessionStatus) {
 						let infoList = await this.getQueryResult(SQLFuncs.getSystemOrSessionInfos());
 
 						if (this.config.enableglobalStatus) {
-							this.getAvailableDataFromObject(infoList, 'globalStatus', instanceObj.native.dbtype);
+							this.getAvailableDataFromObject(infoList, 'globalStatus');
 						}
 
 						if (this.config.enablesessionStatus) {
-							this.getAvailableDataFromObject(infoList, 'sessionStatus', instanceObj.native.dbtype);
+							this.getAvailableDataFromObject(infoList, 'sessionStatus');
 						}
 					}
 
 					if (this.config.enableclients) {
-						this.getAvailableDataFromObject(await this.getQueryResult(SQLFuncs.getClientStatistics(1)), 'clients', instanceObj.native.dbtype);
+						this.getAvailableDataFromObject(await this.getQueryResult(SQLFuncs.getClientStatistics(1)), 'clients');
 					}
 
 
@@ -168,16 +168,16 @@ class Sqlstatistics extends utils.Adapter {
 						updateObj.native = availableData;
 
 						await this.setObjectAsync('info', updateObj);
-						this.log.info(`Successful updating avaiable objects lists!`);
+						this.log.info(`Successful updating avaiable objects lists for database provider '${instanceObj.native.dbtype}'`);
 					} else {
 						this.log.error(`datapoint '${this.namespace}.info' not exist!`);
 					}
 
 				} else {
-					this.log.error(`Instance object 'system.adapter.${this.config.sqlInstance}' not exist!`);
+					this.log.error(`[getAvailableData] Instance object 'system.adapter.${this.config.sqlInstance}' not exist!`);
 				}
 			} else {
-				this.log.warn(`Instance '${this.config.sqlInstance}' has no connection to database!`);
+				this.log.warn(`[getAvailableData] Instance '${this.config.sqlInstance}' has no connection to database!`);
 			}
 		} catch (err) {
 			this.log.error(`[getAvailableData] error: ${err.message}, stack: ${err.stack}`);
@@ -187,10 +187,9 @@ class Sqlstatistics extends utils.Adapter {
 	/**
 	 * @param {Array<object>} list
 	 * @param {string | number} name
-	 * @param {string} dbType
 	 */
-	getAvailableDataFromObject(list, name, dbType) {
-		this.log.info(`[${dbType}] Updating available objects for '${name}' ...`);
+	getAvailableDataFromObject(list, name) {
+		this.log.info(`updating available objects for '${name}'...`);
 
 		if (list && Object.keys(list).length > 0) {
 			if (!availableData[name]) {
@@ -210,7 +209,7 @@ class Sqlstatistics extends utils.Adapter {
 				}
 			}
 		} else {
-			this.log.error(`[${dbType}] list of ${name} is '${JSON.stringify(list)}'. Please report this issue to the developer!`);
+			this.log.error(`[getAvailableDataFromObject] list of ${name} is '${JSON.stringify(list)}'. Please report this issue to the developer!`);
 		}
 	}
 
@@ -290,7 +289,7 @@ class Sqlstatistics extends utils.Adapter {
 											}
 										}
 									} else {
-										this.log.error(`[${instanceObj.native.dbtype}] tables list of database '${database.name}' is ${JSON.stringify(databaseTableList)}. Please report this issue to the developer!`);
+										this.log.error(`[updateDatabaseStatistic] tables list of database '${database.name}' is ${JSON.stringify(databaseTableList)}. Please report this issue to the developer!`);
 									}
 
 									this.setMyState(`${idDatabasePrefix}.rows`, databaseRows, true, instanceObj, { dbname: database.name, name: "rows in database", unit: '' });
@@ -315,7 +314,7 @@ class Sqlstatistics extends utils.Adapter {
 							await this.createStatisticObjectNumber(`databases.tables`, _("count of tables of all databases"), '');
 							this.setState(`databases.tables`, totalTables, true);
 
-							
+
 							let updateEnd = new Date().getTime();
 							let duration = Math.round(((updateEnd - updateStart) / 1000) * 100) / 100;
 
@@ -326,13 +325,13 @@ class Sqlstatistics extends utils.Adapter {
 
 							this.log.info(`Successful updating databases statistics in ${duration}s! `);
 						} else {
-							this.log.error(`[${instanceObj.native.dbtype}] list of databases is ${JSON.stringify(databaseList)}. Please report this issue to the developer!`);
+							this.log.error(`[updateDatabaseStatistic] list of databases is ${JSON.stringify(databaseList)}. Please report this issue to the developer!`);
 						}
 					} else {
 						this.log.warn(`Database type 'SQLite3' is not supported!`);
 					}
 				} else {
-					this.log.error(`Instance object 'system.adapter.${this.config.sqlInstance}' not exist!`);
+					this.log.error(`[updateDatabaseStatistic] Instance object 'system.adapter.${this.config.sqlInstance}' not exist!`);
 				}
 			} else {
 				this.log.warn(`Instance '${this.config.sqlInstance}' has no connection to database!`);
@@ -360,7 +359,7 @@ class Sqlstatistics extends utils.Adapter {
 						this.log.warn(`Database type 'SQLite3' is not supported!`);
 					}
 				} else {
-					this.log.error(`Instance object 'system.adapter.${this.config.sqlInstance}' not exist!`);
+					this.log.error(`[updateStatistic] Instance object 'system.adapter.${this.config.sqlInstance}' not exist!`);
 				}
 			} else {
 				this.log.warn(`Instance '${this.config.sqlInstance}' has no connection to database!`);
@@ -418,7 +417,7 @@ class Sqlstatistics extends utils.Adapter {
 					}
 					this.log.info(`Successful updating clientstatistics!`);
 				} else {
-					this.log.error(`[${instanceObj.native.dbtype}] client statistics is ${JSON.stringify(clientInfos)}. Please report this issue to the developer!`);
+					this.log.error(`[createClientStatistic] client statistics is ${JSON.stringify(clientInfos)}. Please report this issue to the developer!`);
 				}
 			} else {
 				let exisitingObj = await this.getForeignObjectsAsync(`${this.namespace}.clients.*`);
@@ -490,7 +489,7 @@ class Sqlstatistics extends utils.Adapter {
 
 					this.log.info(`Successful updating ${isSession ? 'session' : 'system'} statistics!`);
 				} else {
-					this.log.error(`[${instanceObj.native.dbtype}] ${isSession ? 'session' : 'system'} statistics is ${JSON.stringify(avaiableInfos)}. Please report this issue to the developer!`);
+					this.log.error(`[createSystemOrSessionStatistic] ${isSession ? 'session' : 'system'} statistics is ${JSON.stringify(avaiableInfos)}. Please report this issue to the developer!`);
 				}
 			} else {
 				let exisitingObj = await this.getForeignObjectsAsync(`${this.namespace}.${isSession ? 'session' : 'system'}.*`);
